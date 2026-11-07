@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NASA_PDS_DATASETS, PdsDatasetSpec } from '../../data/nasaDataSources';
 import { Database, Terminal, CheckCircle2, Search, ExternalLink, Code2, Globe2 } from 'lucide-react';
 import { sound } from '../../utils/audio';
+import { SpectralAnalyzer } from './SpectralAnalyzer';
 
 export const DataTelemetrySandbox: React.FC = () => {
   const [selectedDataset, setSelectedDataset] = useState<PdsDatasetSpec>(NASA_PDS_DATASETS[0]);
@@ -229,6 +230,9 @@ export const DataTelemetrySandbox: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Diagnostic Reflectance Spectroscopy Fingerprint Comparator */}
+        <SpectralAnalyzer />
       </div>
     </section>
   );

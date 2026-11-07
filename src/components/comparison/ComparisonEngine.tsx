@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { Layers, AlertTriangle, CheckCircle2, Info, ArrowRightLeft, ShieldAlert } from 'lucide-react';
 import { sound } from '../../utils/audio';
+import { ElevationCrossSection } from './ElevationCrossSection';
 
 interface ComparisonEngineProps {
   initialTarget?: PlanetaryTarget | null;
@@ -384,6 +385,9 @@ export const ComparisonEngine: React.FC<ComparisonEngineProps> = ({
             })}
           </div>
         </div>
+
+        {/* Topographic Elevation & Strata Cross-Section Profile */}
+        <ElevationCrossSection target={selectedTarget} analog={selectedAnalog} />
 
         {/* Non-Replicated Planetary Boundary Factors */}
         <div className="p-5 bg-charcoal border border-white/10 space-y-3">
