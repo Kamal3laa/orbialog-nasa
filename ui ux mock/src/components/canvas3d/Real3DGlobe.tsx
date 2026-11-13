@@ -34,15 +34,15 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
     camera.position.set(0, 4, 18);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
+    renderer.toneMappingExposure = 1.35;
     container.appendChild(renderer.domElement);
 
     // 2. Lighting
-    const sunLight = new THREE.DirectionalLight(0xfffaed, 2.8);
+    const sunLight = new THREE.DirectionalLight(0xfffaed, 3.0);
     sunLight.position.set(16, 12, 14);
     scene.add(sunLight);
 
@@ -53,93 +53,67 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     rimLight.position.set(-14, -8, -10);
     scene.add(rimLight);
 
+    const textureLoader = new THREE.TextureLoader();
+
     // 3. Create High-Fidelity Textures (Satellite vs Thermal LST Infrared)
-    const createGlobeTexture = (isThermal: boolean): THREE.CanvasTexture => {
+    let earthTexture: THREE.Texture;
+
+    if (!thermalMode) {
+      // True NASA 2K Visible Earth Texture
+      earthTexture = textureLoader.load('/textures/earth_atmos_2048.jpg');
+      earthTexture.colorSpace = THREE.SRGBColorSpace;
+    } else {
+      // Thermal Land Surface Temperature (Ironbow / MODIS False-Color)
       const canvas = document.createElement('canvas');
       canvas.width = 2048;
       canvas.height = 1024;
       const ctx = canvas.getContext('2d')!;
 
-      if (!isThermal) {
-        // True Color Satellite Earth Base
-        ctx.fillStyle = '#081420'; // Deep Ocean
-        ctx.fillRect(0, 0, 2048, 1024);
+      // Background Cold Oceans & Polar Zones: Dark Purple / Navy (#0d0826 to #1a0f4c)
+      ctx.fillStyle = '#0f0a2e';
+      ctx.fillRect(0, 0, 2048, 1024);
 
-        // Continents
-        ctx.fillStyle = '#1e331c';
-        // Eurasia & Africa
-        ctx.beginPath();
-        ctx.ellipse(1120, 520, 240, 280, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Sahara & Middle East arid belt (Egypt)
-        ctx.fillStyle = '#a3844a';
-        ctx.beginPath();
-        ctx.ellipse(1100, 410, 190, 95, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Americas
-        ctx.fillStyle = '#1e331c';
-        ctx.beginPath();
-        ctx.ellipse(540, 390, 170, 220, 0.2, 0, Math.PI * 2);
-        ctx.ellipse(660, 710, 130, 200, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        // Australia
-        ctx.fillStyle = '#946337';
-        ctx.beginPath();
-        ctx.ellipse(1680, 740, 110, 90, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Polar ice caps
-        ctx.fillStyle = '#f0f5fa';
-        ctx.fillRect(0, 0, 2048, 60);
-        ctx.fillRect(0, 960, 2048, 64);
-      } else {
-        // Thermal Land Surface Temperature (Ironbow / MODIS False-Color)
-        // Background Cold Oceans & Polar Zones: Dark Purple / Navy (#0d0826 to #1a0f4c)
-        ctx.fillStyle = '#0f0a2e';
-        ctx.fillRect(0, 0, 2048, 1024);
+      // Moderate Temperate Landmasses: Red / Crimson (#8f1414)
+      ctx.fillStyle = '#8f1414';
+      ctx.beginPath();
+      ctx.ellipse(1120, 520, 260, 290, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-        // Moderate Temperate Landmasses: Red / Crimson (#b71c1c)
-        ctx.fillStyle = '#8f1414';
-        ctx.beginPath();
-        ctx.ellipse(1120, 520, 260, 290, 0, 0, Math.PI * 2);
-        ctx.fill();
+      // Sahara & Arabian Thermal Heat Belt (Intense Orange/Yellow Thermal Anomaly: 45°C - 52°C LST)
+      const saharaGrad = ctx.createRadialGradient(1100, 410, 30, 1100, 410, 240);
+      saharaGrad.addColorStop(0, '#ffffff'); // Extreme heat core (>50°C)
+      saharaGrad.addColorStop(0.35, '#ffde59'); // Bright yellow
+      saharaGrad.addColorStop(0.7, '#ff5722'); // Thermal orange
+      saharaGrad.addColorStop(1.0, '#b71c1c'); // Red margin
+      ctx.fillStyle = saharaGrad;
+      ctx.beginPath();
+      ctx.ellipse(1100, 410, 220, 110, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-        // Sahara & Arabian Thermal Heat Belt (Intense Orange/Yellow Thermal Anomaly: 45°C - 52°C LST)
-        const saharaGrad = ctx.createRadialGradient(1100, 410, 30, 1100, 410, 240);
-        saharaGrad.addColorStop(0, '#ffffff'); // Extreme heat core (>50°C)
-        saharaGrad.addColorStop(0.35, '#ffde59'); // Bright yellow
-        saharaGrad.addColorStop(0.7, '#ff5722'); // Thermal orange
-        saharaGrad.addColorStop(1.0, '#b71c1c'); // Red margin
-        ctx.fillStyle = saharaGrad;
-        ctx.beginPath();
-        ctx.ellipse(1100, 410, 220, 110, 0, 0, Math.PI * 2);
-        ctx.fill();
+      // Atacama Desert Thermal Anomaly
+      const atacamaGrad = ctx.createRadialGradient(640, 720, 10, 640, 720, 90);
+      atacamaGrad.addColorStop(0, '#ffde59');
+      atacamaGrad.addColorStop(0.6, '#ff5722');
+      atacamaGrad.addColorStop(1.0, '#8f1414');
+      ctx.fillStyle = atacamaGrad;
+      ctx.beginPath();
+      ctx.ellipse(640, 720, 75, 110, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-        // Atacama Desert Thermal Anomaly
-        const atacamaGrad = ctx.createRadialGradient(640, 720, 10, 640, 720, 90);
-        atacamaGrad.addColorStop(0, '#ffde59');
-        atacamaGrad.addColorStop(0.6, '#ff5722');
-        atacamaGrad.addColorStop(1.0, '#8f1414');
-        ctx.fillStyle = atacamaGrad;
-        ctx.beginPath();
-        ctx.ellipse(640, 720, 75, 110, 0, 0, Math.PI * 2);
-        ctx.fill();
+      // Australian Outback Thermal Belt
+      ctx.fillStyle = '#ff7043';
+      ctx.beginPath();
+      ctx.ellipse(1680, 740, 110, 85, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-        // Australian Outback Thermal Belt
-        ctx.fillStyle = '#ff7043';
-        ctx.beginPath();
-        ctx.ellipse(1680, 740, 110, 85, 0, 0, Math.PI * 2);
-        ctx.fill();
+      // Extreme Cold Polar Thermal Sinks (< -30°C): Pitch Navy / Black
+      ctx.fillStyle = '#060414';
+      ctx.fillRect(0, 0, 2048, 80);
+      ctx.fillRect(0, 940, 2048, 84);
 
-        // Extreme Cold Polar Thermal Sinks (< -30°C): Pitch Navy / Black
-        ctx.fillStyle = '#060414';
-        ctx.fillRect(0, 0, 2048, 80);
-        ctx.fillRect(0, 940, 2048, 84);
-      }
-
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.wrapS = THREE.RepeatWrapping;
-      return tex;
-    };
+      earthTexture = new THREE.CanvasTexture(canvas);
+      earthTexture.wrapS = THREE.RepeatWrapping;
+    }
 
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
@@ -148,20 +122,36 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     const radius = 6.0;
     const earthGeo = new THREE.SphereGeometry(radius, 64, 64);
     const earthMat = new THREE.MeshStandardMaterial({
-      map: createGlobeTexture(thermalMode),
-      roughness: 0.68,
-      metalness: 0.08,
+      map: earthTexture,
+      roughness: 0.65,
+      metalness: 0.1,
     });
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     globeGroup.add(earthMesh);
 
+    // Dynamic Cloud Layer if not in thermal mode
+    let cloudsMesh: THREE.Mesh | null = null;
+    if (!thermalMode) {
+      const cloudsTexture = textureLoader.load('/textures/earth_clouds_1024.png');
+      const cloudsGeo = new THREE.SphereGeometry(radius * 1.018, 64, 64);
+      const cloudsMat = new THREE.MeshStandardMaterial({
+        map: cloudsTexture,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending,
+      });
+      cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+      globeGroup.add(cloudsMesh);
+    }
+
     // Atmosphere Glow Shell
-    const atmosphereGeo = new THREE.SphereGeometry(radius * 1.03, 64, 64);
+    const atmosphereGeo = new THREE.SphereGeometry(radius * 1.035, 64, 64);
     const atmosphereMat = new THREE.MeshBasicMaterial({
       color: thermalMode ? 0xff5722 : 0x4895ef,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.2,
       side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
     });
     const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
     globeGroup.add(atmosphereMesh);
@@ -277,6 +267,9 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       animId = requestAnimationFrame(animate);
       if (!isDragging) {
         globeGroup.rotation.y += 0.002;
+        if (cloudsMesh) {
+          cloudsMesh.rotation.y += 0.0006;
+        }
       }
       renderer.render(scene, camera);
     };
@@ -306,6 +299,7 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       earthMat.dispose();
       atmosphereGeo.dispose();
       atmosphereMat.dispose();
+      earthTexture.dispose();
       renderer.dispose();
     };
   }, [locations, selectedLocationId, thermalMode, onSelectLocation]);
@@ -319,11 +313,11 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
         <div className="flex items-center space-x-2 text-mineral-white font-semibold">
           <span className="w-2 h-2 rounded-full bg-telemetry-emerald animate-pulse"></span>
           <span className="uppercase">
-            {thermalMode ? 'MODIS LST THERMAL INFRARED 3D GLOBE' : 'TERRESTRIAL 3D SATELLITE GLOBE'}
+            {thermalMode ? 'MODIS LST THERMAL INFRARED 3D GLOBE' : 'NASA VISIBLE EARTH 2K SATELLITE GLOBE'}
           </span>
         </div>
         <div className="text-stone-gray text-[10px]">
-          SENSOR: {thermalMode ? 'TERRA/AQUA MODIS L3 LAND SURFACE TEMP' : 'NASA BLUE MARBLE / WGS84 GRS80'}
+          DATA: {thermalMode ? 'TERRA/AQUA MODIS L3 LAND SURFACE TEMP' : 'NASA VISIBLE EARTH 2048px TRUE COLOR'}
         </div>
       </div>
 
@@ -355,4 +349,3 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     </div>
   );
 };
-
