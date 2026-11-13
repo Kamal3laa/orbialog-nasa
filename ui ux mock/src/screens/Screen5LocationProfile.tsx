@@ -5,6 +5,7 @@ import {
   PlanetaryTarget
 } from '../types';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
+import { generateAnalogAgencyUrls } from '../data/spaceAgencyResources';
 import {
   FileText,
   MapPin,
@@ -29,6 +30,7 @@ interface Screen5LocationProfileProps {
   analogLocations: AnalogLocation[];
   onSelectAnalog: (loc: AnalogLocation) => void;
   onNavigate: (screen: ActiveScreen) => void;
+  onOpenDataModal?: () => void;
 }
 
 export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
@@ -37,6 +39,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
   analogLocations,
   onSelectAnalog,
   onNavigate,
+  onOpenDataModal,
 }) => {
   const [downloading, setDownloading] = useState<boolean>(false);
   const [show3DMesh, setShow3DMesh] = useState<boolean>(true);
@@ -303,21 +306,109 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             </div>
           </div>
 
-          {/* Dataset Citations Card */}
+          {/* Dataset Citations Card & Space Agency Portals */}
           <div className="glass-panel p-6 rounded-3xl space-y-4 font-inter text-xs">
-            <h3 className="font-grotesk font-bold text-sm text-starlight-white uppercase tracking-wider border-b border-white/[0.08] pb-3">
-              Orbital & Field Datasets
-            </h3>
-            <div className="space-y-3">
-              {selectedAnalog.dataSources.map((ds, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-0.5">
-                  <div className="text-starlight-white font-medium text-xs">{ds.title}</div>
-                  <div className="text-starlight-subtle text-[11px] flex items-center justify-between">
-                    <span>{ds.agency}</span>
-                    <span className="font-mono text-earth">{ds.type}</span>
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <h3 className="font-grotesk font-bold text-sm text-starlight-white uppercase tracking-wider flex items-center space-x-2">
+                <Database className="w-4 h-4 text-earth" />
+                <span>Space Agency Data &amp; APIs</span>
+              </h3>
+              {onOpenDataModal && (
+                <button
+                  onClick={onOpenDataModal}
+                  className="text-earth hover:text-starlight-bright text-xs font-medium flex items-center space-x-1"
+                >
+                  <span>API Hub ↗</span>
+                </button>
+              )}
+            </div>
+
+            {/* Direct Agency Live Observation Query Links */}
+            {(() => {
+              const urls = generateAnalogAgencyUrls(selectedAnalog.coordinates.lat, selectedAnalog.coordinates.lng, selectedAnalog.name);
+              return (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono text-starlight-subtle uppercase">
+                    DIRECT REPOSITORY QUERY BY COORDINATES:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <a
+                      href={urls.nasaEarthdata}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium text-xs group-hover:text-earth transition-colors">NASA Earthdata Search</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                    <a
+                      href={urls.nasaWorldview}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium text-xs group-hover:text-earth transition-colors">NASA Worldview</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                    <a
+                      href={urls.esaCopernicus}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium text-xs group-hover:text-earth transition-colors">Copernicus Data Space</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                    <a
+                      href={urls.csaRadarsat}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium text-xs group-hover:text-earth transition-colors">CSA RADARSAT Archive</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                  </div>
+
+                  {/* CSA SAR Python Tutorial Callout */}
+                  <div className="pt-2">
+                    <a
+                      href="https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.10] flex items-center justify-between group"
+                    >
+                      <div className="space-y-0.5">
+                        <div className="text-xs font-bold text-starlight-white group-hover:text-earth transition-colors flex items-center space-x-1.5">
+                          <span>🇨🇦 CSA Synthetic Aperture Radar (SAR) Tutorial</span>
+                        </div>
+                        <p className="text-[10px] text-starlight-subtle">
+                          Python &amp; QGIS pipeline for surface roughness &amp; backscatter modeling
+                        </p>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                    </a>
                   </div>
                 </div>
-              ))}
+              );
+            })()}
+
+            {/* Standard Dataset Citations */}
+            <div className="pt-2 border-t border-white/[0.06] space-y-2">
+              <span className="text-[10px] font-mono text-starlight-subtle uppercase">
+                CALIBRATED SCIENTIFIC DATASETS:
+              </span>
+              <div className="space-y-2">
+                {selectedAnalog.dataSources.map((ds, idx) => (
+                  <div key={idx} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-0.5">
+                    <div className="text-starlight-white font-medium text-xs">{ds.title}</div>
+                    <div className="text-starlight-subtle text-[11px] flex items-center justify-between">
+                      <span>{ds.agency}</span>
+                      <span className="font-mono text-earth">{ds.type}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

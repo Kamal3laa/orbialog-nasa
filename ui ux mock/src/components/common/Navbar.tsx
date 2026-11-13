@@ -6,7 +6,8 @@ import {
   GitCompare, 
   FileText, 
   ArrowRight,
-  Radio
+  Radio,
+  Database
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -14,11 +15,13 @@ interface NavbarProps {
   onNavigate: (screen: ActiveScreen) => void;
   selectedTarget: PlanetaryTarget;
   selectedAnalog: AnalogLocation;
+  onOpenDataModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentScreen,
   onNavigate,
+  onOpenDataModal,
 }) => {
   const handleNavClick = (screen: ActiveScreen) => {
     onNavigate(screen);
@@ -87,6 +90,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Primary Action Button */}
         <div className="flex items-center space-x-3">
+          {onOpenDataModal && (
+            <button
+              onClick={onOpenDataModal}
+              className="hidden sm:flex items-center space-x-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.12] hover:border-earth/50 text-starlight-white font-inter text-xs tracking-normal transition-all duration-200"
+            >
+              <Database className="w-3.5 h-3.5 text-earth" />
+              <span className="font-medium">Data &amp; APIs</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-earth/20 text-earth font-semibold">
+                NASA/ESA
+              </span>
+            </button>
+          )}
+
           <button
             onClick={() => handleNavClick('discovery')}
             className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-grotesk font-semibold text-xs uppercase tracking-wider hover:shadow-mars-glow hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"

@@ -16,7 +16,8 @@ import {
   Sparkles,
   ShieldAlert,
   Flame,
-  Globe
+  Globe,
+  ExternalLink
 } from 'lucide-react';
 
 interface Screen2TargetSelectionProps {
@@ -24,6 +25,7 @@ interface Screen2TargetSelectionProps {
   selectedTarget: PlanetaryTarget;
   onSelectTarget: (target: PlanetaryTarget) => void;
   onNavigate: (screen: ActiveScreen) => void;
+  onOpenDataModal?: () => void;
 }
 
 export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
@@ -31,6 +33,7 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
   selectedTarget,
   onSelectTarget,
   onNavigate,
+  onOpenDataModal,
 }) => {
   const [activePlanetTab, setActivePlanetTab] = useState<PlanetId>(selectedTarget.planet);
   const [activeImageMode, setActiveImageMode] = useState<'overview' | 'elevationMap' | 'spectralOverlay' | '3d-mesh'>('overview');
@@ -313,6 +316,96 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
                     <span>{obj}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Space Agency Planetary Data Archives */}
+            <div className="pt-4 border-t border-white/[0.08] space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-inter font-semibold uppercase tracking-wider text-starlight-dim flex items-center space-x-2">
+                  <Database className="w-3.5 h-3.5 text-earth" />
+                  <span>NASA Planetary Data Archives &amp; Instruments</span>
+                </h4>
+                {onOpenDataModal && (
+                  <button
+                    onClick={onOpenDataModal}
+                    className="text-earth hover:text-starlight-bright text-xs font-medium flex items-center space-x-1"
+                  >
+                    <span>View All Agency APIs ↗</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <a
+                  href={`https://pds.nasa.gov/datasearch/subscription/search.jsp?target=${selectedTarget.planet === 'moon' ? 'Moon' : 'Mars'}&query=${encodeURIComponent(selectedTarget.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] hover:border-earth/40 transition-colors flex items-center justify-between group"
+                >
+                  <div>
+                    <div className="text-xs font-grotesk font-bold text-starlight-white group-hover:text-earth transition-colors">
+                      NASA PDS Archive
+                    </div>
+                    <div className="text-[10px] text-starlight-subtle mt-0.5">
+                      {selectedTarget.planet === 'moon' ? 'LOLA & LROC Geosciences' : 'CRISM & HiRISE PDS node'}
+                    </div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                </a>
+
+                {selectedTarget.planet === 'moon' ? (
+                  <a
+                    href="https://pds-geosciences.wustl.edu/missions/lro/diviner.htm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] hover:border-earth/40 transition-colors flex items-center justify-between group"
+                  >
+                    <div>
+                      <div className="text-xs font-grotesk font-bold text-starlight-white group-hover:text-earth transition-colors">
+                        LRO Diviner Lunar Data
+                      </div>
+                      <div className="text-[10px] text-starlight-subtle mt-0.5">
+                        Polar thermal maps &amp; cold traps
+                      </div>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                  </a>
+                ) : (
+                  <a
+                    href="https://pds-geosciences.wustl.edu/missions/mro/crism.htm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] hover:border-earth/40 transition-colors flex items-center justify-between group"
+                  >
+                    <div>
+                      <div className="text-xs font-grotesk font-bold text-starlight-white group-hover:text-earth transition-colors">
+                        MRO CRISM Spectral Cube
+                      </div>
+                      <div className="text-[10px] text-starlight-subtle mt-0.5">
+                        Hyperspectral mineral mapping
+                      </div>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                  </a>
+                )}
+
+                <a
+                  href={selectedTarget.planet === 'moon' ? 'https://pds-geosciences.wustl.edu/missions/lro/' : 'https://pds-geosciences.wustl.edu/missions/mars2020/'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] hover:border-earth/40 transition-colors flex items-center justify-between group"
+                >
+                  <div>
+                    <div className="text-xs font-grotesk font-bold text-starlight-white group-hover:text-earth transition-colors">
+                      {selectedTarget.planet === 'moon' ? 'NASA LRO Mission' : 'Mars 2020 Perseverance'}
+                    </div>
+                    <div className="text-[10px] text-starlight-subtle mt-0.5">
+                      Calibrated planetary science repository
+                    </div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
+                </a>
               </div>
             </div>
           </div>

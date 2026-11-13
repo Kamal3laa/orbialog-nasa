@@ -16,8 +16,10 @@ import {
   ExternalLink,
   Flame,
   FileText,
-  Filter
+  Filter,
+  Database
 } from 'lucide-react';
+import { generateAnalogAgencyUrls } from '../data/spaceAgencyResources';
 
 interface Screen3EarthDiscoveryProps {
   analogLocations: AnalogLocation[];
@@ -25,6 +27,7 @@ interface Screen3EarthDiscoveryProps {
   selectedAnalog: AnalogLocation;
   onSelectAnalog: (analog: AnalogLocation) => void;
   onNavigate: (screen: ActiveScreen) => void;
+  onOpenDataModal?: () => void;
 }
 
 export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
@@ -33,6 +36,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   selectedAnalog,
   onSelectAnalog,
   onNavigate,
+  onOpenDataModal,
 }) => {
   const [displayMode, setDisplayMode] = useState<'real-gis' | '3d-globe' | '3d-topography'>('real-gis');
 
@@ -435,6 +439,68 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                 <span className="text-starlight-subtle uppercase text-[11px]">ANNUAL PRECIPITATION:</span>
                 <span className="text-starlight-white">{previewLocation.environment.annualPrecipitation}</span>
               </div>
+            </div>
+
+            {/* Live Space Agency Portals & Observations */}
+            <div className="pt-3 border-t border-white/[0.08] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-grotesk font-semibold uppercase tracking-wider text-starlight-subtle flex items-center space-x-1.5">
+                  <Database className="w-3.5 h-3.5 text-earth" />
+                  <span>Space Agency Observations</span>
+                </span>
+                {onOpenDataModal && (
+                  <button
+                    onClick={onOpenDataModal}
+                    className="text-[11px] text-earth hover:text-starlight-bright font-medium"
+                  >
+                    Agency APIs ↗
+                  </button>
+                )}
+              </div>
+
+              {(() => {
+                const urls = generateAnalogAgencyUrls(previewLocation.coordinates.lat, previewLocation.coordinates.lng, previewLocation.name);
+                return (
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-inter">
+                    <a
+                      href={urls.nasaEarthdata}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium group-hover:text-earth transition-colors">NASA Earthdata</span>
+                      <ExternalLink className="w-3 h-3 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                    <a
+                      href={urls.nasaWorldview}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium group-hover:text-earth transition-colors">NASA Worldview</span>
+                      <ExternalLink className="w-3 h-3 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                    <a
+                      href={urls.esaCopernicus}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium group-hover:text-earth transition-colors">ESA Copernicus</span>
+                      <ExternalLink className="w-3 h-3 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                    <a
+                      href={urls.csaRadarsat}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-between group"
+                    >
+                      <span className="text-starlight-white font-medium group-hover:text-earth transition-colors">CSA RADARSAT</span>
+                      <ExternalLink className="w-3 h-3 text-starlight-subtle group-hover:text-earth" />
+                    </a>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Actions: Compare Engine & Full Profile */}

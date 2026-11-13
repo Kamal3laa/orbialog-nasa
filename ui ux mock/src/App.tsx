@@ -4,6 +4,7 @@ import { PLANETARY_TARGETS } from './data/planetaryTargets';
 import { ANALOG_LOCATIONS } from './data/analogLocations';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
+import { SpaceAgencyDataModal } from './components/common/SpaceAgencyDataModal';
 import { Screen1Landing } from './screens/Screen1Landing';
 import { Screen2TargetSelection } from './screens/Screen2TargetSelection';
 import { Screen3EarthDiscovery } from './screens/Screen3EarthDiscovery';
@@ -11,17 +12,16 @@ import { Screen4ComparisonEngine } from './screens/Screen4ComparisonEngine';
 import { Screen5LocationProfile } from './screens/Screen5LocationProfile';
 import { Screen6MissionApplication } from './screens/Screen6MissionApplication';
 import { Screen7Methodology } from './screens/Screen7Methodology';
-import { audio } from './utils/audio';
 
 export const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ActiveScreen>('landing');
   const [selectedTarget, setSelectedTarget] = useState<PlanetaryTarget>(PLANETARY_TARGETS[3]); // Default: Jezero Crater (Mars)
-  const [selectedAnalog, setSelectedAnalog] = useState<AnalogLocation>(ANALOG_LOCATIONS[0]); // Default: White Desert (Egypt)
+  const [selectedAnalog, setSelectedAnalog] = useState<AnalogLocation>(ANALOG_LOCATIONS[0]); // Default: Global site
+  const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
 
-  // Keyboard navigation shortcuts for professional aerospace interface feel
+  // Keyboard navigation shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if typing in an input
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
         return;
       }
@@ -29,23 +29,18 @@ export const App: React.FC = () => {
       switch (e.key) {
         case '1':
           setCurrentScreen('landing');
-          audio.playClick();
           break;
         case '2':
           setCurrentScreen('targets');
-          audio.playClick();
           break;
         case '3':
           setCurrentScreen('discovery');
-          audio.playClick();
           break;
         case '4':
           setCurrentScreen('comparison');
-          audio.playClick();
           break;
         case '5':
           setCurrentScreen('profile');
-          audio.playClick();
           break;
         default:
           break;
@@ -63,13 +58,14 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-charcoal text-mineral-white font-inter flex flex-col selection:bg-mars selection:text-mineral-white">
+    <div className="min-h-screen bg-space-void text-starlight-white font-inter flex flex-col selection:bg-mars selection:text-starlight-white">
       {/* Top Aerospace Mission Control Navigation Bar */}
       <Navbar
         currentScreen={currentScreen}
         onNavigate={handleNavigate}
         selectedTarget={selectedTarget}
         selectedAnalog={selectedAnalog}
+        onOpenDataModal={() => setIsDataModalOpen(true)}
       />
 
       {/* Screen Router Viewport */}
@@ -89,6 +85,7 @@ export const App: React.FC = () => {
             selectedTarget={selectedTarget}
             onSelectTarget={setSelectedTarget}
             onNavigate={handleNavigate}
+            onOpenDataModal={() => setIsDataModalOpen(true)}
           />
         )}
 
@@ -99,6 +96,7 @@ export const App: React.FC = () => {
             selectedAnalog={selectedAnalog}
             onSelectAnalog={setSelectedAnalog}
             onNavigate={handleNavigate}
+            onOpenDataModal={() => setIsDataModalOpen(true)}
           />
         )}
 
@@ -121,6 +119,7 @@ export const App: React.FC = () => {
             analogLocations={ANALOG_LOCATIONS}
             onSelectAnalog={setSelectedAnalog}
             onNavigate={handleNavigate}
+            onOpenDataModal={() => setIsDataModalOpen(true)}
           />
         )}
 
@@ -139,9 +138,16 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer with Space Agency Data Resources and NASA Disclaimer */}
+      <Footer onOpenDataModal={() => setIsDataModalOpen(true)} />
+
+      {/* Space Agency Data & APIs Modal Hub */}
+      <SpaceAgencyDataModal
+        isOpen={isDataModalOpen}
+        onClose={() => setIsDataModalOpen(false)}
+        selectedAnalog={selectedAnalog}
+        selectedTarget={selectedTarget}
+      />
     </div>
   );
 };
-
