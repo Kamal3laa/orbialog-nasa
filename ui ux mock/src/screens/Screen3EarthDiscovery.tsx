@@ -48,9 +48,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   // Filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedPlanetFilter, setSelectedPlanetFilter] = useState<'all' | 'moon' | 'mars'>('all');
+  const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [selectedCategories, setSelectedCategories] = useState<AnalogCategory[]>([]);
   const [minSimilarity, setMinSimilarity] = useState<number>(80);
-  const [onlyEgypt, setOnlyEgypt] = useState<boolean>(false);
+  const [onlyHighFidelity, setOnlyHighFidelity] = useState<boolean>(false);
   const [activeOverlay, setActiveOverlay] = useState<'standard' | 'thermal' | 'elevation' | 'aridity'>('thermal');
   const [previewLocation, setPreviewLocation] = useState<AnalogLocation>(selectedAnalog);
 
@@ -72,7 +73,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
         return false;
       }
 
-      if (onlyEgypt && !loc.featuredEgypt) {
+      if (selectedRegion !== 'all' && loc.continent !== selectedRegion) {
+        return false;
+      }
+
+      if (onlyHighFidelity && loc.overallSimilarity < 92) {
         return false;
       }
 
@@ -86,7 +91,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
       return true;
     });
-  }, [analogLocations, searchQuery, selectedPlanetFilter, selectedCategories, minSimilarity, onlyEgypt]);
+  }, [analogLocations, searchQuery, selectedPlanetFilter, selectedRegion, onlyHighFidelity, selectedCategories, minSimilarity]);
 
   const handleLocationSelect = (loc: AnalogLocation) => {
     audio.playClick();
@@ -119,18 +124,18 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           <div className="flex items-center space-x-2 font-mono text-xs text-stone-gray uppercase tracking-wider mb-1">
             <span className="text-mars font-bold">MISSION STEP 02</span>
             <span>//</span>
-            <span>GOOGLE MAPS EARTH OBSERVATION & THERMAL LST</span>
+            <span>GOOGLE MAPS GLOBAL EARTH OBSERVATION</span>
           </div>
           <h1 className="font-grotesk font-bold text-3xl md:text-5xl text-mineral-white uppercase tracking-tight">
             Earth Analog Discovery
           </h1>
           <p className="font-inter text-stone-gray text-xs md:text-sm mt-1">
-            Google Maps Satellite & Hybrid imagery integrated with MODIS/ASTER Land Surface Temperature (LST) thermal radiometer telemetry.{' '}
-            Calibrated to extraterrestrial target: <span className="text-mineral-white font-mono font-semibold uppercase">{selectedTarget.name}</span>
+            Google Maps Satellite, Hybrid & Terrain observation calibrated to terrestrial candidate analogs.{' '}
+            Extraterrestrial benchmark: <span className="text-mineral-white font-mono font-semibold uppercase">{selectedTarget.name}</span>
           </p>
         </div>
 
-        {/* View Mode Switcher: Google Maps Satellite/Thermal vs 3D Globe vs 3D Topographic Mesh */}
+        {/* View Mode Switcher: Google Maps Satellite vs 3D Globe vs 3D Topographic Mesh */}
         <div className="flex items-center space-x-2 font-mono text-xs bg-obsidian-card border border-obsidian-border p-1">
           <button
             onClick={() => {
@@ -144,7 +149,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span className="uppercase">Google Satellite + Thermal</span>
+            <span className="uppercase">Google Maps Satellite</span>
           </button>
 
           <button
@@ -223,21 +228,52 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             ))}
           </div>
 
-          {/* Egypt Priority Toggle Button */}
+          {/* Global Tier-1 High Fidelity Filter Button */}
           <button
             onClick={() => {
               audio.playClick();
-              setOnlyEgypt(!onlyEgypt);
+              setOnlyHighFidelity(!onlyHighFidelity);
             }}
             className={`flex items-center space-x-2 px-3.5 py-2 border font-mono text-xs transition-all ${
-              onlyEgypt
-                ? 'bg-telemetry-amber text-charcoal font-bold border-telemetry-amber shadow-md'
-                : 'bg-obsidian-card text-telemetry-amber border-telemetry-amber/40 hover:bg-obsidian-surface'
+              onlyHighFidelity
+                ? 'bg-telemetry-emerald text-charcoal font-bold border-telemetry-emerald shadow-md'
+                : 'bg-obsidian-card text-telemetry-emerald border-telemetry-emerald/40 hover:bg-obsidian-surface'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="uppercase">EGYPT PRIORITY [3]</span>
+            <span className="uppercase">{onlyHighFidelity ? 'TIER-1 SITES ACTIVE [>92%]' : 'TIER-1 FIDELITY [>92%]'}</span>
           </button>
+        </div>
+
+        {/* Global Continental Regions Filter Bar */}
+        <div className="pt-2 border-t border-obsidian-border/40 flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
+          <span className="text-stone-dark uppercase text-[10px] mr-1">GLOBAL REGIONS:</span>
+          {(
+            [
+              ['all', 'All Continents'],
+              ['North America', 'North America'],
+              ['South America', 'South America'],
+              ['Polar / Arctic', 'Polar & Arctic'],
+              ['Africa', 'Africa'],
+              ['Europe', 'Europe'],
+              ['Oceania', 'Oceania'],
+            ] as [string, string][]
+          ).map(([regId, label]) => (
+            <button
+              key={regId}
+              onClick={() => {
+                audio.playClick();
+                setSelectedRegion(regId);
+              }}
+              className={`px-2.5 py-0.5 border text-[10px] transition-colors ${
+                selectedRegion === regId
+                  ? 'bg-mineral-white text-charcoal font-bold border-mineral-white'
+                  : 'bg-obsidian-card text-stone-gray border-obsidian-border hover:border-stone-gray hover:text-mineral-white'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Detailed Scientific Criteria Toggles */}
