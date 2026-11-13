@@ -247,3 +247,4 @@ export const SpectralAnalyzer: React.FC = () => {
     </div>
   );
 };
+
