@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ActiveScreen, PlanetaryTarget, AnalogLocation } from '../../types';
 import { 
   Compass, 
   Globe, 
-  Layers, 
   GitCompare, 
   FileText, 
-  Cpu, 
-  Database, 
-  Volume2, 
-  VolumeX, 
   Activity,
   Radio
 } from 'lucide-react';
-import { audio } from '../../utils/audio';
 
 interface NavbarProps {
   currentScreen: ActiveScreen;
@@ -25,21 +19,9 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   currentScreen,
   onNavigate,
-  selectedTarget,
-  selectedAnalog,
 }) => {
-  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
-
   const handleNavClick = (screen: ActiveScreen) => {
-    audio.playClick();
     onNavigate(screen);
-  };
-
-  const toggleAudio = () => {
-    const next = !audioEnabled;
-    setAudioEnabled(next);
-    audio.setEnabled(next);
-    if (next) audio.playConfirm();
   };
 
   const navItems: { id: ActiveScreen; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -99,16 +81,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Action Controls: Audio Mute & CTA */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={toggleAudio}
-            className="p-2 border border-obsidian-border bg-obsidian-card hover:bg-obsidian hover:text-mineral-white transition-colors text-stone-gray"
-            title={audioEnabled ? 'Mute Scientific Audio' : 'Enable Scientific Audio'}
-          >
-            {audioEnabled ? <Volume2 className="w-3.5 h-3.5 text-telemetry-emerald" /> : <VolumeX className="w-3.5 h-3.5 text-stone-dark" />}
-          </button>
-
+        {/* Right Action CTA */}
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => handleNavClick('discovery')}
             className="flex items-center space-x-2 px-3.5 py-2 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-all duration-150 shadow-sm"
@@ -121,4 +95,3 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
-
