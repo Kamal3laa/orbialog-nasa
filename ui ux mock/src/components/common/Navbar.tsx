@@ -59,8 +59,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'discovery', label: 'Earth Analogs', icon: Globe },
     { id: 'comparison', label: 'Comparison Engine', icon: GitCompare },
     { id: 'profile', label: 'Research Profile', icon: FileText },
-    { id: 'applications', label: 'Mission Operations', icon: Cpu },
-    { id: 'methodology', label: 'Methodology & Data', icon: Database },
   ];
 
   return (

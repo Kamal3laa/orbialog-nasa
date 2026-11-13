@@ -364,11 +364,11 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <button
                 onClick={() => {
                   audio.playConfirm();
-                  onNavigate('applications');
+                  onNavigate('comparison');
                 }}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider font-semibold transition-colors mt-2"
               >
-                <span>TEST IN MISSION OPS</span>
+                <span>RUN COMPARISON ENGINE</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

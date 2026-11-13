@@ -446,11 +446,11 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
             <button
               onClick={() => {
                 audio.playConfirm();
-                onNavigate('applications');
+                onNavigate('discovery');
               }}
               className="flex items-center justify-center space-x-2 px-4 py-3 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-colors shadow-md font-semibold"
             >
-              <span>MISSION TESTING OPS</span>
+              <span>EXPLORE MORE ANALOGS</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

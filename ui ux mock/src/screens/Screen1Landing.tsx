@@ -113,14 +113,6 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
               <Compass className="w-4 h-4 text-lunar" />
               <span>SELECT TARGET</span>
             </button>
-
-            <button
-              onClick={() => handleCta('methodology')}
-              className="flex items-center space-x-2 px-5 py-3.5 bg-transparent hover:bg-obsidian/50 border border-obsidian-border text-stone-gray hover:text-mineral-white uppercase tracking-wider transition-colors"
-            >
-              <Database className="w-4 h-4" />
-              <span>VIEW METHODOLOGY</span>
-            </button>
           </div>
         </div>
       </div>
