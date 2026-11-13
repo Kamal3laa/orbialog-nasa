@@ -119,18 +119,18 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           <div className="flex items-center space-x-2 font-mono text-xs text-stone-gray uppercase tracking-wider mb-1">
             <span className="text-mars font-bold">MISSION STEP 02</span>
             <span>//</span>
-            <span>REAL EARTH SATELLITE CARTOGRAPHY & THERMAL PROFILING</span>
+            <span>GOOGLE MAPS EARTH OBSERVATION & THERMAL LST</span>
           </div>
           <h1 className="font-grotesk font-bold text-3xl md:text-5xl text-mineral-white uppercase tracking-tight">
             Earth Analog Discovery
           </h1>
           <p className="font-inter text-stone-gray text-xs md:text-sm mt-1">
-            Real satellite Earth observation with MODIS/ASTER Land Surface Temperature (LST) thermal infrared telemetry.{' '}
+            Google Maps Satellite & Hybrid imagery integrated with MODIS/ASTER Land Surface Temperature (LST) thermal radiometer telemetry.{' '}
             Calibrated to extraterrestrial target: <span className="text-mineral-white font-mono font-semibold uppercase">{selectedTarget.name}</span>
           </p>
         </div>
 
-        {/* View Mode Switcher: Real 2D Satellite/Thermal GIS vs 3D Globe vs 3D Topographic Mesh */}
+        {/* View Mode Switcher: Google Maps Satellite/Thermal vs 3D Globe vs 3D Topographic Mesh */}
         <div className="flex items-center space-x-2 font-mono text-xs bg-obsidian-card border border-obsidian-border p-1">
           <button
             onClick={() => {
@@ -144,7 +144,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span className="uppercase">Real Satellite + Thermal</span>
+            <span className="uppercase">Google Satellite + Thermal</span>
           </button>
 
           <button
