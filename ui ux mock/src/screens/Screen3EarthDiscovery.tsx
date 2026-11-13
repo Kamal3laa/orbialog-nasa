@@ -1,22 +1,22 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  ActiveScreen, 
-  PlanetaryTarget, 
-  AnalogLocation, 
-  AnalogCategory 
+import {
+  ActiveScreen,
+  PlanetaryTarget,
+  AnalogLocation,
+  AnalogCategory
 } from '../types';
 import { RealGISMap } from '../components/common/RealGISMap';
 import { Real3DGlobe } from '../components/canvas3d/Real3DGlobe';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
-import { 
-  Search, 
-  MapPin, 
-  ChevronRight, 
-  ArrowRight, 
-  Layers, 
-  Activity, 
-  Database, 
-  Compass, 
+import {
+  Search,
+  MapPin,
+  ChevronRight,
+  ArrowRight,
+  Layers,
+  Activity,
+  Database,
+  Compass,
   Sparkles,
   ExternalLink,
   X,
@@ -142,11 +142,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               audio.playClick();
               setDisplayMode('real-gis');
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${
-              displayMode === 'real-gis'
-                ? 'bg-mars text-mineral-white font-bold shadow-sm'
-                : 'text-stone-gray hover:text-mineral-white'
-            }`}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${displayMode === 'real-gis'
+              ? 'bg-mars text-mineral-white font-bold shadow-sm'
+              : 'text-stone-gray hover:text-mineral-white'
+              }`}
           >
             <Globe className="w-3.5 h-3.5" />
             <span className="uppercase">Google Maps Satellite</span>
@@ -157,11 +156,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               audio.playClick();
               setDisplayMode('3d-globe');
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${
-              displayMode === '3d-globe'
-                ? 'bg-mars text-mineral-white font-bold shadow-sm'
-                : 'text-stone-gray hover:text-mineral-white'
-            }`}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${displayMode === '3d-globe'
+              ? 'bg-mars text-mineral-white font-bold shadow-sm'
+              : 'text-stone-gray hover:text-mineral-white'
+              }`}
           >
             <Box className="w-3.5 h-3.5" />
             <span className="uppercase">3D Digital Globe</span>
@@ -172,11 +170,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               audio.playClick();
               setDisplayMode('3d-topography');
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${
-              displayMode === '3d-topography'
-                ? 'bg-earth text-mineral-white font-bold shadow-sm'
-                : 'text-stone-gray hover:text-mineral-white'
-            }`}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${displayMode === '3d-topography'
+              ? 'bg-earth text-mineral-white font-bold shadow-sm'
+              : 'text-stone-gray hover:text-mineral-white'
+              }`}
           >
             <Layers className="w-3.5 h-3.5" />
             <span className="uppercase">3D Terrain Relief</span>
@@ -217,11 +214,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                   audio.playClick();
                   setSelectedPlanetFilter(pf);
                 }}
-                className={`px-3 py-1 uppercase text-[11px] transition-colors ${
-                  selectedPlanetFilter === pf
-                    ? 'bg-mars text-mineral-white font-bold'
-                    : 'text-stone-gray hover:text-mineral-white'
-                }`}
+                className={`px-3 py-1 uppercase text-[11px] transition-colors ${selectedPlanetFilter === pf
+                  ? 'bg-mars text-mineral-white font-bold'
+                  : 'text-stone-gray hover:text-mineral-white'
+                  }`}
               >
                 {pf}
               </button>
@@ -234,11 +230,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               audio.playClick();
               setOnlyHighFidelity(!onlyHighFidelity);
             }}
-            className={`flex items-center space-x-2 px-3.5 py-2 border font-mono text-xs transition-all ${
-              onlyHighFidelity
-                ? 'bg-telemetry-emerald text-charcoal font-bold border-telemetry-emerald shadow-md'
-                : 'bg-obsidian-card text-telemetry-emerald border-telemetry-emerald/40 hover:bg-obsidian-surface'
-            }`}
+            className={`flex items-center space-x-2 px-3.5 py-2 border font-mono text-xs transition-all ${onlyHighFidelity
+              ? 'bg-telemetry-emerald text-charcoal font-bold border-telemetry-emerald shadow-md'
+              : 'bg-obsidian-card text-telemetry-emerald border-telemetry-emerald/40 hover:bg-obsidian-surface'
+              }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span className="uppercase">{onlyHighFidelity ? 'TIER-1 SITES ACTIVE [>92%]' : 'TIER-1 FIDELITY [>92%]'}</span>
@@ -265,11 +260,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                 audio.playClick();
                 setSelectedRegion(regId);
               }}
-              className={`px-2.5 py-0.5 border text-[10px] transition-colors ${
-                selectedRegion === regId
-                  ? 'bg-mineral-white text-charcoal font-bold border-mineral-white'
-                  : 'bg-obsidian-card text-stone-gray border-obsidian-border hover:border-stone-gray hover:text-mineral-white'
-              }`}
+              className={`px-2.5 py-0.5 border text-[10px] transition-colors ${selectedRegion === regId
+                ? 'bg-mineral-white text-charcoal font-bold border-mineral-white'
+                : 'bg-obsidian-card text-stone-gray border-obsidian-border hover:border-stone-gray hover:text-mineral-white'
+                }`}
             >
               {label}
             </button>
@@ -295,11 +289,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                 <button
                   key={catId}
                   onClick={() => toggleCategory(catId)}
-                  className={`px-2.5 py-1 border transition-colors ${
-                    active
-                      ? 'bg-obsidian-surface border-mars text-mineral-white font-medium'
-                      : 'border-obsidian-border bg-obsidian-card hover:border-stone-gray text-stone-gray'
-                  }`}
+                  className={`px-2.5 py-1 border transition-colors ${active
+                    ? 'bg-obsidian-surface border-mars text-mineral-white font-medium'
+                    : 'border-obsidian-border bg-obsidian-card hover:border-stone-gray text-stone-gray'
+                    }`}
                 >
                   {label}
                 </button>
@@ -384,11 +377,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                 <div
                   key={loc.id}
                   onClick={() => handleLocationSelect(loc)}
-                  className={`p-4 border cursor-pointer transition-all duration-150 select-none relative ${
-                    isSelected
-                      ? 'bg-obsidian-surface border-mars ring-1 ring-mars/50 shadow-md'
-                      : 'bg-obsidian hover:bg-obsidian-card border-obsidian-border'
-                  }`}
+                  className={`p-4 border cursor-pointer transition-all duration-150 select-none relative ${isSelected
+                    ? 'bg-obsidian-surface border-mars ring-1 ring-mars/50 shadow-md'
+                    : 'bg-obsidian hover:bg-obsidian-card border-obsidian-border'
+                    }`}
                 >
                   {loc.featuredEgypt && (
                     <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-telemetry-amber/20 border border-telemetry-amber/50 font-mono text-[9px] text-telemetry-amber font-semibold uppercase">

@@ -36,7 +36,7 @@ export const RealGISMap: React.FC<RealGISMapProps> = ({
 
   // Basemap selection (Google Maps: Satellite, Hybrid, Terrain — No Dark)
   const [basemapMode, setBasemapMode] = useState<GoogleBasemapMode>('google-satellite');
-  
+
   // Real-time Coordinate & Telemetry HUD Probe
   const [mouseProbe, setMouseProbe] = useState<{ lat: number; lng: number } | null>(null);
 

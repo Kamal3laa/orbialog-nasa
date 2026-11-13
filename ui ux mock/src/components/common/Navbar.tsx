@@ -28,18 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedTarget,
   selectedAnalog,
 }) => {
-  const [utcTime, setUtcTime] = useState<string>('');
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setUtcTime(now.toUTCString().slice(17, 25) + ' UTC');
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleNavClick = (screen: ActiveScreen) => {
     audio.playClick();
@@ -63,45 +52,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 w-full bg-charcoal/95 border-b border-obsidian-border backdrop-blur-md">
-      {/* Top Aerospace Telemetry Ticker */}
-      <div className="flex items-center justify-between px-6 py-1 bg-obsidian-deep text-[11px] font-mono border-b border-obsidian-border/50 text-stone-gray">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-telemetry-emerald animate-pulse"></span>
-            <span className="text-mineral-white font-medium tracking-wider">ORBiALOG FLIGHT SUITE</span>
-          </div>
-          <span className="text-stone-dark">|</span>
-          <span>NASA SPACE APPS CHALLENGE 2026</span>
-          <span className="text-stone-dark">|</span>
-          <span className="text-telemetry-cyan font-mono">PDS-GATEWAY: SYNCHRONIZED</span>
-        </div>
-
-        <div className="flex items-center space-x-5">
-          <div className="flex items-center space-x-2">
-            <span className="text-stone-dark">ACTIVE TARGET:</span>
-            <span className="text-mars font-semibold uppercase">{selectedTarget.name.split(' ')[0]} ({selectedTarget.designation})</span>
-          </div>
-          <span className="text-stone-dark">|</span>
-          <div className="flex items-center space-x-2">
-            <span className="text-stone-dark">CANDIDATE:</span>
-            <span className="text-earth-bright font-semibold">{selectedAnalog.name.split(' (')[0]}</span>
-          </div>
-          <span className="text-stone-dark">|</span>
-          <div className="text-mineral-white font-mono tracking-wider font-semibold">
-            {utcTime || '00:00:00 UTC'}
-          </div>
-          <button
-            onClick={toggleAudio}
-            className="hover:text-mineral-white transition-colors p-0.5"
-            title={audioEnabled ? 'Mute Scientific Audio' : 'Enable Scientific Audio'}
-          >
-            {audioEnabled ? <Volume2 className="w-3.5 h-3.5 text-mineral-muted" /> : <VolumeX className="w-3.5 h-3.5 text-stone-dark" />}
-          </button>
-        </div>
-      </div>
-
       {/* Main Navigation Bar */}
-      <div className="flex items-center justify-between px-6 py-2.5">
+      <div className="flex items-center justify-between px-6 py-3">
         {/* Brand & Mission Badge */}
         <div 
           onClick={() => handleNavClick('landing')}
@@ -115,9 +67,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div>
             <div className="flex items-center space-x-2">
               <span className="font-grotesk font-bold tracking-widest text-lg text-mineral-white">ORBiALOG</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 bg-obsidian-card border border-stone-gray/30 text-stone-gray uppercase">
-                v2.6-NASA
-              </span>
             </div>
             <p className="font-mono text-[9px] text-stone-gray tracking-wider uppercase -mt-0.5">
               Planetary Terrestrial Analog Discovery Engine
@@ -150,11 +99,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Mission Direct CTA Pill */}
-        <div className="flex items-center space-x-2">
+        {/* Right Action Controls: Audio Mute & CTA */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={toggleAudio}
+            className="p-2 border border-obsidian-border bg-obsidian-card hover:bg-obsidian hover:text-mineral-white transition-colors text-stone-gray"
+            title={audioEnabled ? 'Mute Scientific Audio' : 'Enable Scientific Audio'}
+          >
+            {audioEnabled ? <Volume2 className="w-3.5 h-3.5 text-telemetry-emerald" /> : <VolumeX className="w-3.5 h-3.5 text-stone-dark" />}
+          </button>
+
           <button
             onClick={() => handleNavClick('discovery')}
-            className="flex items-center space-x-2 px-3.5 py-1.5 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-all duration-150 shadow-sm"
+            className="flex items-center space-x-2 px-3.5 py-2 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-all duration-150 shadow-sm"
           >
             <Activity className="w-3.5 h-3.5" />
             <span>EXPLORE ANALOGS</span>
