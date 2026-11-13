@@ -1,6 +1,10 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
+
+// Ensure reliable SRV record resolution regardless of local DNS / ISP issues
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 export async function connectDB(): Promise<void> {
   mongoose.connection.on('connected', () => logger.info('MongoDB connected'));
@@ -8,7 +12,7 @@ export async function connectDB(): Promise<void> {
   mongoose.connection.on('error', (err) => logger.error({ err }, 'MongoDB error'));
 
   await mongoose.connect(env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
+    serverSelectionTimeoutMS: 15000,
     autoIndex: env.NODE_ENV !== 'production',
   });
 }

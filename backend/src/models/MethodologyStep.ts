@@ -29,6 +29,4 @@ const methodologyStepSchema = new Schema<IMethodologyStep>(
   { timestamps: true, versionKey: false },
 );
 
-methodologyStepSchema.index({ stepNumber: 1 });
-
 export const MethodologyStep = model<IMethodologyStep>('MethodologyStep', methodologyStepSchema);

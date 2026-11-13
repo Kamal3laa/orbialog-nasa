@@ -135,7 +135,7 @@ const analogLocationSchema = new Schema<IAnalogLocation>(
         title: String,
         agency: String,
         datasetId: String,
-        type: String,
+        type: { type: String },
         _id: false,
       },
     ],
