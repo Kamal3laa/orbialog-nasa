@@ -12,11 +12,15 @@ import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import { PlanetaryTarget } from '../models/PlanetaryTarget';
 import { AnalogLocation } from '../models/AnalogLocation';
+import { MissionDiscipline } from '../models/MissionDiscipline';
+import { MethodologyStep } from '../models/MethodologyStep';
 
 // Import the mock data directly from the frontend's data folder
 // (relative path from backend/src/scripts → ui ux mock/src/data)
 import { PLANETARY_TARGETS } from '../../seed-data/planetaryTargets';
 import { ANALOG_LOCATIONS } from '../../seed-data/analogLocations';
+import { MISSION_APPLICATION_DOMAINS } from '../../seed-data/missionApplications';
+import { METHODOLOGY_STEPS } from '../../seed-data/methodologyData';
 
 async function seed(): Promise<void> {
   logger.info('Connecting to MongoDB Atlas…');
@@ -51,10 +55,34 @@ async function seed(): Promise<void> {
     );
   }
 
+  // ── Mission Disciplines ───────────────────────────────────────────────────
+  logger.info(`Upserting ${MISSION_APPLICATION_DOMAINS.length} mission disciplines…`);
+  for (const d of MISSION_APPLICATION_DOMAINS) {
+    await MissionDiscipline.findOneAndUpdate(
+      { id: d.id },
+      { $set: d },
+      { upsert: true, new: true, runValidators: true },
+    );
+  }
+
+  // ── Methodology Steps ─────────────────────────────────────────────────────
+  logger.info(`Upserting ${METHODOLOGY_STEPS.length} methodology steps…`);
+  for (const s of METHODOLOGY_STEPS) {
+    await MethodologyStep.findOneAndUpdate(
+      { stepNumber: s.stepNumber },
+      { $set: s },
+      { upsert: true, new: true, runValidators: true },
+    );
+  }
+
   // ── Integrity check ───────────────────────────────────────────────────────
   const targetCount = await PlanetaryTarget.countDocuments();
   const siteCount = await AnalogLocation.countDocuments();
-  logger.info(`Seed complete — Targets: ${targetCount}, Analog Sites: ${siteCount}`);
+  const disciplineCount = await MissionDiscipline.countDocuments();
+  const stepCount = await MethodologyStep.countDocuments();
+  logger.info(
+    `Seed complete — Targets: ${targetCount}, Sites: ${siteCount}, Disciplines: ${disciplineCount}, Steps: ${stepCount}`,
+  );
 
   // Verify cross-references
   for (const site of ANALOG_LOCATIONS) {
