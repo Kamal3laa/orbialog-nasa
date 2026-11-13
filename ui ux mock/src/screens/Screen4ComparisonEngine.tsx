@@ -1,26 +1,25 @@
 import React, { useState } from 'react';
-import {
-  ActiveScreen,
-  PlanetaryTarget,
-  AnalogLocation
+import { 
+  ActiveScreen, 
+  PlanetaryTarget, 
+  AnalogLocation 
 } from '../types';
 import { RadarChart, RadarDataPoint } from '../components/common/RadarChart';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
-import {
-  GitCompare,
-  ArrowRight,
-  AlertTriangle,
-  Database,
-  Layers,
-  Activity,
-  Thermometer,
-  Compass,
+import { 
+  GitCompare, 
+  ArrowRight, 
+  Layers, 
+  Activity, 
+  Thermometer, 
+  ChevronDown, 
+  Box, 
+  Eye,
+  CheckCircle2,
+  FileText,
   ShieldCheck,
-  ChevronDown,
-  Box,
-  Eye
+  Globe
 } from 'lucide-react';
-import { audio } from '../utils/audio';
 
 interface Screen4ComparisonEngineProps {
   planetaryTargets: PlanetaryTarget[];
@@ -45,24 +44,18 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
 
   const handleTargetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const target = planetaryTargets.find((t) => t.id === e.target.value);
-    if (target) {
-      audio.playClick();
-      onSelectTarget(target);
-    }
+    if (target) onSelectTarget(target);
   };
 
   const handleAnalogChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const analog = analogLocations.find((a) => a.id === e.target.value);
-    if (analog) {
-      audio.playClick();
-      onSelectAnalog(analog);
-    }
+    if (analog) onSelectAnalog(analog);
   };
 
   // Construct Multi-Axis Radar Dataset
   const radarData: RadarDataPoint[] = [
     {
-      axis: 'Geological Chemistry',
+      axis: 'Geological Mineralogy',
       targetValue: selectedTarget.metrics.mineralMatchIndex,
       analogValue: selectedAnalog.metrics.geologicalSimilarity,
     },
@@ -72,12 +65,12 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
       analogValue: selectedAnalog.metrics.terrainRoughness,
     },
     {
-      axis: 'Slope Distribution',
+      axis: 'Slope Variance',
       targetValue: selectedTarget.metrics.slopeVariance,
       analogValue: selectedAnalog.metrics.slopeDistribution,
     },
     {
-      axis: 'Thermal Delta',
+      axis: 'Thermal Response',
       targetValue: selectedTarget.metrics.thermalInertia,
       analogValue: selectedAnalog.metrics.thermalDeltaMatch,
     },
@@ -94,364 +87,239 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
   ];
 
   return (
-    <div className="w-full min-h-[calc(100vh-80px)] bg-charcoal p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-obsidian-border pb-6 gap-4">
-        <div>
-          <div className="flex items-center space-x-2 font-mono text-xs text-stone-gray uppercase tracking-wider mb-1">
-            <span className="text-mars font-bold">MISSION STEP 03</span>
-            <span>//</span>
-            <span>SCIENTIFIC CORRELATION & 3D TOPOGRAPHIC ENGINE</span>
+    <div className="w-full min-h-[calc(100vh-80px)] bg-space-void px-6 lg:px-8 py-10 space-y-10 max-w-7xl mx-auto">
+      {/* Header & Mission Step */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/[0.08] pb-8 gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2 text-xs font-inter font-medium text-earth uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-earth animate-pulse"></span>
+            <span>Comparative Planetary Analytics // Step 03</span>
           </div>
-          <h1 className="font-grotesk font-bold text-3xl md:text-5xl text-mineral-white uppercase tracking-tight">
+          <h1 className="font-grotesk font-bold text-3xl sm:text-4xl md:text-5xl text-starlight-white tracking-tight">
             Scientific Comparison Engine
           </h1>
-          <p className="font-inter text-stone-gray text-xs md:text-sm mt-1 max-w-2xl">
-            Quantitative cross-planetary parametric evaluation with 3D elevation displacement and thermal infrared radiation comparisons.
+          <p className="font-inter text-starlight-dim text-sm md:text-base max-w-2xl leading-relaxed">
+            Multi-parametric comparative analysis correlating extraterrestrial target imagery and topography against certified terrestrial analogs on Earth.
           </p>
         </div>
 
-        {/* View Mode Toggle (Imagery vs Real 3D Topographic Mesh) */}
-        <div className="flex items-center space-x-2 font-mono text-xs bg-obsidian-card border border-obsidian-border p-1">
+        {/* View Mode Switcher */}
+        <div className="flex items-center p-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl">
           <button
-            onClick={() => {
-              audio.playClick();
-              setViewMode('satellite');
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${viewMode === 'satellite'
-              ? 'bg-mars text-mineral-white font-bold shadow-sm'
-              : 'text-stone-gray hover:text-mineral-white'
-              }`}
+            onClick={() => setViewMode('satellite')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              viewMode === 'satellite'
+                ? 'bg-white text-space-void font-bold shadow-glass'
+                : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
+            }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span className="uppercase">Orbital Multispectral</span>
+            <span>High-Res Imagery</span>
           </button>
+
           <button
-            onClick={() => {
-              audio.playClick();
-              setViewMode('3d-mesh');
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${viewMode === '3d-mesh'
-              ? 'bg-earth text-mineral-white font-bold shadow-sm'
-              : 'text-stone-gray hover:text-mineral-white'
-              }`}
+            onClick={() => setViewMode('3d-mesh')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              viewMode === '3d-mesh'
+                ? 'bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-bold shadow-mars-glow'
+                : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
+            }`}
           >
             <Box className="w-3.5 h-3.5" />
-            <span className="uppercase">Real 3D Topographic Mesh</span>
+            <span>3D Topographic Mesh</span>
           </button>
         </div>
       </div>
 
-      {/* Target & Analog Selector Command Console */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-obsidian border border-obsidian-border p-6">
-        {/* Planetary Target Selector Dropdown */}
-        <div className="space-y-2">
-          <label className="block font-mono text-[11px] text-stone-gray uppercase tracking-wider flex items-center justify-between">
-            <span>[A] PLANETARY DESTINATION TARGET:</span>
-            <span className="text-mars font-semibold uppercase">{selectedTarget.planet} REGIME</span>
+      {/* Target & Analog Selectors Strip */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Extraterrestrial Target Selector Card */}
+        <div className="glass-panel p-5 rounded-2xl space-y-2">
+          <label className="text-[11px] font-inter font-medium text-starlight-subtle uppercase tracking-wider flex items-center justify-between">
+            <span>PLANETARY TARGET SPECIFICATION</span>
+            <span className="text-mars font-bold uppercase">{selectedTarget.planet}</span>
           </label>
           <div className="relative">
             <select
               value={selectedTarget.id}
               onChange={handleTargetChange}
-              className="w-full appearance-none bg-obsidian-card border border-obsidian-border px-4 py-3 text-mineral-white font-mono text-xs focus:outline-none focus:border-mars cursor-pointer"
+              className="w-full appearance-none bg-white/[0.04] border border-white/[0.12] focus:border-mars rounded-xl px-4 py-3 text-starlight-white font-inter text-sm focus:outline-none cursor-pointer"
             >
               {planetaryTargets.map((pt) => (
-                <option key={pt.id} value={pt.id} className="bg-charcoal text-mineral-white">
-                  {pt.planet === 'mars' ? 'MARS // ' : 'MOON // '}
-                  {pt.name} ({pt.designation})
+                <option key={pt.id} value={pt.id} className="bg-space-surface text-starlight-white">
+                  [{pt.planet.toUpperCase()}] {pt.name} ({pt.designation})
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-gray pointer-events-none" />
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-starlight-subtle pointer-events-none" />
           </div>
-          <div className="font-mono text-[10px] text-stone-gray flex items-center justify-between pt-1">
-            <span>COORDS: {selectedTarget.coordinates}</span>
-            <span>DATUM: {selectedTarget.elevation.split(' (')[0]}</span>
+          <div className="text-xs font-inter text-starlight-dim flex items-center justify-between pt-1">
+            <span>Coordinates: {selectedTarget.coordinates}</span>
+            <span>Elevation: {selectedTarget.elevation.split(' (')[0]}</span>
           </div>
         </div>
 
-        {/* Terrestrial Analog Candidate Selector Dropdown */}
-        <div className="space-y-2">
-          <label className="block font-mono text-[11px] text-stone-gray uppercase tracking-wider flex items-center justify-between">
-            <span>[B] TERRESTRIAL ANALOG CANDIDATE:</span>
-            <span className="text-earth-bright font-semibold uppercase">EARTH WGS84</span>
+        {/* Terrestrial Analog Selector Card */}
+        <div className="glass-panel p-5 rounded-2xl space-y-2">
+          <label className="text-[11px] font-inter font-medium text-starlight-subtle uppercase tracking-wider flex items-center justify-between">
+            <span>TERRESTRIAL ANALOG CANDIDATE</span>
+            <span className="text-earth font-bold uppercase">{selectedAnalog.country}</span>
           </label>
           <div className="relative">
             <select
               value={selectedAnalog.id}
               onChange={handleAnalogChange}
-              className="w-full appearance-none bg-obsidian-card border border-obsidian-border px-4 py-3 text-mineral-white font-mono text-xs focus:outline-none focus:border-earth cursor-pointer"
+              className="w-full appearance-none bg-white/[0.04] border border-white/[0.12] focus:border-earth rounded-xl px-4 py-3 text-starlight-white font-inter text-sm focus:outline-none cursor-pointer"
             >
               {analogLocations.map((al) => (
-                <option key={al.id} value={al.id} className="bg-charcoal text-mineral-white">
-                  {al.featuredEgypt ? '★ [EG] ' : `[${al.flagCode}] `}
-                  {al.name} — Similarity: {al.overallSimilarity.toFixed(1)}%
+                <option key={al.id} value={al.id} className="bg-space-surface text-starlight-white">
+                  [{al.flagCode}] {al.name} — Similarity: {al.overallSimilarity.toFixed(1)}%
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-gray pointer-events-none" />
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-starlight-subtle pointer-events-none" />
           </div>
-          <div className="font-mono text-[10px] text-stone-gray flex items-center justify-between pt-1">
-            <span>COORDS: {selectedAnalog.coordinates.display}</span>
-            <span>ELEVATION: {selectedAnalog.elevationMeters}m MSL</span>
+          <div className="text-xs font-inter text-starlight-dim flex items-center justify-between pt-1">
+            <span>Coordinates: {selectedAnalog.coordinates.display}</span>
+            <span>Elevation: {selectedAnalog.elevationMeters}m MSL</span>
           </div>
         </div>
       </div>
 
-      {/* Main Comparison Section: Side-by-Side Visuals OR Real 3D Topographic Mesh */}
+      {/* Main Dual Viewport: Visual Comparison */}
       {viewMode === '3d-mesh' ? (
-        <div className="space-y-3">
-          <div className="font-mono text-xs text-stone-gray uppercase tracking-wider flex items-center justify-between">
-            <span>INTERACTIVE 3D TOPOGRAPHIC RELIEF & THERMAL DISPLACEMENT [DRAG TO ROTATE]</span>
-            <span className="text-mars font-bold">TARGET: {selectedTarget.name} VS ANALOG: {selectedAnalog.name}</span>
-          </div>
-          <Real3DTopography
-            locationName={`${selectedTarget.name} & ${selectedAnalog.name}`}
-            isPlanetaryTarget={true}
-            terrainType={selectedAnalog.geology.rockType}
-            elevationDatum={`${selectedAnalog.elevationMeters}m MSL`}
-            thermalRange={{ min: selectedTarget.temperatureRange.min, max: 48, unit: selectedTarget.temperatureRange.unit }}
-          />
-        </div>
-      ) : null}
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Side-by-Side Visual Comparison & Detailed Cross-Match */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Target Satellite / Sensor View */}
-            <div className="bg-obsidian border border-obsidian-border p-4 space-y-3">
-              <div className="flex items-center justify-between font-mono text-xs">
-                <span className="text-mars font-semibold uppercase tracking-wider">TARGET: {selectedTarget.designation}</span>
-                <span className="text-[10px] text-stone-gray">{selectedTarget.planet.toUpperCase()}</span>
-              </div>
-              <div className="relative h-56 bg-charcoal-deep border border-obsidian-border overflow-hidden group">
-                <img
-                  src={selectedTarget.imagery.overview}
-                  alt={selectedTarget.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-2 left-2 font-mono text-[9px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white">
-                  SENSOR: {selectedTarget.primaryDatasets[0]?.instrument || 'ORBITAL SENSOR'}
-                </div>
-                <div className="absolute bottom-2 left-2 right-2 font-mono text-[10px] bg-charcoal/80 px-2 py-1 text-stone-gray truncate">
-                  {selectedTarget.name}
-                </div>
-              </div>
-              <div className="space-y-1.5 font-mono text-[11px]">
-                <div className="flex justify-between text-stone-gray">
-                  <span>PRESSURE:</span>
-                  <span className="text-mineral-white">{selectedTarget.pressure}</span>
-                </div>
-                <div className="flex justify-between text-stone-gray">
-                  <span>GRAVITY:</span>
-                  <span className="text-mineral-white">{selectedTarget.gravity}</span>
-                </div>
-                <div className="flex justify-between text-stone-gray">
-                  <span>THERMAL LST:</span>
-                  <span className="text-mars font-bold">
-                    {selectedTarget.temperatureRange.min} to {selectedTarget.temperatureRange.max} {selectedTarget.temperatureRange.unit}
-                  </span>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-panel p-4 rounded-3xl space-y-3">
+            <div className="flex items-center justify-between text-xs font-inter text-starlight-dim px-2">
+              <span className="font-semibold text-mars uppercase">Target 3D Topographic Model // {selectedTarget.name}</span>
+              <span className="font-mono text-[11px]">DEM Relief</span>
             </div>
-
-            {/* Analog Terrestrial Satellite View */}
-            <div className="bg-obsidian border border-obsidian-border p-4 space-y-3">
-              <div className="flex items-center justify-between font-mono text-xs">
-                <span className="text-earth-bright font-semibold uppercase tracking-wider">ANALOG: {selectedAnalog.name.split(' (')[0]}</span>
-                <span className="text-[10px] text-stone-gray">{selectedAnalog.country.toUpperCase()}</span>
-              </div>
-              <div className="relative h-56 bg-charcoal-deep border border-obsidian-border overflow-hidden group">
-                <img
-                  src={selectedAnalog.imagery.hero}
-                  alt={selectedAnalog.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-2 left-2 font-mono text-[9px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white">
-                  SENSOR: LANDSAT 9 / SENTINEL-2 MSI
-                </div>
-                <div className="absolute bottom-2 left-2 right-2 font-mono text-[10px] bg-charcoal/80 px-2 py-1 text-stone-gray truncate">
-                  {selectedAnalog.region}
-                </div>
-              </div>
-              <div className="space-y-1.5 font-mono text-[11px]">
-                <div className="flex justify-between text-stone-gray">
-                  <span>PRESSURE:</span>
-                  <span className="text-mineral-white">~1,013 mbar (Standard SL)</span>
-                </div>
-                <div className="flex justify-between text-stone-gray">
-                  <span>GRAVITY:</span>
-                  <span className="text-mineral-white">9.81 m/s² (1.00 g)</span>
-                </div>
-                <div className="flex justify-between text-stone-gray">
-                  <span>THERMAL LST:</span>
-                  <span className="text-mars font-bold">{selectedAnalog.environment.diurnalRange}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Geological & Geomorphic Comparison Table */}
-          <div className="bg-obsidian border border-obsidian-border p-6 space-y-4">
-            <h3 className="font-grotesk font-bold text-lg text-mineral-white uppercase flex items-center space-x-2">
-              <Layers className="w-4 h-4 text-mars" />
-              <span>LITHOLOGICAL & TERRAIN PARAMETRIC CROSS-MATCH</span>
-            </h3>
-
-            <div className="space-y-3 font-mono text-xs">
-              <div className="p-3 bg-obsidian-card border border-obsidian-border">
-                <div className="text-[10px] text-stone-dark uppercase">PRIMARY TARGET SURFACE</div>
-                <div className="text-mineral-white text-xs mt-1 leading-relaxed">
-                  {selectedTarget.surfaceType}
-                </div>
-              </div>
-
-              <div className="p-3 bg-obsidian-card border border-obsidian-border">
-                <div className="text-[10px] text-stone-dark uppercase">ANALOG EQUIVALENT REGOLITH & LITHOLOGY</div>
-                <div className="text-mineral-white text-xs mt-1 leading-relaxed">
-                  {selectedAnalog.geology.regolithAnalogy}
-                </div>
-              </div>
-
-              <div className="p-3 bg-obsidian-card border border-obsidian-border">
-                <div className="text-[10px] text-stone-dark uppercase">AEOLIAN DYNAMICS & MICRO-MORPHOLOGY</div>
-                <div className="text-mineral-white text-xs mt-1 leading-relaxed">
-                  {selectedAnalog.geology.aeolianFeatures}
-                </div>
-              </div>
-            </div>
-
-            {/* Critical Divergence / Limitations Alert Box */}
-            <div className="p-4 bg-obsidian-surface border border-mars/40 space-y-2">
-              <div className="flex items-center space-x-2 font-mono text-xs text-mars font-semibold uppercase">
-                <AlertTriangle className="w-4 h-4" />
-                <span>SCIENTIFIC LIMITATIONS & TERRESTRIAL BOUNDARY FACTORS</span>
-              </div>
-              <ul className="space-y-1 font-inter text-xs text-mineral-dim">
-                {selectedAnalog.limitations.map((lim, i) => (
-                  <li key={i} className="flex items-start space-x-2">
-                    <span className="font-mono text-mars font-bold">!</span>
-                    <span>{lim}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Multi-Parametric Radar Chart & Similarity Metrics */}
-        <div className="lg:col-span-5 bg-obsidian border border-obsidian-border p-6 lg:p-8 space-y-6">
-          <div className="flex items-start justify-between border-b border-obsidian-border pb-4">
-            <div>
-              <div className="font-mono text-[10px] text-stone-gray uppercase tracking-widest">
-                MAHALANOBIS SIMILARITY VECTOR
-              </div>
-              <h2 className="font-grotesk font-bold text-2xl text-mineral-white uppercase mt-0.5">
-                Analogy Correlation
-              </h2>
-            </div>
-
-            <div className="text-right">
-              <div className="font-mono text-3xl font-bold text-mars">
-                {selectedAnalog.overallSimilarity.toFixed(1)}%
-              </div>
-              <div className="font-mono text-[9px] text-stone-gray uppercase">
-                CONFIDENCE: {selectedAnalog.confidenceScore.toFixed(0)}%
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Radar Chart Visualization */}
-          <div className="flex justify-center py-2">
-            <RadarChart
-              data={radarData}
-              targetLabel={`${selectedTarget.name.split(' ')[0]} Target`}
-              analogLabel={`${selectedAnalog.name.split(' ')[0]} Analog`}
-              size={340}
+            <Real3DTopography
+              locationName={selectedTarget.name}
+              isPlanetaryTarget={true}
+              terrainType={selectedTarget.surfaceType}
+              elevationDatum={selectedTarget.elevation.split(' (')[0]}
+              thermalRange={{
+                min: selectedTarget.temperatureRange.min,
+                max: selectedTarget.temperatureRange.max,
+                unit: selectedTarget.temperatureRange.unit,
+              }}
             />
           </div>
 
-          {/* Parametric Dimension Breakdown Progress Bars */}
-          <div className="space-y-3 pt-2 font-mono text-xs border-t border-obsidian-border">
-            <div className="space-y-1">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-stone-gray">GEOLOGICAL SIMILARITY</span>
-                <span className="text-mineral-white font-bold">{selectedAnalog.metrics.geologicalSimilarity}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-obsidian-card">
-                <div
-                  className="h-full bg-mars"
-                  style={{ width: `${selectedAnalog.metrics.geologicalSimilarity}%` }}
-                ></div>
-              </div>
+          <div className="glass-panel p-4 rounded-3xl space-y-3">
+            <div className="flex items-center justify-between text-xs font-inter text-starlight-dim px-2">
+              <span className="font-semibold text-earth uppercase">Terrestrial Analog 3D Model // {selectedAnalog.name}</span>
+              <span className="font-mono text-[11px]">SRTM 30m</span>
             </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-stone-gray">SURFACE ROUGHNESS INDEX</span>
-                <span className="text-mineral-white font-bold">{selectedAnalog.metrics.terrainRoughness}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-obsidian-card">
-                <div
-                  className="h-full bg-lunar"
-                  style={{ width: `${selectedAnalog.metrics.terrainRoughness}%` }}
-                ></div>
-              </div>
+            <Real3DTopography
+              locationName={selectedAnalog.name}
+              terrainType={selectedAnalog.geology.rockType}
+              elevationDatum={`${selectedAnalog.elevationMeters}m MSL`}
+              thermalRange={{ min: 4, max: 48, unit: '°C' }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Extraterrestrial Viewport */}
+          <div className="glass-panel p-5 rounded-3xl space-y-3">
+            <div className="flex items-center justify-between text-xs font-inter text-starlight-dim">
+              <span className="font-semibold text-mars uppercase">Orbital HiRISE / LOLA // {selectedTarget.name}</span>
+              <span className="font-mono text-[11px]">NASA Planetary Data System</span>
             </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-stone-gray">SLOPE DISTRIBUTION VARIANCE</span>
-                <span className="text-mineral-white font-bold">{selectedAnalog.metrics.slopeDistribution}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-obsidian-card">
-                <div
-                  className="h-full bg-earth-bright"
-                  style={{ width: `${selectedAnalog.metrics.slopeDistribution}%` }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-stone-gray">THERMAL DELTA CORRESPONDENCE</span>
-                <span className="text-mineral-white font-bold">{selectedAnalog.metrics.thermalDeltaMatch}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-obsidian-card">
-                <div
-                  className="h-full bg-telemetry-amber"
-                  style={{ width: `${selectedAnalog.metrics.thermalDeltaMatch}%` }}
-                ></div>
+            <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-white/[0.10] group">
+              <img
+                src={selectedTarget.imagery.overview}
+                alt={selectedTarget.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-space-void via-transparent to-transparent opacity-80" />
+              <div className="absolute bottom-3 left-3 text-xs font-mono text-starlight-white bg-space-void/80 px-3 py-1 rounded-md border border-white/[0.12] backdrop-blur-md">
+                Surface: {selectedTarget.surfaceType}
               </div>
             </div>
           </div>
 
-          {/* Direct Navigation to Profile and Mission Operations */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <button
-              onClick={() => {
-                audio.playConfirm();
-                onNavigate('profile');
-              }}
-              className="flex items-center justify-center space-x-2 px-4 py-3 bg-obsidian-card hover:bg-obsidian-surface border border-stone-gray/40 text-mineral-white font-mono text-xs uppercase tracking-wider transition-colors"
-            >
-              <span>INSPECT FULL DOSSIER</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+          {/* Terrestrial Viewport */}
+          <div className="glass-panel p-5 rounded-3xl space-y-3">
+            <div className="flex items-center justify-between text-xs font-inter text-starlight-dim">
+              <span className="font-semibold text-earth uppercase">Google Maps Satellite // {selectedAnalog.name}</span>
+              <span className="font-mono text-[11px]">Google Earth & Sentinel-2</span>
+            </div>
+            <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-white/[0.10] group">
+              <img
+                src={selectedAnalog.imagery.hero}
+                alt={selectedAnalog.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-space-void via-transparent to-transparent opacity-80" />
+              <div className="absolute bottom-3 left-3 text-xs font-mono text-starlight-white bg-space-void/80 px-3 py-1 rounded-md border border-white/[0.12] backdrop-blur-md">
+                Climate: {selectedAnalog.climateType}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Radar Comparison & Fidelity Gauge Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Left: Overall Similarity Index Score */}
+        <div className="lg:col-span-5 glass-panel p-8 rounded-3xl space-y-6 text-center sm:text-left">
+          <div className="space-y-1">
+            <div className="text-xs font-mono text-starlight-subtle uppercase tracking-wider">
+              MULTI-PARAMETRIC ALGORITHM
+            </div>
+            <h2 className="font-grotesk font-bold text-3xl text-starlight-white">
+              Planetary Fidelity Index
+            </h2>
+          </div>
+
+          <div className="flex items-baseline space-x-3">
+            <span className="font-grotesk font-bold text-6xl md:text-7xl text-mars">
+              {selectedAnalog.overallSimilarity.toFixed(1)}%
+            </span>
+            <span className="text-sm font-inter text-starlight-dim font-medium">Correlation Score</span>
+          </div>
+
+          <p className="font-inter text-sm text-starlight-dim leading-relaxed">
+            Computed across 6 analytical axes incorporating spectroscopic mineral matching, surface roughness indices, slope variance, and diurnal thermal inertia.
+          </p>
+
+          <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs font-inter text-starlight-subtle">
+            <div className="flex items-center space-x-1.5 text-telemetry-emerald">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Statistical Confidence: {selectedAnalog.confidenceScore.toFixed(0)}%</span>
+            </div>
             <button
-              onClick={() => {
-                audio.playConfirm();
-                onNavigate('discovery');
-              }}
-              className="flex items-center justify-center space-x-2 px-4 py-3 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-colors shadow-md font-semibold"
+              onClick={() => onNavigate('profile')}
+              className="text-earth font-semibold flex items-center space-x-1 hover:underline"
             >
-              <span>EXPLORE MORE ANALOGS</span>
+              <span>View Full Dossier</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
+        </div>
+
+        {/* Right: Radiant Polar Radar Chart */}
+        <div className="lg:col-span-7 glass-panel p-8 rounded-3xl flex flex-col items-center justify-center">
+          <div className="text-center space-y-1 mb-4">
+            <h3 className="font-grotesk font-bold text-lg text-starlight-white">
+              6-Axis Scientific Radar Analysis
+            </h3>
+            <p className="text-xs font-inter text-starlight-subtle">
+              Extraterrestrial Target vs. Terrestrial Candidate Parameter Alignment
+            </p>
+          </div>
+
+          <RadarChart
+            data={radarData}
+            targetLabel={selectedTarget.name.split(' ')[0]}
+            analogLabel={selectedAnalog.name.split(' (')[0]}
+            targetColor={selectedTarget.planet === 'mars' ? '#F97316' : '#FFFFFF'}
+            analogColor="#38BDF8"
+            size={360}
+          />
         </div>
       </div>
     </div>

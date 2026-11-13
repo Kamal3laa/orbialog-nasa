@@ -21,13 +21,13 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   data,
   targetLabel = 'Planetary Target',
   analogLabel = 'Terrestrial Analog',
-  targetColor = '#B75B3D', // Mars Rust default
-  analogColor = '#64735D', // Muted Earth Green default
+  targetColor = '#F97316', // Mars Ember
+  analogColor = '#38BDF8', // Earth Cyan
   size = 380,
   className = '',
 }) => {
   const center = size / 2;
-  const radius = size * 0.38;
+  const radius = size * 0.36;
   const numAxes = data.length;
   const angleStep = (Math.PI * 2) / numAxes;
 
@@ -62,7 +62,18 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`}>
       <svg width={size} height={size} className="overflow-visible">
-        {/* Background Graticule Rings */}
+        <defs>
+          <radialGradient id="targetGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={targetColor} stopOpacity="0.4" />
+            <stop offset="100%" stopColor={targetColor} stopOpacity="0.05" />
+          </radialGradient>
+          <radialGradient id="analogGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={analogColor} stopOpacity="0.4" />
+            <stop offset="100%" stopColor={analogColor} stopOpacity="0.05" />
+          </radialGradient>
+        </defs>
+
+        {/* Concentric Polygonal Grid Rings */}
         {rings.map((ratio, idx) => {
           const ringPoints = data
             .map((_, i) => {
@@ -75,16 +86,16 @@ export const RadarChart: React.FC<RadarChartProps> = ({
               <polygon
                 points={ringPoints}
                 fill="none"
-                stroke="#2A2E29"
+                stroke="rgba(255, 255, 255, 0.08)"
                 strokeWidth={idx === rings.length - 1 ? 1.5 : 1}
-                strokeDasharray={idx < rings.length - 1 ? '3 3' : 'none'}
+                strokeDasharray={idx < rings.length - 1 ? '4 4' : 'none'}
               />
               <text
                 x={center + 4}
-                y={center - ratio * radius - 3}
-                fill="#88877F"
-                fontSize="9"
-                fontFamily="IBM Plex Mono, monospace"
+                y={center - ratio * radius - 4}
+                fill="#64748B"
+                fontSize="10"
+                fontFamily="Inter, sans-serif"
                 className="opacity-70"
               >
                 {Math.round(ratio * 100)}%
@@ -96,35 +107,32 @@ export const RadarChart: React.FC<RadarChartProps> = ({
         {/* Radial Axis Spokes */}
         {data.map((item, i) => {
           const { x, y } = getCoordinates(100, i);
-          const labelCoord = getCoordinates(116, i);
+          const labelCoord = getCoordinates(118, i);
           const textAnchor =
-            Math.abs(labelCoord.x - center) < 10
+            Math.abs(labelCoord.x - center) < 15
               ? 'middle'
               : labelCoord.x > center
               ? 'start'
               : 'end';
 
           return (
-            <g key={`axis-${i}`}>
+            <g key={`spoke-${i}`}>
               <line
                 x1={center}
                 y1={center}
                 x2={x}
                 y2={y}
-                stroke="#2A2E29"
+                stroke="rgba(255, 255, 255, 0.10)"
                 strokeWidth="1"
               />
-              {/* Technical Tick mark */}
-              <circle cx={x} cy={y} r="2" fill="#88877F" />
-              {/* Axis Label */}
               <text
                 x={labelCoord.x}
-                y={labelCoord.y + 3}
-                fill="#E8E5DC"
-                fontSize="10"
-                fontFamily="IBM Plex Mono, monospace"
+                y={labelCoord.y + 4}
                 textAnchor={textAnchor}
-                className="font-medium tracking-tight"
+                fill="#E2E8F0"
+                fontSize="11"
+                fontWeight="500"
+                fontFamily="Inter, sans-serif"
               >
                 {item.axis}
               </text>
@@ -132,77 +140,68 @@ export const RadarChart: React.FC<RadarChartProps> = ({
           );
         })}
 
-        {/* Planetary Target Polygon */}
+        {/* Target Polygon (Mars/Moon) */}
         <polygon
           points={targetPoints}
-          fill={targetColor}
-          fillOpacity="0.22"
+          fill="url(#targetGlow)"
           stroke={targetColor}
           strokeWidth="2"
-          strokeLinejoin="round"
+          className="transition-all duration-300"
         />
 
-        {/* Target Points Dot Markers */}
+        {/* Analog Polygon (Earth Candidate) */}
+        <polygon
+          points={analogPoints}
+          fill="url(#analogGlow)"
+          stroke={analogColor}
+          strokeWidth="2"
+          className="transition-all duration-300"
+        />
+
+        {/* Target Vertex Nodes */}
         {data.map((d, i) => {
           const { x, y } = getCoordinates(d.targetValue, i);
           return (
             <circle
-              key={`target-pt-${i}`}
+              key={`target-node-${i}`}
               cx={x}
               cy={y}
-              r="3.5"
+              r={3.5}
               fill={targetColor}
-              stroke="#111311"
+              stroke="#030712"
               strokeWidth="1.5"
             />
           );
         })}
 
-        {/* Terrestrial Analog Polygon */}
-        <polygon
-          points={analogPoints}
-          fill={analogColor}
-          fillOpacity="0.28"
-          stroke={analogColor}
-          strokeWidth="2"
-          strokeDasharray="4 2"
-          strokeLinejoin="round"
-        />
-
-        {/* Analog Points Dot Markers */}
+        {/* Analog Vertex Nodes */}
         {data.map((d, i) => {
           const { x, y } = getCoordinates(d.analogValue, i);
           return (
-            <rect
-              key={`analog-pt-${i}`}
-              x={x - 3}
-              y={y - 3}
-              width="6"
-              height="6"
+            <circle
+              key={`analog-node-${i}`}
+              cx={x}
+              cy={y}
+              r={3.5}
               fill={analogColor}
-              stroke="#111311"
-              strokeWidth="1"
+              stroke="#030712"
+              strokeWidth="1.5"
             />
           );
         })}
-
-        {/* Center Reticle Point */}
-        <circle cx={center} cy={center} r="2.5" fill="#88877F" />
       </svg>
 
-      {/* Chart Legend & Telemetry Readout */}
-      <div className="flex items-center space-x-6 mt-4 font-mono text-xs border border-obsidian-border bg-obsidian-card/80 px-4 py-2">
+      {/* Radar Chart Legend */}
+      <div className="flex items-center space-x-6 mt-6 font-inter text-xs">
         <div className="flex items-center space-x-2">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: targetColor }}></span>
-          <span className="text-mineral-white uppercase">{targetLabel}</span>
+          <span className="text-starlight-white font-medium">{targetLabel}</span>
         </div>
-        <div className="h-3 w-px bg-obsidian-border"></div>
         <div className="flex items-center space-x-2">
-          <span className="w-3 h-3" style={{ backgroundColor: analogColor }}></span>
-          <span className="text-mineral-muted uppercase">{analogLabel}</span>
+          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: analogColor }}></span>
+          <span className="text-starlight-white font-medium">{analogLabel}</span>
         </div>
       </div>
     </div>
   );
 };
-

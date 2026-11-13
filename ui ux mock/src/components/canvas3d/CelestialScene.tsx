@@ -21,15 +21,15 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
     const container = mountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || 800;
-    const height = container.clientHeight || 500;
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
 
-    // 1. Scene, Camera, Renderer
+    // 1. Scene, Camera, High-Fidelity Renderer
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0c0a, 0.0025);
+    scene.background = new THREE.Color(0x030712);
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 4.5, 23);
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    camera.position.set(0, 3.0, 22.5);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
@@ -38,47 +38,42 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
     renderer.toneMappingExposure = 1.35;
     container.appendChild(renderer.domElement);
 
-    // 2. Realistic Cinematic Solar & Deep Space Lighting
-    // Directional Sun lighting with realistic solar Kelvin color
-    const sunLight = new THREE.DirectionalLight(0xfff5e6, 3.2);
-    sunLight.position.set(22, 12, 16);
+    // 2. Cinematic Solar & Planetary Lighting
+    const sunLight = new THREE.DirectionalLight(0xfffaec, 3.6);
+    sunLight.position.set(24, 14, 18);
     scene.add(sunLight);
 
-    // Subtle galactic ambient fill
-    const ambientLight = new THREE.AmbientLight(0x181a18, 0.5);
-    scene.add(ambientLight);
+    const deepSpaceAmbient = new THREE.AmbientLight(0x0a1020, 0.55);
+    scene.add(deepSpaceAmbient);
 
-    // Rim lighting representing distant stellar reflection / Earthshine
-    const rimLight = new THREE.DirectionalLight(0x56a4ff, 0.4);
-    rimLight.position.set(-20, -8, -12);
-    scene.add(rimLight);
+    // Distant stellar reflection / Earthshine fill
+    const earthshine = new THREE.DirectionalLight(0x38bdf8, 0.35);
+    earthshine.position.set(-20, -10, -12);
+    scene.add(earthshine);
 
-    // 3. High-Fidelity Photorealistic Texture Loader
+    // 3. High-Resolution NASA Planetary Textures
     const textureLoader = new THREE.TextureLoader();
 
-    // Earth Textures (NASA Visible Earth 2K Color, Specular, and Clouds)
     const earthMap = textureLoader.load('/textures/earth_atmos_2048.jpg');
     earthMap.colorSpace = THREE.SRGBColorSpace;
     const earthSpecular = textureLoader.load('/textures/earth_specular_2048.jpg');
     const earthCloudsMap = textureLoader.load('/textures/earth_clouds_1024.png');
 
-    // Moon Texture (NASA LRO LOLA Cratered Surface Map)
     const moonMap = textureLoader.load('/textures/moon_1024.jpg');
     moonMap.colorSpace = THREE.SRGBColorSpace;
 
-    // Mars Textures (Viking Orbiter Global Color & MOLA Bump Map)
     const marsMap = textureLoader.load('/textures/mars_map_1k.jpg');
     marsMap.colorSpace = THREE.SRGBColorSpace;
     const marsBump = textureLoader.load('/textures/mars_bump_1k.jpg');
 
-    // 4. Procedural Deep-Space Starfield (Variable Magnitude Stars)
-    const starCount = 1800;
+    // 4. Procedural Deep-Space Stellar Field (Multi-magnitude cosmic stars)
+    const starCount = 2000;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
     const starColors = new Float32Array(starCount * 3);
 
     for (let i = 0; i < starCount; i++) {
-      const radius = 70 + Math.random() * 90;
+      const radius = 90 + Math.random() * 110;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
 
@@ -86,85 +81,85 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
       starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       starPositions[i * 3 + 2] = radius * Math.cos(phi);
 
-      const brightness = 0.4 + Math.random() * 0.6;
-      starColors[i * 3] = 0.9 * brightness;
-      starColors[i * 3 + 1] = 0.92 * brightness;
+      const brightness = 0.35 + Math.random() * 0.65;
+      const isBlueStar = Math.random() > 0.8;
+      starColors[i * 3] = isBlueStar ? 0.75 * brightness : 0.95 * brightness;
+      starColors[i * 3 + 1] = isBlueStar ? 0.88 * brightness : 0.95 * brightness;
       starColors[i * 3 + 2] = 1.0 * brightness;
     }
 
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
     const starMaterial = new THREE.PointsMaterial({
-      size: 0.85,
+      size: 0.9,
       vertexColors: true,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.85,
     });
     const starPoints = new THREE.Points(starGeometry, starMaterial);
     scene.add(starPoints);
 
-    // 5. EARTH GROUP: Photorealistic Surface + Clouds + Atmospheric Rayleigh Glow
+    // 5. EARTH GROUP: Photorealistic Blue Marble with Specular Glint & Dynamic Clouds
     const earthGroup = new THREE.Group();
-    earthGroup.position.set(-6.8, 0.4, 2);
+    earthGroup.position.set(-6.6, 0.2, 1.5);
     scene.add(earthGroup);
 
-    // Earth Sphere with Specular Ocean Reflection
-    const earthRadius = 3.6;
+    const earthRadius = 3.65;
     const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
     const earthMat = new THREE.MeshPhongMaterial({
       map: earthMap,
       specularMap: earthSpecular,
-      specular: new THREE.Color(0x223344),
-      shininess: 25,
-      bumpScale: 0.05,
+      specular: new THREE.Color(0x224466),
+      shininess: 30,
+      bumpScale: 0.04,
     });
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     earthMesh.name = 'earth';
     earthGroup.add(earthMesh);
 
-    // Dynamic Earth Cloud Sphere Layer
+    // Dynamic Cloud Layer
     const cloudsGeo = new THREE.SphereGeometry(earthRadius * 1.018, 64, 64);
     const cloudsMat = new THREE.MeshStandardMaterial({
       map: earthCloudsMap,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.72,
       blending: THREE.AdditiveBlending,
       roughness: 1.0,
     });
     const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
     earthGroup.add(cloudsMesh);
 
-    // Atmospheric Rayleigh/Mie Scattering Outer Glow
-    const atmosphereGeo = new THREE.SphereGeometry(earthRadius * 1.045, 64, 64);
+    // Subtle Rayleigh Atmospheric Scattering Glow
+    const atmosphereGeo = new THREE.SphereGeometry(earthRadius * 1.038, 64, 64);
     const atmosphereMat = new THREE.MeshBasicMaterial({
-      color: 0x3a88e9,
+      color: 0x38bdf8,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.16,
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
     });
     const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
     earthGroup.add(atmosphereMesh);
 
-    // 6. MOON GROUP: Photorealistic Cratered Surface & Regolith Bump
+    // 6. MOON GROUP: Cratered Highlands & Regolith (Artemis Target)
     const moonGroup = new THREE.Group();
-    moonGroup.position.set(-1.2, 3.4, 7.5);
+    moonGroup.position.set(-1.4, 3.6, 7.2);
     scene.add(moonGroup);
 
     const moonRadius = 1.25;
     const moonGeo = new THREE.SphereGeometry(moonRadius, 48, 48);
     const moonMat = new THREE.MeshStandardMaterial({
       map: moonMap,
-      roughness: 0.94,
+      roughness: 0.95,
       metalness: 0.02,
     });
     const moonMesh = new THREE.Mesh(moonGeo, moonMat);
     moonMesh.name = 'moon';
     moonGroup.add(moonMesh);
 
-    // 7. MARS GROUP: Photorealistic Viking Surface, MOLA Elevation Bump, & Atmospheric Haze
+    // 7. MARS GROUP: Viking Surface, MOLA Elevation Relief, & Thin CO2 Haze
     const marsGroup = new THREE.Group();
-    marsGroup.position.set(7.0, -0.5, 1.2);
+    marsGroup.position.set(7.2, -0.6, 1.0);
     scene.add(marsGroup);
 
     const marsRadius = 2.95;
@@ -173,27 +168,27 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
       map: marsMap,
       bumpMap: marsBump,
       bumpScale: 0.08,
-      roughness: 0.82,
-      metalness: 0.12,
+      roughness: 0.85,
+      metalness: 0.10,
     });
     const marsMesh = new THREE.Mesh(marsGeo, marsMat);
     marsMesh.name = 'mars';
     marsGroup.add(marsMesh);
 
-    // Mars Thin CO2 Atmospheric Haze Shell
+    // Thin Mars Atmospheric Haze
     const marsHazeGeo = new THREE.SphereGeometry(marsRadius * 1.025, 48, 48);
     const marsHazeMat = new THREE.MeshBasicMaterial({
-      color: 0xc86432,
+      color: 0xf97316,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.14,
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
     });
     const marsHazeMesh = new THREE.Mesh(marsHazeGeo, marsHazeMat);
     marsGroup.add(marsHazeMesh);
 
-    // 8. Orbital Elliptical Guide Rings
-    const createOrbitRing = (radiusX: number, radiusZ: number, color: number): THREE.Line => {
+    // 8. Elegant Astronomical Guide Orbits (Ultra-thin, non-intrusive)
+    const createOrbitalCurve = (radiusX: number, radiusZ: number, color: number): THREE.Line => {
       const points: THREE.Vector3[] = [];
       const segments = 128;
       for (let i = 0; i <= segments; i++) {
@@ -201,28 +196,24 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
         points.push(new THREE.Vector3(Math.cos(theta) * radiusX, 0, Math.sin(theta) * radiusZ));
       }
       const geom = new THREE.BufferGeometry().setFromPoints(points);
-      const mat = new THREE.LineDashedMaterial({
+      const mat = new THREE.LineBasicMaterial({
         color: color,
-        dashSize: 0.5,
-        gapSize: 0.3,
         transparent: true,
-        opacity: 0.28,
+        opacity: 0.12,
       });
-      const line = new THREE.Line(geom, mat);
-      line.computeLineDistances();
-      return line;
+      return new THREE.Line(geom, mat);
     };
 
-    const earthOrbit = createOrbitRing(13, 10.5, 0x64735d);
-    earthOrbit.rotation.x = 0.22;
+    const earthOrbit = createOrbitalCurve(14.5, 11.2, 0x38bdf8);
+    earthOrbit.rotation.x = 0.25;
     scene.add(earthOrbit);
 
-    const marsOrbit = createOrbitRing(17, 13.5, 0xb75b3d);
-    marsOrbit.rotation.x = -0.16;
-    marsOrbit.rotation.z = 0.12;
+    const marsOrbit = createOrbitalCurve(18.2, 14.5, 0xf97316);
+    marsOrbit.rotation.x = -0.18;
+    marsOrbit.rotation.z = 0.10;
     scene.add(marsOrbit);
 
-    // 9. Raycasting for Interaction
+    // 9. Interactive Mouse Picking
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -237,7 +228,7 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
       if (intersects.length > 0) {
         const target = intersects[0].object.name;
         container.style.cursor = 'pointer';
-        setHoveredObject(target);
+        setHoveredObject(target === 'earth' ? 'Earth [Terrestrial Laboratory]' : target === 'moon' ? 'Moon [Artemis Frontier]' : 'Mars [Exploration Target]');
       } else {
         container.style.cursor = 'default';
         setHoveredObject(null);
@@ -265,48 +256,48 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
       container.addEventListener('click', handleClick);
     }
 
-    // 10. Animation Loop
-    let animationFrameId: number;
+    // 10. Animation Loop: Smooth physical rotation and gentle orbital drift
+    let animId: number;
     const clock = new THREE.Clock();
 
     const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      animId = requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
 
-      // Slow realistic axial rotations
-      earthMesh.rotation.y = elapsedTime * 0.035;
-      cloudsMesh.rotation.y = elapsedTime * 0.045; // Clouds drift relative to surface!
-      moonMesh.rotation.y = elapsedTime * 0.015;
-      marsMesh.rotation.y = elapsedTime * 0.028;
+      // Slow, majestic planetary rotations
+      earthMesh.rotation.y = elapsed * 0.025;
+      cloudsMesh.rotation.y = elapsed * 0.032; // Clouds drift independently
+      moonMesh.rotation.y = elapsed * 0.012;
+      marsMesh.rotation.y = elapsed * 0.020;
 
-      // Subtle celestial floating oscillation
-      earthGroup.position.y = 0.4 + Math.sin(elapsedTime * 0.35) * 0.12;
-      moonGroup.position.y = 3.4 + Math.cos(elapsedTime * 0.45) * 0.1;
-      marsGroup.position.y = -0.5 + Math.sin(elapsedTime * 0.3 + 1.2) * 0.15;
+      // Subtle celestial floating
+      earthGroup.position.y = 0.2 + Math.sin(elapsed * 0.3) * 0.08;
+      moonGroup.position.y = 3.6 + Math.cos(elapsed * 0.4) * 0.06;
+      marsGroup.position.y = -0.6 + Math.sin(elapsed * 0.25 + 1.0) * 0.10;
 
-      // Camera target interpolation based on active selection
+      // Camera focal adjustment based on target
       let targetX = 0;
-      let targetY = 1.8;
-      let targetZ = 22;
+      let targetY = 1.5;
+      let targetZ = 22.5;
 
       if (activePlanetId === 'earth') {
-        targetX = -4.5;
-        targetY = 1.0;
-        targetZ = 15;
+        targetX = -4.2;
+        targetY = 0.6;
+        targetZ = 16.0;
       } else if (activePlanetId === 'moon') {
         targetX = -0.8;
-        targetY = 3.2;
-        targetZ = 12.5;
+        targetY = 2.8;
+        targetZ = 13.5;
       } else if (activePlanetId === 'mars') {
-        targetX = 4.5;
-        targetY = 0.1;
-        targetZ = 15;
+        targetX = 4.6;
+        targetY = -0.2;
+        targetZ = 16.0;
       }
 
-      camera.position.x += (targetX - camera.position.x) * 0.035;
-      camera.position.y += (targetY - camera.position.y) * 0.035;
-      camera.position.z += (targetZ - camera.position.z) * 0.035;
-      camera.lookAt(targetX * 0.35, targetY * 0.25, 0);
+      camera.position.x += (targetX - camera.position.x) * 0.03;
+      camera.position.y += (targetY - camera.position.y) * 0.03;
+      camera.position.z += (targetZ - camera.position.z) * 0.03;
+      camera.lookAt(targetX * 0.3, targetY * 0.2, 0);
 
       renderer.render(scene, camera);
     };
@@ -321,7 +312,6 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
-
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -330,7 +320,7 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
         container.removeEventListener('mousemove', handleMouseMove);
         container.removeEventListener('click', handleClick);
       }
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(animId);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -362,23 +352,16 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
     <div className={`relative w-full h-full overflow-hidden select-none ${className}`}>
       <div ref={mountRef} className="w-full h-full" />
 
-      {/* Scientific Overlay Reticle and Target HUD */}
+      {/* Floating Target Identification HUD */}
       {hoveredObject && (
-        <div className="absolute top-6 left-6 pointer-events-none font-mono text-xs bg-obsidian/90 border border-stone-gray/40 px-3 py-2 backdrop-blur-md shadow-2xl">
-          <div className="flex items-center space-x-2 text-warm-white">
-            <span className="w-2 h-2 rounded-full bg-telemetry-cyan animate-pulse"></span>
-            <span className="uppercase font-semibold tracking-wider">LOCKED TARGET: {hoveredObject}</span>
+        <div className="absolute top-6 left-6 pointer-events-none font-inter text-xs bg-space-card/80 border border-white/[0.12] px-3.5 py-2 rounded-xl backdrop-blur-xl shadow-glass">
+          <div className="flex items-center space-x-2 text-starlight-white font-medium">
+            <span className="w-2 h-2 rounded-full bg-earth animate-pulse"></span>
+            <span>{hoveredObject}</span>
           </div>
-          <p className="text-stone-gray text-[10px] mt-1">CLICK CELESTIAL BODY TO INITIALIZE OPERATIONAL PROFILE</p>
+          <p className="text-[10px] text-starlight-subtle mt-0.5">Click to focus planetary research profile</p>
         </div>
       )}
-
-      {/* Aerospace Coordinate Graticule Overlay */}
-      <div className="absolute bottom-4 right-4 pointer-events-none font-mono text-[10px] text-stone-gray/60 space-y-0.5 text-right">
-        <div>PHOTOREALISTIC NASA ORBITAL ENGINE v2.6</div>
-        <div>VISIBLE EARTH 2K // LRO LOLA // MRO VIKING</div>
-        <div>EPHEMERIS: J2026.4 BARYCENTRIC VECTOR</div>
-      </div>
     </div>
   );
 };

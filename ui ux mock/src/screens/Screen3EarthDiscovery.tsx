@@ -1,36 +1,29 @@
 import React, { useState, useMemo } from 'react';
-import {
-  ActiveScreen,
-  PlanetaryTarget,
-  AnalogLocation,
-  AnalogCategory
-} from '../types';
+import { ActiveScreen, AnalogLocation, AnalogCategory, PlanetaryTarget } from '../types';
 import { RealGISMap } from '../components/common/RealGISMap';
 import { Real3DGlobe } from '../components/canvas3d/Real3DGlobe';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
-import {
-  Search,
-  MapPin,
-  ChevronRight,
-  ArrowRight,
-  Layers,
-  Activity,
-  Database,
-  Compass,
-  Sparkles,
+import { 
+  Globe, 
+  MapPin, 
+  Search, 
+  Layers, 
+  SlidersHorizontal, 
+  ArrowRight, 
+  CheckCircle2, 
+  Box, 
+  Sparkles, 
   ExternalLink,
-  X,
-  Globe,
-  Box,
-  Thermometer
+  Flame,
+  FileText,
+  Filter
 } from 'lucide-react';
-import { audio } from '../utils/audio';
 
 interface Screen3EarthDiscoveryProps {
   analogLocations: AnalogLocation[];
   selectedTarget: PlanetaryTarget;
   selectedAnalog: AnalogLocation;
-  onSelectAnalog: (loc: AnalogLocation) => void;
+  onSelectAnalog: (analog: AnalogLocation) => void;
   onNavigate: (screen: ActiveScreen) => void;
 }
 
@@ -41,9 +34,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   onSelectAnalog,
   onNavigate,
 }) => {
-  // Display View Mode: 2D Real Satellite/Thermal GIS Map vs 3D Digital Globe vs 3D Topography
   const [displayMode, setDisplayMode] = useState<'real-gis' | '3d-globe' | '3d-topography'>('real-gis');
-  const [thermalGlobeMode, setThermalGlobeMode] = useState<boolean>(true);
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -52,7 +43,6 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   const [selectedCategories, setSelectedCategories] = useState<AnalogCategory[]>([]);
   const [minSimilarity, setMinSimilarity] = useState<number>(80);
   const [onlyHighFidelity, setOnlyHighFidelity] = useState<boolean>(false);
-  const [activeOverlay, setActiveOverlay] = useState<'standard' | 'thermal' | 'elevation' | 'aridity'>('thermal');
   const [previewLocation, setPreviewLocation] = useState<AnalogLocation>(selectedAnalog);
 
   // Filter application logic
@@ -94,205 +84,176 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   }, [analogLocations, searchQuery, selectedPlanetFilter, selectedRegion, onlyHighFidelity, selectedCategories, minSimilarity]);
 
   const handleLocationSelect = (loc: AnalogLocation) => {
-    audio.playClick();
     setPreviewLocation(loc);
     onSelectAnalog(loc);
   };
 
   const handleLaunchComparison = () => {
-    audio.playConfirm();
     onNavigate('comparison');
   };
 
   const handleOpenProfile = () => {
-    audio.playConfirm();
     onNavigate('profile');
   };
 
   const toggleCategory = (cat: AnalogCategory) => {
-    audio.playClick();
     setSelectedCategories((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-80px)] bg-charcoal p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="w-full min-h-[calc(100vh-80px)] bg-space-void px-6 lg:px-8 py-10 space-y-8 max-w-7xl mx-auto">
       {/* Header & Target Link Telemetry */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-obsidian-border pb-4 gap-4">
-        <div>
-          <div className="flex items-center space-x-2 font-mono text-xs text-stone-gray uppercase tracking-wider mb-1">
-            <span className="text-mars font-bold">MISSION STEP 02</span>
-            <span>//</span>
-            <span>GOOGLE MAPS GLOBAL EARTH OBSERVATION</span>
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/[0.08] pb-6 gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2 text-xs font-inter font-medium text-earth uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-earth animate-pulse"></span>
+            <span>Earth Observation Engine // Step 02</span>
           </div>
-          <h1 className="font-grotesk font-bold text-3xl md:text-5xl text-mineral-white uppercase tracking-tight">
+          <h1 className="font-grotesk font-bold text-3xl sm:text-4xl md:text-5xl text-starlight-white tracking-tight">
             Earth Analog Discovery
           </h1>
-          <p className="font-inter text-stone-gray text-xs md:text-sm mt-1">
-            Google Maps Satellite, Hybrid & Terrain observation calibrated to terrestrial candidate analogs.{' '}
-            Extraterrestrial benchmark: <span className="text-mineral-white font-mono font-semibold uppercase">{selectedTarget.name}</span>
+          <p className="font-inter text-starlight-dim text-sm md:text-base max-w-2xl leading-relaxed">
+            High-resolution satellite GIS & planetary exploration matching engine. Calibrated to extraterrestrial mission target:{' '}
+            <span className="text-starlight-white font-semibold">{selectedTarget.name}</span>
           </p>
         </div>
 
-        {/* View Mode Switcher: Google Maps Satellite vs 3D Globe vs 3D Topographic Mesh */}
-        <div className="flex items-center space-x-2 font-mono text-xs bg-obsidian-card border border-obsidian-border p-1">
+        {/* View Mode Switcher: Google Maps vs 3D Globe vs 3D Topography */}
+        <div className="flex items-center p-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl">
           <button
-            onClick={() => {
-              audio.playClick();
-              setDisplayMode('real-gis');
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${displayMode === 'real-gis'
-              ? 'bg-mars text-mineral-white font-bold shadow-sm'
-              : 'text-stone-gray hover:text-mineral-white'
-              }`}
+            onClick={() => setDisplayMode('real-gis')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              displayMode === 'real-gis'
+                ? 'bg-white text-space-void font-bold shadow-glass'
+                : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
+            }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span className="uppercase">Google Maps Satellite</span>
+            <span>Google Maps</span>
           </button>
 
           <button
-            onClick={() => {
-              audio.playClick();
-              setDisplayMode('3d-globe');
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${displayMode === '3d-globe'
-              ? 'bg-mars text-mineral-white font-bold shadow-sm'
-              : 'text-stone-gray hover:text-mineral-white'
-              }`}
+            onClick={() => setDisplayMode('3d-globe')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              displayMode === '3d-globe'
+                ? 'bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-bold shadow-mars-glow'
+                : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
+            }`}
           >
             <Box className="w-3.5 h-3.5" />
-            <span className="uppercase">3D Digital Globe</span>
+            <span>3D Digital Globe</span>
           </button>
 
           <button
-            onClick={() => {
-              audio.playClick();
-              setDisplayMode('3d-topography');
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${displayMode === '3d-topography'
-              ? 'bg-earth text-mineral-white font-bold shadow-sm'
-              : 'text-stone-gray hover:text-mineral-white'
-              }`}
+            onClick={() => setDisplayMode('3d-topography')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              displayMode === '3d-topography'
+                ? 'bg-earth text-space-void font-bold shadow-sm'
+                : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
+            }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span className="uppercase">3D Terrain Relief</span>
+            <span>3D Terrain Relief</span>
           </button>
         </div>
       </div>
 
-      {/* Multi-Criteria Filter Bar */}
-      <div className="bg-obsidian border border-obsidian-border p-4 space-y-4">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 font-mono text-xs">
+      {/* Advanced Scientific Filter Suite */}
+      <div className="glass-panel p-6 rounded-3xl space-y-5">
+        {/* Top Search & Primary Filters Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-gray" />
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-starlight-subtle" />
             <input
               type="text"
+              placeholder="Search site, country, geology, mineralogy..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, region, country, or mineralogy (e.g., Chalk, Sabkha, Perchlorate)..."
-              className="w-full bg-obsidian-card border border-obsidian-border pl-9 pr-4 py-2 text-mineral-white placeholder-stone-gray/60 focus:outline-none focus:border-mars text-xs"
+              className="w-full bg-white/[0.04] border border-white/[0.10] focus:border-earth rounded-full pl-11 pr-4 py-2.5 text-xs font-inter text-starlight-white placeholder-starlight-subtle focus:outline-none transition-colors"
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-gray hover:text-mineral-white"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
 
-          {/* Planet Affinity Filter */}
-          <div className="flex items-center space-x-1 border border-obsidian-border bg-obsidian-card p-1">
-            <span className="px-2 text-stone-dark text-[10px] uppercase font-semibold">PLANET:</span>
+          {/* Planetary Target Matcher Segment */}
+          <div className="flex items-center space-x-1.5 p-1 rounded-full bg-white/[0.03] border border-white/[0.08]">
             {(['all', 'moon', 'mars'] as const).map((pf) => (
               <button
                 key={pf}
-                onClick={() => {
-                  audio.playClick();
-                  setSelectedPlanetFilter(pf);
-                }}
-                className={`px-3 py-1 uppercase text-[11px] transition-colors ${selectedPlanetFilter === pf
-                  ? 'bg-mars text-mineral-white font-bold'
-                  : 'text-stone-gray hover:text-mineral-white'
-                  }`}
+                onClick={() => setSelectedPlanetFilter(pf)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-150 ${
+                  selectedPlanetFilter === pf
+                    ? 'bg-white text-space-void font-bold shadow-sm'
+                    : 'text-starlight-dim hover:text-starlight-white'
+                }`}
               >
-                {pf}
+                {pf === 'all' ? 'All Analogs' : pf === 'moon' ? 'Moon Analogs' : 'Mars Analogs'}
               </button>
             ))}
           </div>
 
-          {/* Global Tier-1 High Fidelity Filter Button */}
+          {/* Tier-1 High-Fidelity Quick Toggle */}
           <button
-            onClick={() => {
-              audio.playClick();
-              setOnlyHighFidelity(!onlyHighFidelity);
-            }}
-            className={`flex items-center space-x-2 px-3.5 py-2 border font-mono text-xs transition-all ${onlyHighFidelity
-              ? 'bg-telemetry-emerald text-charcoal font-bold border-telemetry-emerald shadow-md'
-              : 'bg-obsidian-card text-telemetry-emerald border-telemetry-emerald/40 hover:bg-obsidian-surface'
-              }`}
+            onClick={() => setOnlyHighFidelity(!onlyHighFidelity)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-semibold uppercase tracking-wider transition-all duration-200 ${
+              onlyHighFidelity
+                ? 'bg-telemetry-emerald text-space-void shadow-md'
+                : 'bg-white/[0.04] text-telemetry-emerald border border-telemetry-emerald/40 hover:bg-white/[0.08]'
+            }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="uppercase">{onlyHighFidelity ? 'TIER-1 SITES ACTIVE [>92%]' : 'TIER-1 FIDELITY [>92%]'}</span>
+            <span>{onlyHighFidelity ? 'Tier-1 Sites Active [>92%]' : 'Tier-1 Quality [>92%]'}</span>
           </button>
         </div>
 
-        {/* Global Continental Regions Filter Bar */}
-        <div className="pt-2 border-t border-obsidian-border/40 flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
-          <span className="text-stone-dark uppercase text-[10px] mr-1">GLOBAL REGIONS:</span>
-          {(
-            [
-              ['all', 'All Continents'],
-              ['North America', 'North America'],
-              ['South America', 'South America'],
-              ['Polar / Arctic', 'Polar & Arctic'],
-              ['Africa', 'Africa'],
-              ['Europe', 'Europe'],
-              ['Oceania', 'Oceania'],
-            ] as [string, string][]
-          ).map(([regId, label]) => (
+        {/* Global Continental Regions Bar */}
+        <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-white/[0.08] text-xs font-inter">
+          <span className="text-starlight-subtle uppercase tracking-wider text-[11px] mr-1">CONTINENTS:</span>
+          {[
+            ['all', 'All Continents'],
+            ['North America', 'North America'],
+            ['South America', 'South America'],
+            ['Polar / Arctic', 'Polar & Arctic'],
+            ['Africa', 'Africa'],
+            ['Europe', 'Europe'],
+            ['Oceania', 'Oceania'],
+          ].map(([regId, label]) => (
             <button
               key={regId}
-              onClick={() => {
-                audio.playClick();
-                setSelectedRegion(regId);
-              }}
-              className={`px-2.5 py-0.5 border text-[10px] transition-colors ${selectedRegion === regId
-                ? 'bg-mineral-white text-charcoal font-bold border-mineral-white'
-                : 'bg-obsidian-card text-stone-gray border-obsidian-border hover:border-stone-gray hover:text-mineral-white'
-                }`}
+              onClick={() => setSelectedRegion(regId)}
+              className={`px-3 py-1.5 rounded-full transition-all duration-150 ${
+                selectedRegion === regId
+                  ? 'bg-starlight-white text-space-void font-semibold shadow-sm'
+                  : 'bg-white/[0.03] text-starlight-dim border border-white/[0.08] hover:border-white/[0.20] hover:text-starlight-white'
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* Detailed Scientific Criteria Toggles */}
-        <div className="pt-3 border-t border-obsidian-border/60 flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-stone-gray">
-          {/* Analog Category Pills */}
+        {/* Categories & Similarity Slider */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/[0.08] text-xs font-inter">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-stone-dark uppercase text-[10px] mr-1">ANALOG TYPES:</span>
-            {(
-              [
-                ['hyper-arid', 'Hyper-Arid'],
-                ['sub-sea-level', 'Sub-Sea-Level Basin'],
-                ['volcanic-basalt', 'Volcanic Basalt'],
-                ['impact-crater', 'Impact Crater'],
-                ['polar-desert', 'Polar Desert'],
-              ] as [AnalogCategory, string][]
-            ).map(([catId, label]) => {
-              const active = selectedCategories.includes(catId);
+            <span className="text-starlight-subtle uppercase tracking-wider text-[11px] mr-1">ANALOG TYPES:</span>
+            {[
+              ['hyper-arid', 'Hyper-Arid'],
+              ['sub-sea-level', 'Sub-Sea-Level Basin'],
+              ['volcanic-basalt', 'Volcanic Basalt'],
+              ['impact-crater', 'Impact Crater'],
+              ['polar-desert', 'Polar Desert'],
+            ].map(([catId, label]) => {
+              const active = selectedCategories.includes(catId as AnalogCategory);
               return (
                 <button
                   key={catId}
-                  onClick={() => toggleCategory(catId)}
-                  className={`px-2.5 py-1 border transition-colors ${active
-                    ? 'bg-obsidian-surface border-mars text-mineral-white font-medium'
-                    : 'border-obsidian-border bg-obsidian-card hover:border-stone-gray text-stone-gray'
-                    }`}
+                  onClick={() => toggleCategory(catId as AnalogCategory)}
+                  className={`px-3 py-1 rounded-full text-xs transition-all duration-150 ${
+                    active
+                      ? 'bg-earth text-space-void font-semibold'
+                      : 'bg-white/[0.03] text-starlight-dim border border-white/[0.08] hover:border-white/[0.20]'
+                  }`}
                 >
                   {label}
                 </button>
@@ -300,9 +261,8 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             })}
           </div>
 
-          {/* Similarity Slider */}
-          <div className="flex items-center space-x-3 bg-obsidian-card px-3 py-1.5 border border-obsidian-border">
-            <span className="text-[10px] uppercase text-stone-dark">MIN SIMILARITY:</span>
+          <div className="flex items-center space-x-3 bg-white/[0.03] px-3.5 py-1.5 rounded-full border border-white/[0.08]">
+            <span className="text-[11px] uppercase text-starlight-subtle">Min Similarity:</span>
             <input
               type="range"
               min="80"
@@ -312,101 +272,96 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               onChange={(e) => setMinSimilarity(Number(e.target.value))}
               className="w-24 accent-mars cursor-pointer"
             />
-            <span className="text-mineral-white font-bold">{minSimilarity}%</span>
+            <span className="text-starlight-white font-bold font-grotesk">{minSimilarity}%</span>
           </div>
         </div>
       </div>
 
-      {/* Main Visual Display: Real Leaflet Satellite+Thermal GIS Map OR 3D Globe OR 3D Topographic Mesh */}
-      {displayMode === 'real-gis' && (
-        <RealGISMap
-          locations={filteredLocations}
-          selectedLocationId={previewLocation.id}
-          onSelectLocation={handleLocationSelect}
-          activeOverlay={activeOverlay}
-        />
-      )}
-
-      {displayMode === '3d-globe' && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-end space-x-2 font-mono text-xs">
-            <button
-              onClick={() => {
-                audio.playClick();
-                setThermalGlobeMode(!thermalGlobeMode);
-              }}
-              className="flex items-center space-x-1.5 px-3 py-1 bg-obsidian border border-obsidian-border text-telemetry-cyan hover:text-mineral-white"
-            >
-              <Thermometer className="w-3.5 h-3.5" />
-              <span>GLOBE SHADER: {thermalGlobeMode ? 'THERMAL LST INFRARED' : 'TRUE SATELLITE COLOR'}</span>
-            </button>
-          </div>
-          <Real3DGlobe
+      {/* Main Visual Display: Google Maps Satellite GIS OR 3D Digital Globe OR 3D Topographic Mesh */}
+      <div className="rounded-3xl overflow-hidden border border-white/[0.10] shadow-glass bg-space-surface">
+        {displayMode === 'real-gis' && (
+          <RealGISMap
             locations={filteredLocations}
             selectedLocationId={previewLocation.id}
             onSelectLocation={handleLocationSelect}
-            thermalMode={thermalGlobeMode}
           />
-        </div>
-      )}
+        )}
 
-      {displayMode === '3d-topography' && (
-        <div className="space-y-2">
-          <Real3DTopography
-            locationName={previewLocation.name}
-            terrainType={previewLocation.geology.rockType}
-            elevationDatum={`${previewLocation.elevationMeters}m MSL`}
-            thermalRange={{ min: 4, max: 48, unit: '°C' }}
-          />
-        </div>
-      )}
+        {displayMode === '3d-globe' && (
+          <div className="p-4">
+            <Real3DGlobe
+              locations={filteredLocations}
+              selectedLocationId={previewLocation.id}
+              onSelectLocation={handleLocationSelect}
+            />
+          </div>
+        )}
 
-      {/* Bottom Split Layout: Candidate Gallery and Live Telemetry Preview Drawer */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {displayMode === '3d-topography' && (
+          <div className="p-4">
+            <Real3DTopography
+              locationName={previewLocation.name}
+              terrainType={previewLocation.geology.rockType}
+              elevationDatum={`${previewLocation.elevationMeters}m MSL`}
+              thermalRange={{ min: 4, max: 48, unit: '°C' }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Layout: Candidate Catalog Cards & Deep Preview Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Filtered Candidate Cards List */}
-        <div className="lg:col-span-7 space-y-3">
-          <div className="font-mono text-xs text-stone-gray uppercase tracking-wider flex items-center justify-between">
-            <span>FILTERED CANDIDATE CATALOG [{filteredLocations.length}]</span>
-            <span className="text-[10px] text-telemetry-emerald">CALIBRATED TO: {selectedTarget.name.toUpperCase()}</span>
+        <div className="lg:col-span-7 space-y-4">
+          <div className="flex items-center justify-between text-xs font-inter text-starlight-subtle uppercase tracking-wider px-1">
+            <span>Verified Candidate Catalog [{filteredLocations.length}]</span>
+            <span className="text-earth font-mono text-[11px]">Ranked by Planetary Fidelity</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredLocations.map((loc) => {
               const isSelected = loc.id === previewLocation.id;
+              const isMars = loc.primaryTargetAnalog === 'mars';
               return (
                 <div
                   key={loc.id}
                   onClick={() => handleLocationSelect(loc)}
-                  className={`p-4 border cursor-pointer transition-all duration-150 select-none relative ${isSelected
-                    ? 'bg-obsidian-surface border-mars ring-1 ring-mars/50 shadow-md'
-                    : 'bg-obsidian hover:bg-obsidian-card border-obsidian-border'
-                    }`}
+                  className={`p-5 rounded-2xl cursor-pointer transition-all duration-200 select-none relative overflow-hidden ${
+                    isSelected
+                      ? isMars
+                        ? 'bg-space-card/90 border-2 border-mars shadow-mars-glow'
+                        : 'bg-space-card/90 border-2 border-lunar shadow-cosmic-glow'
+                      : 'glass-panel hover:border-white/[0.20]'
+                  }`}
                 >
-                  {loc.featuredEgypt && (
-                    <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-telemetry-amber/20 border border-telemetry-amber/50 font-mono text-[9px] text-telemetry-amber font-semibold uppercase">
-                      EGYPT ANALOG
+                  {/* Continent Badge */}
+                  {loc.continent && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.10] text-[10px] font-inter text-starlight-dim">
+                      {loc.continent}
                     </div>
                   )}
 
                   <div className="flex items-center space-x-2">
-                    <span className="font-mono text-[10px] text-stone-gray">[{loc.flagCode}]</span>
-                    <h3 className="font-grotesk font-bold text-sm text-mineral-white truncate">
+                    <span className="text-xs font-mono text-earth font-bold">[{loc.flagCode}]</span>
+                    <h3 className="font-grotesk font-bold text-base text-starlight-white truncate max-w-[200px]">
                       {loc.name.split(' (')[0]}
                     </h3>
                   </div>
 
-                  <p className="font-mono text-[11px] text-stone-gray mt-0.5">
+                  <p className="font-inter text-xs text-starlight-dim mt-1">
                     {loc.region}, {loc.country}
                   </p>
 
-                  <div className="mt-3 flex items-center justify-between font-mono text-xs pt-2 border-t border-obsidian-border">
-                    <div className="flex items-center space-x-1">
-                      <span className="text-stone-dark text-[10px]">SIMILARITY:</span>
-                      <span className="text-mineral-white font-bold">{loc.overallSimilarity.toFixed(1)}%</span>
+                  <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-xs font-inter">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-starlight-subtle text-[11px]">Similarity:</span>
+                      <span className="text-starlight-white font-bold font-grotesk text-sm">
+                        {loc.overallSimilarity.toFixed(1)}%
+                      </span>
                     </div>
 
-                    <div className="flex items-center space-x-1 text-[11px] text-stone-gray">
-                      <span>CONF: {loc.confidenceScore.toFixed(0)}%</span>
+                    <div className="text-[11px] text-starlight-subtle">
+                      Conf: {loc.confidenceScore.toFixed(0)}%
                     </div>
                   </div>
                 </div>
@@ -415,88 +370,89 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           </div>
         </div>
 
-        {/* Right: Scientific Preview HUD Panel */}
+        {/* Right: Selected Location Dossier Preview Drawer */}
         {previewLocation && (
-          <div className="lg:col-span-5 bg-obsidian border border-obsidian-border p-6 space-y-5">
-            <div className="flex items-start justify-between border-b border-obsidian-border pb-3">
+          <div className="lg:col-span-5 glass-panel p-6 lg:p-7 rounded-3xl space-y-5">
+            <div className="flex items-start justify-between border-b border-white/[0.08] pb-4">
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-mono text-[10px] px-1.5 py-0.5 bg-obsidian-card border border-stone-gray/30 text-stone-gray uppercase">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.10] text-starlight-subtle uppercase">
                     ID: {previewLocation.id}
                   </span>
-                  {previewLocation.featuredEgypt && (
-                    <span className="font-mono text-[10px] text-telemetry-amber font-semibold">
-                      ★ KEY EGYPTIAN ANALOG
+                  {previewLocation.continent && (
+                    <span className="text-[11px] font-inter text-earth font-medium">
+                      {previewLocation.continent}
                     </span>
                   )}
                 </div>
-                <h2 className="font-grotesk font-bold text-xl text-mineral-white mt-1">
+                <h2 className="font-grotesk font-bold text-xl lg:text-2xl text-starlight-white mt-1.5">
                   {previewLocation.name}
                 </h2>
-                <p className="font-mono text-xs text-stone-gray mt-0.5">
-                  {previewLocation.coordinates.display} • ELEV: {previewLocation.elevationMeters}m
+                <p className="font-inter text-xs text-starlight-dim mt-0.5">
+                  {previewLocation.coordinates.display} • {previewLocation.elevationMeters}m MSL
                 </p>
               </div>
 
               <div className="text-right">
-                <div className="font-mono text-2xl font-bold text-mars">
+                <div className="font-grotesk font-bold text-2xl text-mars">
                   {previewLocation.overallSimilarity.toFixed(1)}%
                 </div>
-                <div className="font-mono text-[9px] text-stone-gray uppercase">ANALOG SIMILARITY</div>
+                <div className="text-[10px] font-inter text-starlight-subtle uppercase">Fidelity Index</div>
               </div>
             </div>
 
-            {/* Quick Hero Image */}
-            <div className="relative w-full h-36 bg-charcoal-deep border border-obsidian-border overflow-hidden">
+            {/* High-Res Hero Thumbnail */}
+            <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-white/[0.10] group">
               <img
                 src={previewLocation.imagery.hero}
                 alt={previewLocation.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute bottom-2 left-2 font-mono text-[10px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white">
-                CLIMATE: {previewLocation.climateType}
+              <div className="absolute inset-0 bg-gradient-to-t from-space-void/90 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 text-xs font-inter text-starlight-white bg-space-void/80 px-2.5 py-1 rounded-md border border-white/[0.12] backdrop-blur-md">
+                Köppen Climate: {previewLocation.climateType}
               </div>
             </div>
 
             {/* Summary */}
-            <p className="font-inter text-xs text-mineral-muted leading-relaxed">
+            <p className="font-inter text-xs text-starlight-dim leading-relaxed">
               {previewLocation.summary}
             </p>
 
-            {/* Geological & Environmental Snapshot */}
-            <div className="space-y-2 font-mono text-xs pt-2 border-t border-obsidian-border">
+            {/* Geological Key Attributes */}
+            <div className="space-y-2 text-xs font-inter pt-3 border-t border-white/[0.08]">
               <div className="flex items-start justify-between">
-                <span className="text-stone-dark text-[11px] uppercase">LITHOLOGY:</span>
-                <span className="text-mineral-white text-right text-[11px] max-w-[240px] truncate" title={previewLocation.geology.rockType}>
+                <span className="text-starlight-subtle uppercase text-[11px]">LITHOLOGY:</span>
+                <span className="text-starlight-white text-right max-w-[220px] truncate" title={previewLocation.geology.rockType}>
                   {previewLocation.geology.rockType}
                 </span>
               </div>
               <div className="flex items-start justify-between">
-                <span className="text-stone-dark text-[11px] uppercase">LST THERMAL RANGE:</span>
-                <span className="text-mars font-bold text-[11px]">{previewLocation.environment.diurnalRange}</span>
+                <span className="text-starlight-subtle uppercase text-[11px]">DIURNAL RANGE:</span>
+                <span className="text-mars font-semibold">{previewLocation.environment.diurnalRange}</span>
               </div>
               <div className="flex items-start justify-between">
-                <span className="text-stone-dark text-[11px] uppercase">ANNUAL PRECIP:</span>
-                <span className="text-mineral-white text-[11px]">{previewLocation.environment.annualPrecipitation}</span>
+                <span className="text-starlight-subtle uppercase text-[11px]">ANNUAL PRECIPITATION:</span>
+                <span className="text-starlight-white">{previewLocation.environment.annualPrecipitation}</span>
               </div>
             </div>
 
-            {/* Action Buttons: 3D Relief vs Compare vs Profile */}
+            {/* Actions: Compare Engine & Full Profile */}
             <div className="grid grid-cols-2 gap-3 pt-3">
               <button
-                onClick={() => setDisplayMode('3d-topography')}
-                className="flex items-center justify-center space-x-2 px-3 py-2.5 bg-obsidian-card hover:bg-obsidian-surface border border-earth text-earth-bright font-mono text-xs uppercase tracking-wider transition-colors"
+                onClick={handleLaunchComparison}
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-full bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-grotesk font-semibold text-xs uppercase tracking-wider shadow-mars-glow hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
               >
-                <Box className="w-3.5 h-3.5" />
-                <span>INSPECT IN 3D</span>
+                <span>Compare Target</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
               <button
-                onClick={handleLaunchComparison}
-                className="flex items-center justify-center space-x-2 px-3 py-2.5 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-colors shadow-md font-semibold"
+                onClick={handleOpenProfile}
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-full bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.12] text-starlight-white font-grotesk font-medium text-xs uppercase tracking-wider transition-all duration-200"
               >
-                <span>COMPARE ENGINE</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <FileText className="w-3.5 h-3.5" />
+                <span>Full Dossier</span>
               </button>
             </div>
           </div>

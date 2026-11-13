@@ -5,14 +5,13 @@ import {
   ArrowRight, 
   Compass, 
   Globe, 
-  Database, 
-  Activity, 
-  Crosshair, 
   Layers, 
+  Sparkles,
   ShieldCheck,
-  ChevronRight
+  Activity,
+  Flame,
+  Award
 } from 'lucide-react';
-import { audio } from '../utils/audio';
 
 interface Screen1LandingProps {
   onNavigate: (screen: ActiveScreen) => void;
@@ -27,25 +26,19 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
   planetaryTargets,
   featuredAnalogs,
 }) => {
-  const handleCta = (screen: ActiveScreen) => {
-    audio.playConfirm();
-    onNavigate(screen);
-  };
-
   return (
-    <div className="relative w-full min-h-[calc(100vh-80px)] flex flex-col justify-between overflow-hidden bg-charcoal">
-      {/* 3D Celestial Background Visual (Earth, Moon, Mars in Cinematic Layout) */}
-      <div className="absolute inset-0 z-0 opacity-90">
-        <CelestialScene 
-          interactive={true} 
+    <div className="relative w-full min-h-[calc(100vh-80px)] flex flex-col justify-between overflow-hidden bg-space-void">
+      {/* 3D Celestial Background Visual: Full Viewport Photorealistic Earth, Moon & Mars */}
+      <div className="absolute inset-0 z-0 opacity-95">
+        <CelestialScene
+          interactive={true}
           onSelectPlanet={(planet) => {
-            audio.playClick();
             if (planet === 'mars') {
-              const marsTarget = planetaryTargets.find(t => t.planet === 'mars');
+              const marsTarget = planetaryTargets.find((t) => t.planet === 'mars');
               if (marsTarget) onSelectTarget(marsTarget);
               onNavigate('targets');
             } else if (planet === 'moon') {
-              const moonTarget = planetaryTargets.find(t => t.planet === 'moon');
+              const moonTarget = planetaryTargets.find((t) => t.planet === 'moon');
               if (moonTarget) onSelectTarget(moonTarget);
               onNavigate('targets');
             } else {
@@ -55,119 +48,128 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
         />
       </div>
 
-      {/* Subtle Aerospace Coordinate Graticule Lines */}
-      <div className="absolute inset-0 pointer-events-none z-10 bg-grid-pattern opacity-40"></div>
+      {/* Subtle Atmospheric Vignette Gradients (No harsh box edges) */}
+      <div className="absolute inset-0 pointer-events-none z-10 bg-gradient-to-t from-space-void via-transparent to-space-void/40" />
+      <div className="absolute inset-y-0 left-0 w-1/3 pointer-events-none z-10 bg-gradient-to-r from-space-void/90 via-space-void/40 to-transparent" />
 
-      {/* Scientific Overlay Reticles */}
-      <div className="absolute top-12 left-10 pointer-events-none z-10 hidden lg:block font-mono text-[11px] text-stone-gray/70 space-y-1">
-        <div className="flex items-center space-x-2">
-          <Crosshair className="w-3.5 h-3.5 text-mars" />
-          <span className="text-mineral-white font-semibold">ORBITAL EPHEMERIS: J2026.4</span>
-        </div>
-        <div>EQUATORIAL RA: 14h 29m 42s | DEC: -62° 40' 46"</div>
-        <div>HELIOCENTRIC SOLAR DISTANCE: 1.524 AU (MARS) / 1.000 AU (EARTH)</div>
-        <div className="text-telemetry-emerald">SUBSYSTEM STATUS: ALL FLIGHT INSTRUMENTS NOMINAL</div>
-      </div>
-
-      {/* Main Cinematic Hero Content */}
-      <div className="relative z-20 max-w-7xl mx-auto px-8 pt-16 pb-8 w-full flex-1 flex flex-col justify-center">
-        <div className="max-w-3xl space-y-6">
-          {/* Scientific Classification Pill */}
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-obsidian/90 border border-obsidian-border text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-mars animate-pulse"></span>
-            <span className="text-mineral-white uppercase tracking-wider font-medium">
-              NASA SPACE APPS CHALLENGE 2026 // EXPEDITION INTELLIGENCE
+      {/* Main Hero Editorial Content */}
+      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-12 w-full flex-1 flex flex-col justify-center">
+        <div className="max-w-3xl space-y-8">
+          {/* Scientific Credential Pill */}
+          <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.12] backdrop-blur-xl shadow-glass">
+            <span className="w-2 h-2 rounded-full bg-mars shadow-[0_0_8px_#F97316] animate-pulse"></span>
+            <span className="text-xs font-inter font-medium text-starlight-bright tracking-wide uppercase">
+              Planetary Terrestrial Analog Discovery Platform
             </span>
           </div>
 
-          {/* Main Headline */}
-          <div className="space-y-2">
-            <h1 className="font-grotesk font-bold text-5xl md:text-7xl lg:text-8xl tracking-tight text-mineral-white uppercase leading-[0.95]">
-              Earth is our <br />
-              <span className="text-stone-gray">Laboratory.</span>
+          {/* Grand Architectural Headline */}
+          <div className="space-y-4">
+            <h1 className="font-grotesk font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-starlight-white leading-[1.02]">
+              Earth Is Our <br />
+              <span className="bg-gradient-to-r from-starlight-white via-starlight-muted to-starlight-dim bg-clip-text text-transparent">
+                Planetary Laboratory.
+              </span>
             </h1>
-            <div className="h-1 w-24 bg-mars"></div>
+            <p className="font-inter text-base sm:text-lg md:text-xl text-starlight-dim max-w-2xl font-normal leading-relaxed">
+              Unlocking the extreme geological terrains, hyper-arid yardangs, and polar cold deserts of Earth that directly prepare humanity for the permanent lunar frontier and Martian exploration missions.
+            </p>
           </div>
 
-          {/* Supporting Text */}
-          <p className="font-inter text-lg md:text-xl text-mineral-muted max-w-2xl font-normal leading-relaxed">
-            Discover the places on Earth that can prepare humanity for its next planetary frontier. 
-            A scientific comparison engine bridging terrestrial terrain to permanent lunar outposts and future Martian exploration missions.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 font-mono text-xs">
+          {/* High-Impact Actions */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
-              onClick={() => handleCta('discovery')}
-              className="flex items-center space-x-3 px-6 py-3.5 bg-mars hover:bg-mars-glow text-mineral-white uppercase tracking-wider transition-all duration-150 shadow-lg group"
+              onClick={() => onNavigate('discovery')}
+              className="flex items-center space-x-3 px-7 py-4 rounded-full bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-grotesk font-semibold text-sm tracking-wide shadow-mars-glow hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 group"
             >
-              <Globe className="w-4 h-4" />
-              <span className="font-semibold">EXPLORE ANALOGS</span>
+              <Globe className="w-4 h-4 text-white" />
+              <span>Explore 12 Global Analogs</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
 
             <button
-              onClick={() => handleCta('targets')}
-              className="flex items-center space-x-3 px-6 py-3.5 bg-obsidian-card hover:bg-obsidian-surface border border-stone-gray/40 text-mineral-white uppercase tracking-wider transition-all duration-150"
+              onClick={() => onNavigate('targets')}
+              className="flex items-center space-x-3 px-6 py-4 rounded-full bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] hover:border-white/[0.25] text-starlight-white font-grotesk font-medium text-sm tracking-wide backdrop-blur-xl transition-all duration-200"
             >
-              <Compass className="w-4 h-4 text-lunar" />
-              <span>SELECT TARGET</span>
+              <Compass className="w-4 h-4 text-earth" />
+              <span>Select Planetary Target</span>
             </button>
+          </div>
+
+          {/* Core Platform Pillars Strip */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 max-w-2xl">
+            <div className="glass-panel p-4 rounded-2xl">
+              <div className="flex items-center space-x-2 text-earth font-grotesk font-semibold text-sm">
+                <Globe className="w-4 h-4" />
+                <span>6 Continents</span>
+              </div>
+              <p className="text-[11px] text-starlight-subtle mt-1">From Atacama & Sahara to the High Arctic</p>
+            </div>
+
+            <div className="glass-panel p-4 rounded-2xl">
+              <div className="flex items-center space-x-2 text-mars font-grotesk font-semibold text-sm">
+                <Flame className="w-4 h-4" />
+                <span>95%+ Fidelity</span>
+              </div>
+              <p className="text-[11px] text-starlight-subtle mt-1">CRISM, HiRISE & ASTER spectral correlation</p>
+            </div>
+
+            <div className="glass-panel p-4 rounded-2xl">
+              <div className="flex items-center space-x-2 text-telemetry-emerald font-grotesk font-semibold text-sm">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Flight Validated</span>
+              </div>
+              <p className="text-[11px] text-starlight-subtle mt-1">Rover mobility, drill retention & suit ingress</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Telemetry Strip & Quick Destination Jumpers */}
-      <div className="relative z-20 w-full bg-obsidian/95 border-t border-obsidian-border px-8 py-4 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 font-mono text-xs">
-          {/* Quick Targets Selector Strip */}
-          <div className="flex items-center space-x-2 text-stone-gray">
-            <span className="text-[10px] uppercase text-stone-dark font-semibold tracking-wider">TARGET DESTINATIONS:</span>
-            <div className="flex items-center space-x-2">
+      {/* Bottom Floating Curated Benchmarks Bar */}
+      <div className="relative z-20 w-full bg-space-surface/75 border-t border-white/[0.08] px-6 lg:px-8 py-4 backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          {/* Target Body Badges */}
+          <div className="flex items-center space-x-3">
+            <span className="text-xs font-inter font-medium text-starlight-subtle uppercase tracking-wider">
+              TARGET DESTINATIONS:
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
               {planetaryTargets.map((target) => (
                 <button
                   key={target.id}
                   onClick={() => {
-                    audio.playClick();
                     onSelectTarget(target);
                     onNavigate('targets');
                   }}
-                  className="px-2.5 py-1 bg-obsidian-card hover:bg-obsidian-surface border border-obsidian-border text-mineral-muted hover:text-mineral-white text-[11px] transition-colors flex items-center space-x-1.5"
+                  className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.20] text-xs font-inter text-starlight-muted hover:text-starlight-white transition-all duration-150"
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${target.planet === 'mars' ? 'bg-mars' : 'bg-lunar'}`}></span>
-                  <span>{target.name.split(' (')[0]}</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${target.planet === 'mars' ? 'bg-mars shadow-[0_0_6px_#F97316]' : 'bg-lunar shadow-[0_0_6px_#FFFFFF]'}`} />
+                  <span className="font-medium">{target.name.split(' (')[0]}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Featured Terrestrial Benchmark (Highlighting Egypt & Global candidates) */}
-          <div className="flex items-center space-x-3 text-[11px] text-stone-gray">
-            <span className="text-stone-dark uppercase">FEATURED TERRESTRIAL ANALOGS:</span>
-            <div className="flex items-center space-x-2">
+          {/* Global Analog Quick Jumps */}
+          <div className="flex items-center space-x-3">
+            <span className="text-xs font-inter font-medium text-starlight-subtle uppercase tracking-wider">
+              PRIME BENCHMARKS:
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
               {featuredAnalogs.slice(0, 3).map((analog) => (
                 <button
                   key={analog.id}
-                  onClick={() => {
-                    audio.playClick();
-                    onNavigate('discovery');
-                  }}
-                  className="px-2 py-0.5 border border-obsidian-border bg-obsidian-card hover:border-mars text-mineral-white transition-colors"
+                  onClick={() => onNavigate('discovery')}
+                  className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-earth/40 text-xs font-inter text-starlight-muted hover:text-starlight-white transition-all duration-150"
                 >
-                  {analog.name.split(' (')[0]}
+                  <span className="text-earth font-mono text-[10px] mr-1.5">[{analog.flagCode}]</span>
+                  <span>{analog.name.split(' (')[0]}</span>
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* Precision Sensor Badge */}
-          <div className="flex items-center space-x-2 text-earth-bright text-[11px]">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>PDS & USGS GROUND-TRUTH VERIFIED</span>
           </div>
         </div>
       </div>
     </div>
   );
 };
-

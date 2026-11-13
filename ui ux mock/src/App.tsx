@@ -79,7 +79,7 @@ export const App: React.FC = () => {
             onNavigate={handleNavigate}
             onSelectTarget={setSelectedTarget}
             planetaryTargets={PLANETARY_TARGETS}
-            featuredAnalogs={ANALOG_LOCATIONS.filter((l) => l.featuredEgypt)}
+            featuredAnalogs={ANALOG_LOCATIONS.filter((l) => l.overallSimilarity >= 90)}
           />
         )}
 
