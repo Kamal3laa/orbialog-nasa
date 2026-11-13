@@ -16,6 +16,7 @@ import disciplinesRouter from './modules/disciplines/disciplines.routes';
 import methodologyRouter from './modules/methodology/methodology.routes';
 import comparisonRouter from './modules/comparison/comparison.routes';
 import sandboxRouter from './modules/sandbox/sandbox.routes';
+import analogMatchRouter from './modules/analog-match/analog-match.routes';
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/v1/disciplines', disciplinesRouter);
 app.use('/api/v1/methodology', methodologyRouter);
 app.use('/api/v1/comparison', comparisonRouter);
 app.use('/api/v1/sandbox', sandboxRouter);
+app.use('/api/v1/analogs', analogMatchRouter);
 
 // ── Fallthrough ───────────────────────────────────────────────────────────────
 app.use(notFound);
