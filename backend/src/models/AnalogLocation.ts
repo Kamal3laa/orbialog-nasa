@@ -65,7 +65,6 @@ export interface IAnalogLocation extends Document {
   }[];
   metrics: IAnalogMetrics;
   imagery: { hero: string; satellite: string; terrain: string };
-  featuredEgypt?: boolean;
 }
 
 const analogLocationSchema = new Schema<IAnalogLocation>(
@@ -153,7 +152,6 @@ const analogLocationSchema = new Schema<IAnalogLocation>(
       satellite: String,
       terrain: String,
     },
-    featuredEgypt: { type: Boolean, default: false },
   },
   { timestamps: true, versionKey: false },
 );
@@ -168,7 +166,6 @@ analogLocationSchema.index({
 });
 analogLocationSchema.index({ category: 1 });
 analogLocationSchema.index({ primaryTargetAnalog: 1 });
-analogLocationSchema.index({ featuredEgypt: 1 });
 analogLocationSchema.index({ overallSimilarity: -1 });
 
 export const AnalogLocation = model<IAnalogLocation>('AnalogLocation', analogLocationSchema);

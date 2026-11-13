@@ -1,14 +1,13 @@
 import { AnalogLocation } from './types';
 
 export const ANALOG_LOCATIONS: AnalogLocation[] = [
-  // --- EGYPT ANALOG CANDIDATES (Featured in Prompt) ---
+  // --- GLOBAL PLANETARY ANALOG CANDIDATES ---
   {
     id: 'egypt-white-desert',
     name: 'White Desert (Sahara el Beyda)',
     region: 'Farafra Depression, New Valley',
     country: 'Egypt',
     flagCode: 'EG',
-    featuredEgypt: true,
     coordinates: {
       lat: 27.2883,
       lng: 28.1633,
@@ -99,7 +98,6 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Matrouh Governorate, Western Desert',
     country: 'Egypt',
     flagCode: 'EG',
-    featuredEgypt: true,
     coordinates: {
       lat: 29.5000,
       lng: 27.5000,
@@ -190,7 +188,6 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'South Sinai Governorate (St. Catherine / Wadi Feiran)',
     country: 'Egypt',
     flagCode: 'EG',
-    featuredEgypt: true,
     coordinates: {
       lat: 28.5394,
       lng: 33.9750,

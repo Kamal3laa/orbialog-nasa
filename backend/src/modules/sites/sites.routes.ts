@@ -8,7 +8,8 @@ const router = Router();
 /**
  * GET /api/v1/sites
  * Query params:
- *   planet   = all | moon | mars | egypt
+ *   planet   = all | moon | mars
+ *   country  = string (e.g. Chile, Antarctica, Iceland)
  *   category = hyper-arid | polar-desert | volcanic-basalt | impact-crater | evaporite-sabkha | sub-sea-level
  *   q        = free-text search (regex across name, region, country, summary)
  *   minSimilarity = number (0-100)
@@ -21,6 +22,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const {
       planet,
+      country,
       category,
       q,
       minSimilarity,
@@ -31,11 +33,14 @@ router.get(
 
     const filter: Record<string, unknown> = {};
 
-    // Planet / Egypt filter
+    // Planet filter
     if (planet === 'moon') filter.primaryTargetAnalog = 'moon';
     else if (planet === 'mars') filter.primaryTargetAnalog = 'mars';
-    else if (planet === 'egypt') filter.featuredEgypt = true;
-    // 'all' or undefined → no planet filter
+
+    // Country filter (case-insensitive)
+    if (country) {
+      filter.country = new RegExp(`^${country.trim()}$`, 'i');
+    }
 
     if (category) filter.category = category;
 

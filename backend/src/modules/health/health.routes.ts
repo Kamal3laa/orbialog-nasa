@@ -13,7 +13,7 @@ router.get('/', (_req: Request, res: Response) => {
         health: '/api/v1/health',
         ready: '/api/v1/ready',
         targets: '/api/v1/targets (filter: ?planet=moon|mars)',
-        sites: '/api/v1/sites (filter: ?planet=egypt|moon|mars, ?q=search, ?category=)',
+        sites: '/api/v1/sites (filter: ?planet=moon|mars, ?country=, ?q=search, ?category=)',
         disciplines: '/api/v1/disciplines',
         methodology: '/api/v1/methodology',
         comparison: '/api/v1/comparison?target=:targetId&analog=:siteId',

@@ -123,7 +123,6 @@ export interface AnalogLocation {
     satellite: string;
     terrain: string;
   };
-  featuredEgypt?: boolean;
 }
 
 export interface FilterState {
