@@ -38,6 +38,9 @@ app.use(compression());
 app.use(express.json({ limit: '100kb' }));
 
 // ── Routes ───────────────────────────────────────────────────────────────────
+app.get('/', (_req, res) => {
+  res.redirect('/api/v1');
+});
 app.use('/api/v1', healthRouter);
 app.use('/api/v1/targets', targetsRouter);
 app.use('/api/v1/sites', sitesRouter);
