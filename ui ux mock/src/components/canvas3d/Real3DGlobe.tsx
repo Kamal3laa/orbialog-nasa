@@ -25,14 +25,16 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     if (!container) return;
 
     const width = container.clientWidth || 800;
-    const height = container.clientHeight || 540;
+    const height = container.clientHeight || 560;
 
     // 1. Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0d100e);
+    scene.background = new THREE.Color(0x0c0e0c);
 
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
-    camera.position.set(0, 4, 18);
+    // Centered Perspective Camera: Globe perfectly framed in viewport!
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 14.5);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
@@ -41,126 +43,82 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     renderer.toneMappingExposure = 1.35;
     container.appendChild(renderer.domElement);
 
-    // 2. Lighting
-    const sunLight = new THREE.DirectionalLight(0xfffaed, 3.0);
-    sunLight.position.set(16, 12, 14);
+    // 2. Cinematic Lighting
+    const sunLight = new THREE.DirectionalLight(0xfffaed, 3.2);
+    sunLight.position.set(16, 8, 14);
     scene.add(sunLight);
 
-    const ambientLight = new THREE.AmbientLight(0x2d332d, 0.7);
+    const ambientLight = new THREE.AmbientLight(0x282c28, 0.65);
     scene.add(ambientLight);
 
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.45);
-    rimLight.position.set(-14, -8, -10);
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.4);
+    rimLight.position.set(-16, -6, -10);
     scene.add(rimLight);
 
     const textureLoader = new THREE.TextureLoader();
 
-    // 3. Create High-Fidelity Textures (Satellite vs Thermal LST Infrared)
-    let earthTexture: THREE.Texture;
+    // 3. Load REAL NASA High-Resolution Textures
+    const earthMap = textureLoader.load('/textures/earth_atmos_2048.jpg');
+    earthMap.colorSpace = THREE.SRGBColorSpace;
 
-    if (!thermalMode) {
-      // True NASA 2K Visible Earth Texture
-      earthTexture = textureLoader.load('/textures/earth_atmos_2048.jpg');
-      earthTexture.colorSpace = THREE.SRGBColorSpace;
-    } else {
-      // Thermal Land Surface Temperature (Ironbow / MODIS False-Color)
-      const canvas = document.createElement('canvas');
-      canvas.width = 2048;
-      canvas.height = 1024;
-      const ctx = canvas.getContext('2d')!;
+    const earthSpecular = textureLoader.load('/textures/earth_specular_2048.jpg');
+    const earthCloudsMap = textureLoader.load('/textures/earth_clouds_1024.png');
 
-      // Background Cold Oceans & Polar Zones: Dark Purple / Navy (#0d0826 to #1a0f4c)
-      ctx.fillStyle = '#0f0a2e';
-      ctx.fillRect(0, 0, 2048, 1024);
-
-      // Moderate Temperate Landmasses: Red / Crimson (#8f1414)
-      ctx.fillStyle = '#8f1414';
-      ctx.beginPath();
-      ctx.ellipse(1120, 520, 260, 290, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Sahara & Arabian Thermal Heat Belt (Intense Orange/Yellow Thermal Anomaly: 45°C - 52°C LST)
-      const saharaGrad = ctx.createRadialGradient(1100, 410, 30, 1100, 410, 240);
-      saharaGrad.addColorStop(0, '#ffffff'); // Extreme heat core (>50°C)
-      saharaGrad.addColorStop(0.35, '#ffde59'); // Bright yellow
-      saharaGrad.addColorStop(0.7, '#ff5722'); // Thermal orange
-      saharaGrad.addColorStop(1.0, '#b71c1c'); // Red margin
-      ctx.fillStyle = saharaGrad;
-      ctx.beginPath();
-      ctx.ellipse(1100, 410, 220, 110, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Atacama Desert Thermal Anomaly
-      const atacamaGrad = ctx.createRadialGradient(640, 720, 10, 640, 720, 90);
-      atacamaGrad.addColorStop(0, '#ffde59');
-      atacamaGrad.addColorStop(0.6, '#ff5722');
-      atacamaGrad.addColorStop(1.0, '#8f1414');
-      ctx.fillStyle = atacamaGrad;
-      ctx.beginPath();
-      ctx.ellipse(640, 720, 75, 110, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Australian Outback Thermal Belt
-      ctx.fillStyle = '#ff7043';
-      ctx.beginPath();
-      ctx.ellipse(1680, 740, 110, 85, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Extreme Cold Polar Thermal Sinks (< -30°C): Pitch Navy / Black
-      ctx.fillStyle = '#060414';
-      ctx.fillRect(0, 0, 2048, 80);
-      ctx.fillRect(0, 940, 2048, 84);
-
-      earthTexture = new THREE.CanvasTexture(canvas);
-      earthTexture.wrapS = THREE.RepeatWrapping;
-    }
+    // REAL NASA GIBS Global MODIS Land Surface Temperature Thermal Map!
+    const thermalMap = textureLoader.load('/textures/nasa_modis_thermal_global_2048.png');
+    thermalMap.colorSpace = THREE.SRGBColorSpace;
 
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    // 4. Earth Sphere
-    const radius = 6.0;
+    // 4. Earth Sphere: Scaled to fit perfectly inside the viewport without clipping!
+    const radius = 4.4;
     const earthGeo = new THREE.SphereGeometry(radius, 64, 64);
-    const earthMat = new THREE.MeshStandardMaterial({
-      map: earthTexture,
-      roughness: 0.65,
-      metalness: 0.1,
+    
+    // Choose between Real Satellite True Color vs Real NASA Thermal LST Map
+    const earthMat = new THREE.MeshPhongMaterial({
+      map: thermalMode ? thermalMap : earthMap,
+      specularMap: thermalMode ? null : earthSpecular,
+      specular: thermalMode ? new THREE.Color(0x000000) : new THREE.Color(0x223344),
+      shininess: thermalMode ? 5 : 25,
+      bumpScale: 0.04,
     });
+
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     globeGroup.add(earthMesh);
 
-    // Dynamic Cloud Layer if not in thermal mode
+    // Realistic Cloud Sphere (Displayed in Satellite mode)
     let cloudsMesh: THREE.Mesh | null = null;
     if (!thermalMode) {
-      const cloudsTexture = textureLoader.load('/textures/earth_clouds_1024.png');
       const cloudsGeo = new THREE.SphereGeometry(radius * 1.018, 64, 64);
       const cloudsMat = new THREE.MeshStandardMaterial({
-        map: cloudsTexture,
+        map: earthCloudsMap,
         transparent: true,
-        opacity: 0.7,
+        opacity: 0.75,
         blending: THREE.AdditiveBlending,
       });
       cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
       globeGroup.add(cloudsMesh);
     }
 
-    // Atmosphere Glow Shell
+    // Atmospheric Glow Rim Shell
     const atmosphereGeo = new THREE.SphereGeometry(radius * 1.035, 64, 64);
     const atmosphereMat = new THREE.MeshBasicMaterial({
-      color: thermalMode ? 0xff5722 : 0x4895ef,
+      color: thermalMode ? 0xff5722 : 0x38bdf8,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.22,
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
     });
     const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
     globeGroup.add(atmosphereMesh);
 
-    // 5. Place 3D Location Markers & Beacon Pins
+    // 5. Refined Precision Aerospace Tactical Markers (No giant blobs!)
     const pinGroup = new THREE.Group();
     globeGroup.add(pinGroup);
 
     const latLngToVector3 = (lat: number, lng: number, r: number) => {
+      // Standard geographic WGS84 to Three.js Cartesian coordinates
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lng + 180) * (Math.PI / 180);
       const x = -(r * Math.sin(phi) * Math.cos(theta));
@@ -172,32 +130,47 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     const markerMeshes: THREE.Mesh[] = [];
 
     locations.forEach((loc) => {
-      const pos = latLngToVector3(loc.coordinates.lat, loc.coordinates.lng, radius * 1.015);
+      const pos = latLngToVector3(loc.coordinates.lat, loc.coordinates.lng, radius * 1.008);
       const isSelected = loc.id === selectedLocationId;
       const isEgypt = loc.featuredEgypt;
+      const color = isEgypt ? 0xeab308 : loc.primaryTargetAnalog === 'mars' ? 0xb75b3d : 0xa8aaa6;
 
-      // Marker Dot
-      const dotGeo = new THREE.SphereGeometry(isSelected ? 0.22 : 0.14, 16, 16);
-      const dotColor = isEgypt ? 0xeab308 : loc.primaryTargetAnalog === 'mars' ? 0xb75b3d : 0xa8aaa6;
-      const dotMat = new THREE.MeshBasicMaterial({ color: dotColor });
+      // Small elegant core marker dot (radius: 0.055)
+      const dotGeo = new THREE.SphereGeometry(isSelected ? 0.08 : 0.055, 16, 16);
+      const dotMat = new THREE.MeshBasicMaterial({ color: color });
       const dotMesh = new THREE.Mesh(dotGeo, dotMat);
       dotMesh.position.copy(pos);
       dotMesh.userData = { location: loc };
       pinGroup.add(dotMesh);
       markerMeshes.push(dotMesh);
 
-      // Radial Beacon Spike pointing outward
+      // Fine needle indicator spike
       const normal = pos.clone().normalize();
-      const spikeGeo = new THREE.CylinderGeometry(0.02, 0.04, isSelected ? 0.9 : 0.5, 8);
+      const spikeGeo = new THREE.CylinderGeometry(0.008, 0.015, isSelected ? 0.45 : 0.25, 8);
       spikeGeo.rotateX(Math.PI / 2);
-      const spikeMat = new THREE.MeshBasicMaterial({ color: dotColor, transparent: true, opacity: 0.85 });
+      const spikeMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.9 });
       const spikeMesh = new THREE.Mesh(spikeGeo, spikeMat);
-      spikeMesh.position.copy(pos.clone().add(normal.clone().multiplyScalar(isSelected ? 0.45 : 0.25)));
+      spikeMesh.position.copy(pos.clone().add(normal.clone().multiplyScalar(isSelected ? 0.22 : 0.12)));
       spikeMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
       pinGroup.add(spikeMesh);
+
+      // Pulsating outer beacon halo ring for priority Egypt sites
+      if (isEgypt || isSelected) {
+        const ringGeo = new THREE.RingGeometry(0.09, 0.13, 24);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: color,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.85,
+        });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        ringMesh.position.copy(pos.clone().add(normal.clone().multiplyScalar(0.02)));
+        ringMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+        pinGroup.add(ringMesh);
+      }
     });
 
-    // 6. Raycasting for Interaction
+    // 6. Interactive Mouse Orbit Controls
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -256,10 +229,16 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       }
     };
 
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      camera.position.z = Math.max(8.5, Math.min(22, camera.position.z + e.deltaY * 0.015));
+    };
+
     container.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
     container.addEventListener('click', onClick);
+    container.addEventListener('wheel', onWheel, { passive: false });
 
     // 7. Animation Loop
     let animId: number;
@@ -268,7 +247,7 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       if (!isDragging) {
         globeGroup.rotation.y += 0.002;
         if (cloudsMesh) {
-          cloudsMesh.rotation.y += 0.0006;
+          cloudsMesh.rotation.y += 0.0007; // Natural cloud drift!
         }
       }
       renderer.render(scene, camera);
@@ -291,6 +270,7 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       container.removeEventListener('click', onClick);
+      container.removeEventListener('wheel', onWheel);
       cancelAnimationFrame(animId);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
@@ -299,7 +279,10 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       earthMat.dispose();
       atmosphereGeo.dispose();
       atmosphereMat.dispose();
-      earthTexture.dispose();
+      earthMap.dispose();
+      earthSpecular.dispose();
+      earthCloudsMap.dispose();
+      thermalMap.dispose();
       renderer.dispose();
     };
   }, [locations, selectedLocationId, thermalMode, onSelectLocation]);
@@ -313,11 +296,11 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
         <div className="flex items-center space-x-2 text-mineral-white font-semibold">
           <span className="w-2 h-2 rounded-full bg-telemetry-emerald animate-pulse"></span>
           <span className="uppercase">
-            {thermalMode ? 'MODIS LST THERMAL INFRARED 3D GLOBE' : 'NASA VISIBLE EARTH 2K SATELLITE GLOBE'}
+            {thermalMode ? 'NASA GIBS MODIS THERMAL LST 3D GLOBE' : 'NASA VISIBLE EARTH 2K SATELLITE GLOBE'}
           </span>
         </div>
         <div className="text-stone-gray text-[10px]">
-          DATA: {thermalMode ? 'TERRA/AQUA MODIS L3 LAND SURFACE TEMP' : 'NASA VISIBLE EARTH 2048px TRUE COLOR'}
+          DATA: {thermalMode ? 'TERRA/AQUA MODIS RADIOMETER [2048x1024px]' : 'NASA VISIBLE EARTH TRUE COLOR + SPECULAR'}
         </div>
       </div>
 
@@ -334,17 +317,17 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
 
       {/* Bottom Center: Thermal Ironbow Scale */}
       {thermalMode && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-3 font-mono text-[10px] bg-obsidian/90 border border-obsidian-border px-4 py-2 backdrop-blur-md">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-3 font-mono text-[10px] bg-obsidian/90 border border-obsidian-border px-4 py-2 backdrop-blur-md shadow-xl">
           <span className="text-stone-gray font-semibold">-50°C [223 K]</span>
-          <div className="w-36 h-2.5 rounded-sm bg-gradient-to-r from-[#0d0826] via-[#8f1414] via-[#ff5722] via-[#ffde59] to-[#ffffff] border border-stone-gray/40"></div>
+          <div className="w-36 h-2.5 rounded-sm bg-gradient-to-r from-[#0d0826] via-[#10b981] via-[#ffde59] via-[#ff5722] to-[#b71c1c] border border-stone-gray/40"></div>
           <span className="text-mineral-white font-semibold">+55°C [328 K]</span>
-          <span className="text-telemetry-amber font-bold pl-2 border-l border-obsidian-border">SAHARA PEAK</span>
+          <span className="text-telemetry-amber font-bold pl-2 border-l border-obsidian-border">SAHARA MAX</span>
         </div>
       )}
 
       {/* Bottom Right: Drag Instructions */}
       <div className="absolute bottom-4 right-4 pointer-events-none font-mono text-[10px] text-stone-gray/70">
-        DRAG TO ROTATE 3D GLOBE // CLICK MARKER TO LOCK
+        DRAG TO ROTATE 3D GLOBE // SCROLL TO ZOOM // CLICK PIN TO SELECT
       </div>
     </div>
   );
