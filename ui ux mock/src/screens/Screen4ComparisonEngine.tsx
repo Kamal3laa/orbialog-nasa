@@ -322,6 +322,114 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
           />
         </div>
       </div>
+
+      {/* Real Planetary vs. Terrestrial Satellite Sensor Telemetry Comparison */}
+      <div className="glass-panel p-6 lg:p-8 rounded-3xl space-y-5 font-inter text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.06] text-earth border border-white/[0.10]">
+                CROSS-MISSION SENSOR CORRELATION
+              </span>
+            </div>
+            <h3 className="font-grotesk font-bold text-lg text-starlight-white">
+              Direct Sensor Calibration Comparison
+            </h3>
+          </div>
+          <p className="text-starlight-subtle text-xs">
+            Directly comparing NASA PDS &amp; LRO telemetry against Earthdata, Copernicus, RADARSAT &amp; G-Portal observations
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs font-inter">
+            <thead>
+              <tr className="border-b border-white/[0.08] text-starlight-subtle uppercase tracking-wider text-[10px] font-mono">
+                <th className="py-3 px-4">Analytical Scientific Dimension</th>
+                <th className="py-3 px-4 text-mars">Extraterrestrial: {selectedTarget.name.split(' (')[0]} (NASA PDS / LRO)</th>
+                <th className="py-3 px-4 text-earth">Terrestrial Analog: {selectedAnalog.name.split(' (')[0]} (Earthdata / Copernicus / CSA)</th>
+                <th className="py-3 px-4 text-right">Physical Correlation</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.05] text-starlight-dim">
+              <tr>
+                <td className="py-3.5 px-4 font-medium text-starlight-white">
+                  Topography &amp; Slope Variance
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  {selectedTarget.lolaElevationDatum 
+                    ? `Mean Slope: ${selectedTarget.lolaElevationDatum.meanSlopeDeg}° | Roughness: ${selectedTarget.lolaElevationDatum.rmsRoughnessMeters}m`
+                    : selectedTarget.elevation}
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  ASTER GDEM {selectedAnalog.earthdataGranules.gdemId} ({selectedAnalog.elevationMeters}m MSL)
+                </td>
+                <td className="py-3.5 px-4 text-right font-bold text-telemetry-emerald">
+                  {selectedAnalog.metrics.slopeDistribution}% match
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium text-starlight-white">
+                  Thermal Kinetic Dynamics
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  {selectedTarget.divinerThermalProfile 
+                    ? `Diviner DLRE: ${selectedTarget.divinerThermalProfile.psrColdTrapTemp}`
+                    : `${selectedTarget.temperatureRange.min}K to ${selectedTarget.temperatureRange.max}K`}
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  MODIS LST {selectedAnalog.earthdataGranules.modisLstId} ({selectedAnalog.environment.diurnalRange})
+                </td>
+                <td className="py-3.5 px-4 text-right font-bold text-telemetry-emerald">
+                  {selectedAnalog.metrics.thermalDeltaMatch}% match
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium text-starlight-white">
+                  Synthetic Aperture Radar (SAR)
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  {selectedTarget.radarScattering?.instrument || 'Mini-RF / SHARAD'} (CPR: {selectedTarget.radarScattering?.cprRatio || '0.42'})
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  CSA RADARSAT RCM ({selectedAnalog.csaRadarsatProducts.backscatterSigma0Db} dB, {selectedAnalog.csaRadarsatProducts.polarization})
+                </td>
+                <td className="py-3.5 px-4 text-right font-bold text-telemetry-emerald">
+                  {selectedAnalog.metrics.terrainRoughness}% match
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium text-starlight-white">
+                  Mineral Spectrometry
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  {selectedTarget.hyperspectralBands?.instrument || 'CRISM Hyperspectral'} ({selectedTarget.hyperspectralBands?.keyMinerals.slice(0, 2).join(', ') || 'Silicates'})
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  Sentinel-2 MSI (Ferric: {selectedAnalog.copernicusProducts.ferricIronIndex}, Clay: {selectedAnalog.copernicusProducts.clayIndex})
+                </td>
+                <td className="py-3.5 px-4 text-right font-bold text-telemetry-emerald">
+                  {selectedAnalog.metrics.spectralCorrespondence}% match
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium text-starlight-white">
+                  Sub-surface Volatiles &amp; Moisture
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  PDS Volatiles Analogy: {selectedTarget.metrics.volatilePotential}%
+                </td>
+                <td className="py-3.5 px-4 font-mono text-starlight-muted">
+                  JAXA AMSR2 Soil Moisture: {selectedAnalog.jaxaGportalProducts.amsr2SoilMoisturePercent}% (Precip: {selectedAnalog.jaxaGportalProducts.gpmPrecipitationMmHr} mm/hr)
+                </td>
+                <td className="py-3.5 px-4 text-right font-bold text-telemetry-emerald">
+                  {selectedAnalog.metrics.volatilesAnalogy}% match
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

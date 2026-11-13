@@ -319,6 +319,94 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
               </div>
             </div>
 
+            {/* Real Scientific Instrumentation & Telemetry */}
+            <div className="pt-4 border-t border-white/[0.08] space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-inter font-semibold uppercase tracking-wider text-starlight-dim flex items-center space-x-2">
+                  <Activity className="w-3.5 h-3.5 text-mars" />
+                  <span>Calibrated Orbital Sensor Measurements</span>
+                </h4>
+                <span className="font-mono text-[10px] text-starlight-subtle bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.08]">
+                  PDS URN: {selectedTarget.pdsProductUrn}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-inter">
+                {/* LOLA / MOLA Topography */}
+                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-1.5">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>{selectedTarget.planet === 'moon' ? 'LRO LOLA GDR ALTIMETRY' : 'MGS MOLA ALTIMETRY'}</span>
+                    <span className="text-earth">118m/px</span>
+                  </div>
+                  <div className="text-starlight-white font-grotesk font-bold text-sm">
+                    {selectedTarget.lolaElevationDatum ? `${selectedTarget.lolaElevationDatum.minMeters}m to +${selectedTarget.lolaElevationDatum.maxMeters}m` : selectedTarget.elevation}
+                  </div>
+                  {selectedTarget.lolaElevationDatum && (
+                    <div className="text-[11px] text-starlight-dim space-y-0.5 pt-1 border-t border-white/[0.06]">
+                      <div>Mean Slope: <strong className="text-starlight-white">{selectedTarget.lolaElevationDatum.meanSlopeDeg}°</strong></div>
+                      <div>RMS Roughness: <strong className="text-starlight-white">{selectedTarget.lolaElevationDatum.rmsRoughnessMeters}m</strong></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Diviner Thermal or Mars Pressure */}
+                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-1.5">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>{selectedTarget.planet === 'moon' ? 'LRO DIVINER RADIOMETER' : 'MARS 2020 MEDA / THEMIS'}</span>
+                    <span className="text-mars">CH 7/8</span>
+                  </div>
+                  <div className="text-starlight-white font-grotesk font-bold text-sm">
+                    {selectedTarget.divinerThermalProfile ? selectedTarget.divinerThermalProfile.psrColdTrapTemp : `${selectedTarget.temperatureRange.min}K to ${selectedTarget.temperatureRange.max}K`}
+                  </div>
+                  {selectedTarget.divinerThermalProfile && (
+                    <div className="text-[11px] text-starlight-dim space-y-0.5 pt-1 border-t border-white/[0.06]">
+                      <div>Christiansen Feature: <strong className="text-starlight-white">{selectedTarget.divinerThermalProfile.christiansenFeatureUm} µm</strong></div>
+                      <div>Rock Abundance: <strong className="text-starlight-white">{selectedTarget.divinerThermalProfile.rockAbundancePercent}%</strong></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Radar Sounder or Spectrometry */}
+                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-1.5">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>{selectedTarget.radarScattering?.instrument || 'SUBSURFACE RADAR'}</span>
+                    <span className="text-telemetry-cyan">SAR</span>
+                  </div>
+                  <div className="text-starlight-white font-grotesk font-bold text-sm">
+                    {selectedTarget.radarScattering ? `CPR: ${selectedTarget.radarScattering.cprRatio}` : 'SAR Active'}
+                  </div>
+                  {selectedTarget.radarScattering && (
+                    <div className="text-[11px] text-starlight-dim space-y-0.5 pt-1 border-t border-white/[0.06]">
+                      <div>Radar Penetration: <strong className="text-starlight-white">{selectedTarget.radarScattering.subsurfacePenetrationMeters}m depth</strong></div>
+                      <div>Volume Scatter: <strong className="text-starlight-white">{selectedTarget.radarScattering.cprRatio > 1.0 ? 'Ice Volatiles Present' : 'Dielectric Rock'}</strong></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Hyperspectral CRISM / M3 Bands */}
+              {selectedTarget.hyperspectralBands && (
+                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-mono text-starlight-subtle uppercase">
+                      SPECTRAL ABSORPTION BANDS [{selectedTarget.hyperspectralBands.instrument}]:
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedTarget.hyperspectralBands.absorptionFeatures.map((feat, idx) => (
+                      <span key={idx} className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[11px] text-earth font-mono">
+                        {feat}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-[11px] text-starlight-dim pt-1 flex items-center space-x-2">
+                    <span className="text-starlight-subtle">Key Mineral Identifications:</span>
+                    <span className="text-starlight-white font-medium">{selectedTarget.hyperspectralBands.keyMinerals.join(', ')}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Space Agency Planetary Data Archives */}
             <div className="pt-4 border-t border-white/[0.08] space-y-3">
               <div className="flex items-center justify-between">

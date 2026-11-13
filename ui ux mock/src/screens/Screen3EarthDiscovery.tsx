@@ -356,16 +356,30 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                     {loc.region}, {loc.country}
                   </p>
 
-                  <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-xs font-inter">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-starlight-subtle text-[11px]">Similarity:</span>
-                      <span className="text-starlight-white font-bold font-grotesk text-sm">
-                        {loc.overallSimilarity.toFixed(1)}%
-                      </span>
+                  <div className="mt-4 pt-3 border-t border-white/[0.08] space-y-2 text-xs font-inter">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-starlight-subtle text-[11px]">Similarity:</span>
+                        <span className="text-starlight-white font-bold font-grotesk text-sm">
+                          {loc.overallSimilarity.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-starlight-subtle">
+                        Conf: {loc.confidenceScore.toFixed(0)}%
+                      </div>
                     </div>
 
-                    <div className="text-[11px] text-starlight-subtle">
-                      Conf: {loc.confidenceScore.toFixed(0)}%
+                    {/* Real Multi-Agency Telemetry Micro-Pills */}
+                    <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-starlight-dim">
+                      <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-earth">
+                        NASA: {loc.earthdataGranules.gdemId.split('_')[0]}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-starlight-white">
+                        CSA SAR: {loc.csaRadarsatProducts.backscatterSigma0Db} dB
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-telemetry-emerald">
+                        JAXA SMC: {loc.jaxaGportalProducts.amsr2SoilMoisturePercent}%
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -441,27 +455,87 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               </div>
             </div>
 
-            {/* Live Space Agency Portals & Observations */}
-            <div className="pt-3 border-t border-white/[0.08] space-y-2">
+            {/* Real Space Agency Remote Sensing Telemetry Matrix */}
+            <div className="pt-3 border-t border-white/[0.08] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-grotesk font-semibold uppercase tracking-wider text-starlight-subtle flex items-center space-x-1.5">
                   <Database className="w-3.5 h-3.5 text-earth" />
-                  <span>Space Agency Observations</span>
+                  <span>Calibrated Space Agency Granules &amp; Telemetry</span>
                 </span>
                 {onOpenDataModal && (
                   <button
                     onClick={onOpenDataModal}
                     className="text-[11px] text-earth hover:text-starlight-bright font-medium"
                   >
-                    Agency APIs ↗
+                    API Hub ↗
                   </button>
                 )}
               </div>
 
+              {/* 4-Agency Sensor Metrics Grid */}
+              <div className="grid grid-cols-2 gap-2 text-xs font-inter">
+                {/* NASA Earthdata */}
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>🇺🇸 NASA EARTHDATA</span>
+                    <span className="text-earth">ASTER / MODIS</span>
+                  </div>
+                  <div className="text-starlight-white font-mono text-[11px] truncate" title={previewLocation.earthdataGranules.gdemId}>
+                    {previewLocation.earthdataGranules.gdemId}
+                  </div>
+                  <div className="text-[10px] text-starlight-dim">
+                    LST: <strong className="text-starlight-white">{previewLocation.earthdataGranules.modisLstId}</strong>
+                  </div>
+                </div>
+
+                {/* ESA Copernicus */}
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>🇪🇺 ESA COPERNICUS</span>
+                    <span className="text-earth">SENTINEL-1/2</span>
+                  </div>
+                  <div className="text-starlight-white font-mono text-[11px]">
+                    Ferric Iron: <strong className="text-starlight-white">{previewLocation.copernicusProducts.ferricIronIndex}</strong>
+                  </div>
+                  <div className="text-[10px] text-starlight-dim">
+                    Clay Index: <strong className="text-starlight-white">{previewLocation.copernicusProducts.clayIndex}</strong>
+                  </div>
+                </div>
+
+                {/* CSA RADARSAT */}
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>🇨🇦 CSA RADARSAT</span>
+                    <span className="text-mars">C-BAND SAR</span>
+                  </div>
+                  <div className="text-starlight-white font-mono text-[11px]">
+                    σ⁰: <strong className="text-mars">{previewLocation.csaRadarsatProducts.backscatterSigma0Db} dB</strong>
+                  </div>
+                  <div className="text-[10px] text-starlight-dim truncate" title={previewLocation.csaRadarsatProducts.rcmGranuleId}>
+                    {previewLocation.csaRadarsatProducts.polarization}
+                  </div>
+                </div>
+
+                {/* JAXA G-Portal */}
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+                  <div className="text-[10px] font-mono text-starlight-subtle uppercase flex items-center justify-between">
+                    <span>🇯🇵 JAXA G-PORTAL</span>
+                    <span className="text-telemetry-emerald">AMSR2 / GCOM</span>
+                  </div>
+                  <div className="text-starlight-white font-mono text-[11px]">
+                    Soil Moisture: <strong className="text-telemetry-emerald">{previewLocation.jaxaGportalProducts.amsr2SoilMoisturePercent}%</strong>
+                  </div>
+                  <div className="text-[10px] text-starlight-dim">
+                    Precip: <strong className="text-starlight-white">{previewLocation.jaxaGportalProducts.gpmPrecipitationMmHr} mm/hr</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Direct Repository Links */}
               {(() => {
                 const urls = generateAnalogAgencyUrls(previewLocation.coordinates.lat, previewLocation.coordinates.lng, previewLocation.name);
                 return (
-                  <div className="grid grid-cols-2 gap-2 text-[11px] font-inter">
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-inter pt-1">
                     <a
                       href={urls.nasaEarthdata}
                       target="_blank"

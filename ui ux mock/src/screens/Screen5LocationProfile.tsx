@@ -370,8 +370,8 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
                     </a>
                   </div>
 
-                  {/* CSA SAR Python Tutorial Callout */}
-                  <div className="pt-2">
+                  {/* CSA SAR Python Tutorial Callout & Code */}
+                  <div className="pt-2 space-y-1.5">
                     <a
                       href="https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial"
                       target="_blank"
@@ -383,11 +383,14 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
                           <span>🇨🇦 CSA Synthetic Aperture Radar (SAR) Tutorial</span>
                         </div>
                         <p className="text-[10px] text-starlight-subtle">
-                          Python &amp; QGIS pipeline for surface roughness &amp; backscatter modeling
+                          Python &amp; QGIS workflow for calibrated sigma0 backscatter &amp; Lee speckle filtering
                         </p>
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-starlight-subtle group-hover:text-earth" />
                     </a>
+                    <div className="p-2.5 rounded-lg bg-space-void border border-white/[0.08] text-[10px] font-mono text-earth overflow-x-auto">
+                      <code>{selectedAnalog.csaRadarsatProducts.sarTutorialScript}</code>
+                    </div>
                   </div>
                 </div>
               );
