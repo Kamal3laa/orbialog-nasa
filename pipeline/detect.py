@@ -13,7 +13,6 @@ from sklearn.preprocessing import RobustScaler
 
 FEATURES = [
     "slope",
-    "p90",
     "rough",
     "lst_amp",
     "lst_max",
@@ -46,46 +45,44 @@ def rank_tiles(
 ) -> pd.DataFrame:
     """
     Ranks global terrestrial grid tiles by Mahalanobis similarity to target space site.
-    
-    Parameters:
-    -----------
-    earth_df : DataFrame of terrestrial tiles containing FEATURES + lat, lon
-    target_vec : dict mapping feature names to target measurement values
-    weights : optional dict of feature weights (e.g. for rover vs astrobiology profiles)
-    known_sites : list of (lat, lon) coordinates of well-known analog sites to exclude
-    exclude_km : radius around known sites to exclude (to discover NEW analogs)
-    top_n : number of top candidates to return
+    Handles thermal/environmental saturation by clipping extraterrestrial values
+    to Earth's 1st-99th percentile distribution (per plan Section 4).
     """
     df = earth_df.dropna(subset=FEATURES).copy()
     if df.empty:
         raise ValueError("No valid Earth tiles available for feature calculation.")
 
-    # 1. Standardize features against Earth's own distribution using RobustScaler
+    # 1. Clip extraterrestrial extremes to Earth's 1st–99th percentile range
+    q01 = df[FEATURES].quantile(0.01)
+    q99 = df[FEATURES].quantile(0.99)
+    t_clipped = pd.Series(target_vec)[FEATURES].clip(lower=q01, upper=q99)
+
+    # 2. Standardize features against Earth's own distribution using RobustScaler
     scaler = RobustScaler().fit(df[FEATURES])
     X = scaler.transform(df[FEATURES])
-    t = scaler.transform(pd.DataFrame([target_vec])[FEATURES])[0]
+    t = scaler.transform(pd.DataFrame([t_clipped])[FEATURES])[0]
 
-    # 2. Apply mission profile weights
+    # 3. Apply mission profile weights
     w = np.array([(weights or {}).get(f, 1.0) for f in FEATURES])
     X_w = X * w
     t_w = t * w
 
-    # 3. Fit stable covariance matrix (Ledoit-Wolf shrinkage)
+    # 4. Fit stable covariance matrix (Ledoit-Wolf shrinkage)
     cov = LedoitWolf().fit(X_w)
 
-    # 4. Compute Mahalanobis squared distance d²
+    # 5. Compute Mahalanobis squared distance d²
     diff = X_w - t_w + cov.location_
     d2 = cov.mahalanobis(diff)
     df["d2"] = d2
 
-    # 5. Continuous bounded similarity score: 100 * exp(-0.5 * d² / n_features)
+    # 6. Continuous bounded similarity score: 100 * exp(-0.5 * d² / n_features)
     df["similarity"] = 100.0 * np.exp(-0.5 * d2 / len(FEATURES))
 
-    # 6. Explainability: identify worst-matching feature z-gap
+    # 7. Explainability: identify worst-matching feature z-gap
     gap = pd.DataFrame(np.abs(X_w - t_w), columns=FEATURES, index=df.index)
     df["worst_feature"] = gap.idxmax(axis=1)
 
-    # 7. Exclude already well-known analog sites (to look beyond famous sites)
+    # 8. Exclude already well-known analog sites (to look beyond famous sites)
     for k_lat, k_lon in known_sites:
         dist = haversine_km(df["lat"], df["lon"], k_lat, k_lon)
         df = df[dist > exclude_km]

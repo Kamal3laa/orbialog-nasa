@@ -33,7 +33,7 @@ interface ComputedMatchInput {
 }
 
 async function run() {
-  const filePath = process.argv[2] || path.join(__dirname, '../../pipeline/computed_matches.json');
+  const filePath = process.argv[2] || path.join(__dirname, '../../../pipeline/computed_matches.json');
 
   if (!fs.existsSync(filePath)) {
     logger.warn(`Computed matches file not found at: ${filePath}. Skipping import.`);
@@ -49,13 +49,19 @@ async function run() {
   logger.info(`Found ${items.length} computed matches to import.`);
 
   for (const item of items) {
+    const doc = {
+      ...item,
+      source: 'computed' as const,
+      provenance: {
+        dataset: item.provenance.dataset,
+        version: item.provenance.version,
+        computedAt: item.provenance.computedAt ? new Date(item.provenance.computedAt) : new Date(),
+      },
+    };
+
     await AnalogMatch.findOneAndUpdate(
       { targetId: item.targetId, analogId: item.analogId },
-      {
-        ...item,
-        source: 'computed',
-        'provenance.computedAt': item.provenance.computedAt ? new Date(item.provenance.computedAt) : new Date(),
-      },
+      { $set: doc },
       { upsert: true, new: true },
     );
 

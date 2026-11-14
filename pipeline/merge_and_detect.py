@@ -28,7 +28,6 @@ WEIGHT_PRESETS = {
     "mars_rover_mobility": {
         "slope": 1.5,
         "rough": 1.5,
-        "p90": 1.2,
         "lst_amp": 1.2,
         "ndvi": 1.5,
         "precip_mm_yr": 1.5,
@@ -40,7 +39,6 @@ WEIGHT_PRESETS = {
     "lunar_isru_basalt": {
         "slope": 1.2,
         "rough": 1.2,
-        "p90": 1.0,
         "lst_amp": 1.8,
         "albedo": 1.5,
         "mafic_idx": 1.8,
