@@ -162,5 +162,29 @@ python merge_and_detect.py
 
 ---
 
+## 🌐 Production Deployment
+
+### Option A: Render (1-Click Blueprint)
+The repository contains a [`render.yaml`](render.yaml) Blueprint that sets up both the Backend API and Frontend Static Site:
+1. Log in to [Render](https://dashboard.render.com/).
+2. Click **New +** $\rightarrow$ **Blueprint**.
+3. Connect `Kamal3laa/orbialog-nasa`.
+4. Set the `MONGODB_URI` environment variable when prompted (your MongoDB Atlas connection string).
+5. Click **Apply** — Render deploys both services automatically.
+
+### Option B: Docker Compose (Any VPS / Cloud)
+```bash
+docker compose up -d --build
+```
+*Frontend: `http://localhost:3000` | Backend API: `http://localhost:4000/api/v1`*
+
+### Option C: Vercel (Frontend)
+1. Import `Kamal3laa/orbialog-nasa` on [Vercel](https://vercel.com/).
+2. Set root directory to `frontend`.
+3. Set environment variable `VITE_API_URL` to your live deployed backend URL (e.g. `https://your-api.onrender.com/api/v1`).
+4. Click **Deploy**.
+
+---
+
 ## 👥 Team
 - **ORBiALOG Team** — NASA Space Apps Challenge 2026
