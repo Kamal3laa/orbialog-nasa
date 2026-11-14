@@ -301,8 +301,8 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
           {/* Hero Imagery Card */}
           <div className="bg-obsidian border border-obsidian-border p-4 space-y-3">
             <div className="font-mono text-xs text-stone-gray uppercase tracking-wider flex items-center justify-between">
-              <span>ORBITAL RECONNAISSANCE</span>
-              <span className="text-telemetry-emerald text-[10px]">LIVE FEED</span>
+              <span>SITE REFERENCE IMAGERY</span>
+              <span className="text-telemetry-emerald text-[10px]">ARCHIVE IMAGE</span>
             </div>
             <div className="relative h-64 bg-charcoal-deep border border-obsidian-border overflow-hidden">
               <img
@@ -310,6 +310,16 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
                 alt={site.name}
                 className="w-full h-full object-cover"
               />
+              {site.imagery.heroAttribution && (
+                <a
+                  href={site.imagery.heroAttribution.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute top-2 right-2 max-w-[80%] truncate font-mono text-[9px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white"
+                >
+                  {site.imagery.heroAttribution.label}
+                </a>
+              )}
               <div className="absolute bottom-2 left-2 right-2 font-mono text-[10px] bg-charcoal/80 border border-stone-gray/30 px-2 py-1 text-mineral-white truncate">
                 {site.name} • {site.coordinates.display}
               </div>

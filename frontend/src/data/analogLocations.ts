@@ -125,9 +125,12 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 72
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/White_Desert%2C_Rock_formations%2C_Egypt.jpg/960px-White_Desert%2C_Rock_formations%2C_Egypt.jpg',
+      terrain: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/White_Desert%2C_Rock_formations%2C_Egypt.jpg/960px-White_Desert%2C_Rock_formations%2C_Egypt.jpg',
+      heroAttribution: {
+        label: 'Vyacheslav Argenberg / CC BY 4.0',
+        href: 'https://commons.wikimedia.org/wiki/File:White_Desert,_Rock_formations,_Egypt.jpg'
+      }
     }
   },
 
@@ -244,9 +247,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 82
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA23420/PIA23420~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA23420/PIA23420~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA23420/PIA23420~orig.jpg'
     }
   },
 
@@ -363,9 +366,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 95
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA03714/PIA03714~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA03714/PIA03714~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA03714/PIA03714~orig.jpg'
     }
   },
 
@@ -482,9 +485,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 98
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA12461/PIA12461~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA12461/PIA12461~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA12461/PIA12461~orig.jpg'
     }
   },
 
@@ -597,9 +600,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 85
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA10626/PIA10626~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA10626/PIA10626~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA10626/PIA10626~orig.jpg'
     }
   },
 
@@ -714,9 +717,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 35
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA22219/PIA22219~large.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA22219/PIA22219~large.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA22219/PIA22219~large.jpg'
     }
   },
 
@@ -830,9 +833,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 74
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA25122/PIA25122~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA25122/PIA25122~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA25122/PIA25122~orig.jpg'
     }
   },
 
@@ -943,9 +946,12 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 78
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Tabernas2.jpg/960px-Tabernas2.jpg',
+      terrain: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Tabernas2.jpg/960px-Tabernas2.jpg',
+      heroAttribution: {
+        label: 'Haxxah and KraZug / CC BY-SA 2.0',
+        href: 'https://commons.wikimedia.org/wiki/File:Tabernas2.jpg'
+      }
     }
   },
 
@@ -1059,9 +1065,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 52
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/SL2-03-126/SL2-03-126~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/SL2-03-126/SL2-03-126~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/SL2-03-126/SL2-03-126~orig.jpg'
     }
   },
 
@@ -1173,9 +1179,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 54
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA18799/PIA18799~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA18799/PIA18799~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA18799/PIA18799~orig.jpg'
     }
   },
 
@@ -1288,9 +1294,12 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 80
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Qattara_Depression_%28March_2007%29.jpg/960px-Qattara_Depression_%28March_2007%29.jpg',
+      terrain: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Qattara_Depression_%28March_2007%29.jpg/960px-Qattara_Depression_%28March_2007%29.jpg',
+      heroAttribution: {
+        label: 'cheesy42 / CC BY 2.0',
+        href: 'https://commons.wikimedia.org/wiki/File:Qattara_Depression_(March_2007).jpg'
+      }
     }
   },
 
@@ -1401,9 +1410,9 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       volatilesAnalogy: 42
     },
     imagery: {
-      hero: 'https://images.nasa.gov/details/PIA03450/preview.jpg',
-      satellite: 'https://images.nasa.gov/details/PIA01821/preview.jpg',
-      terrain: 'https://images.nasa.gov/details/PIA03450/preview.jpg'
+      hero: 'https://images-assets.nasa.gov/image/PIA04957/PIA04957~orig.jpg',
+      satellite: 'https://images-assets.nasa.gov/image/PIA02626/PIA02626~orig.jpg',
+      terrain: 'https://images-assets.nasa.gov/image/PIA04957/PIA04957~orig.jpg'
     }
   }
 ];

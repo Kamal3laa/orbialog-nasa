@@ -16,6 +16,7 @@ import {
   Database
 } from 'lucide-react';
 import { generateAnalogAgencyUrls } from '../data/spaceAgencyResources';
+import { orbialogApi } from '../services/orbialogApi';
 import { audio } from '../utils/audio';
 
 interface Screen3EarthDiscoveryProps {
@@ -46,6 +47,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   const [onlyHighFidelity, setOnlyHighFidelity] = useState<boolean>(false);
   const [previewLocation, setPreviewLocation] = useState<AnalogLocation>(selectedAnalog || analogLocations[0]);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [imageError, setImageError] = useState<boolean>(false);
   const pageSize = 10;
 
   // Reset page when filters change
@@ -106,6 +108,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
   // Ensure active previewLocation is always valid
   const activeLocation = previewLocation || filteredLocations[0] || analogLocations[0];
+
+  useEffect(() => {
+    setImageError(false);
+  }, [activeLocation?.id]);
 
   const [serverLocations, setServerLocations] = useState<AnalogLocation[]>([]);
   const [serverMeta, setServerMeta] = useState<{ total: number; page: number; limit: number; pages: number }>({
@@ -506,12 +512,29 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
             {/* High-Res Hero Thumbnail */}
             <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-white/[0.10] group">
-              <img
-                src={activeLocation.imagery?.hero || activeLocation.imagery?.satellite || 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80'}
-                alt={activeLocation.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+              {imageError ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-space-void font-mono text-[10px] text-starlight-subtle">
+                  REFERENCE IMAGE UNAVAILABLE
+                </div>
+              ) : (
+                <img
+                  src={activeLocation.imagery?.hero || activeLocation.imagery?.satellite}
+                  alt={activeLocation.name}
+                  onError={() => setImageError(true)}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-space-void/90 via-transparent to-transparent" />
+              {activeLocation.imagery?.heroAttribution && (
+                <a
+                  href={activeLocation.imagery.heroAttribution.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute top-2 right-2 rounded-md border border-white/[0.12] bg-space-void/80 px-2 py-1 text-[9px] text-starlight-white backdrop-blur-md"
+                >
+                  {activeLocation.imagery.heroAttribution.label}
+                </a>
+              )}
               <div className="absolute bottom-3 left-3 text-xs font-inter text-starlight-white bg-space-void/80 px-2.5 py-1 rounded-md border border-white/[0.12] backdrop-blur-md">
                 Köppen Climate: {activeLocation.climateType || 'Hyper-Arid'}
               </div>

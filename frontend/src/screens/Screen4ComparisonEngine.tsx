@@ -46,6 +46,11 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
 }) => {
   const [viewMode, setViewMode] = useState<'satellite' | '3d-mesh'>('satellite');
   const [serverComparison, setServerComparison] = useState<ComparisonResult | null>(null);
+  const [targetImageError, setTargetImageError] = useState(false);
+
+  useEffect(() => {
+    setTargetImageError(false);
+  }, [selectedTarget.id]);
 
   // Flowchart S4 --> C (GET /api/v1/comparison?target=&analog=)
   useEffect(() => {
@@ -242,13 +247,20 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
                 <span className="text-[10px] text-stone-gray">{selectedTarget.planet.toUpperCase()}</span>
               </div>
               <div className="relative h-56 bg-charcoal-deep border border-obsidian-border overflow-hidden group">
-                <img
-                  src={selectedTarget.imagery.overview}
-                  alt={selectedTarget.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                {targetImageError ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-charcoal-deep font-mono text-[10px] text-stone-gray">
+                    REFERENCE IMAGE UNAVAILABLE
+                  </div>
+                ) : (
+                  <img
+                    src={selectedTarget.imagery.overview}
+                    alt={selectedTarget.name}
+                    onError={() => setTargetImageError(true)}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                )}
                 <div className="absolute top-2 left-2 font-mono text-[9px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white">
-                  SENSOR: {selectedTarget.primaryDatasets[0]?.instrument || 'ORBITAL SENSOR'}
+                  ARCHIVE REFERENCE
                 </div>
                 <div className="absolute bottom-2 left-2 right-2 font-mono text-[10px] bg-charcoal/80 px-2 py-1 text-stone-gray truncate">
                   {selectedTarget.name}
@@ -285,8 +297,18 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-2 left-2 font-mono text-[9px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white">
-                  SENSOR: LANDSAT 9 / SENTINEL-2 MSI
+                  LOCATION REFERENCE IMAGE
                 </div>
+                {selectedAnalog.imagery.heroAttribution && (
+                  <a
+                    href={selectedAnalog.imagery.heroAttribution.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-2 right-2 max-w-[55%] truncate font-mono text-[9px] bg-charcoal/80 border border-stone-gray/30 px-2 py-0.5 text-mineral-white"
+                  >
+                    {selectedAnalog.imagery.heroAttribution.label}
+                  </a>
+                )}
                 <div className="absolute bottom-2 left-2 right-2 font-mono text-[10px] bg-charcoal/80 px-2 py-1 text-stone-gray truncate">
                   {selectedAnalog.region}
                 </div>

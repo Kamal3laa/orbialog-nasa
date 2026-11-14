@@ -120,8 +120,12 @@ export interface AnalogLocation {
   };
   imagery: {
     hero: string;
-    satellite: string;
+    satellite?: string;
     terrain: string;
+    heroAttribution?: {
+      label: string;
+      href: string;
+    };
   };
   source?: 'curated' | 'computed';
 }

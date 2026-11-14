@@ -184,8 +184,12 @@ export interface AnalogLocation {
   };
   imagery: {
     hero: string;
-    satellite: string;
+    satellite?: string;
     terrain: string;
+    heroAttribution?: {
+      label: string;
+      href: string;
+    };
   };
   continent?: 'North America' | 'South America' | 'Polar / Arctic' | 'Africa' | 'Europe' | 'Oceania' | 'Asia';
 }

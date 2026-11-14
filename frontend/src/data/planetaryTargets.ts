@@ -110,9 +110,9 @@ export const PLANETARY_TARGETS: PlanetaryTarget[] = [
       }
     ],
     imagery: {
-      overview: 'https://images.nasa.gov/details/GSFC_20171208_Archive_e000490/preview.jpg',
-      elevationMap: 'https://images.nasa.gov/details/GSFC_20171208_Archive_e000720/preview.jpg',
-      spectralOverlay: 'https://images.nasa.gov/details/PIA13517/preview.jpg'
+      overview: 'https://images-assets.nasa.gov/image/PIA12953/PIA12953~orig.jpg',
+      elevationMap: 'https://images-assets.nasa.gov/image/PIA13523/PIA13523~orig.jpg',
+      spectralOverlay: 'https://images-assets.nasa.gov/image/PIA13517/PIA13517~orig.jpg'
     },
     metrics: {
       morphologyScore: 94,
@@ -218,9 +218,9 @@ export const PLANETARY_TARGETS: PlanetaryTarget[] = [
       }
     ],
     imagery: {
-      overview: 'https://images.nasa.gov/details/GSFC_20171208_Archive_e000490/preview.jpg',
-      elevationMap: 'https://images.nasa.gov/details/GSFC_20171208_Archive_e000720/preview.jpg',
-      spectralOverlay: 'https://images.nasa.gov/details/PIA13517/preview.jpg'
+      overview: 'https://images-assets.nasa.gov/image/PIA12953/PIA12953~orig.jpg',
+      elevationMap: 'https://images-assets.nasa.gov/image/PIA13523/PIA13523~orig.jpg',
+      spectralOverlay: 'https://images-assets.nasa.gov/image/PIA13517/PIA13517~orig.jpg'
     },
     metrics: {
       morphologyScore: 96,
@@ -326,9 +326,9 @@ export const PLANETARY_TARGETS: PlanetaryTarget[] = [
       }
     ],
     imagery: {
-      overview: 'https://images.nasa.gov/details/GSFC_20171208_Archive_e000490/preview.jpg',
-      elevationMap: 'https://images.nasa.gov/details/GSFC_20171208_Archive_e000720/preview.jpg',
-      spectralOverlay: 'https://images.nasa.gov/details/PIA13517/preview.jpg'
+      overview: 'https://images-assets.nasa.gov/image/PIA12954/PIA12954~orig.jpg',
+      elevationMap: 'https://images-assets.nasa.gov/image/PIA13179/PIA13179~orig.jpg',
+      spectralOverlay: 'https://images-assets.nasa.gov/image/art002e012028/art002e012028~large.jpg'
     },
     metrics: {
       morphologyScore: 88,
@@ -440,9 +440,9 @@ export const PLANETARY_TARGETS: PlanetaryTarget[] = [
       }
     ],
     imagery: {
-      overview: 'https://images.nasa.gov/details/PIA24424/preview.jpg',
-      elevationMap: 'https://images.nasa.gov/details/PIA24425/preview.jpg',
-      spectralOverlay: 'https://images.nasa.gov/details/PIA24426/preview.jpg'
+      overview: 'https://images-assets.nasa.gov/image/PIA26252/PIA26252~orig.jpg',
+      elevationMap: 'https://images-assets.nasa.gov/image/PIA25350/PIA25350~orig.jpg',
+      spectralOverlay: 'https://images-assets.nasa.gov/image/PIA23380/PIA23380~orig.jpg'
     },
     metrics: {
       morphologyScore: 97,
@@ -547,9 +547,9 @@ export const PLANETARY_TARGETS: PlanetaryTarget[] = [
       }
     ],
     imagery: {
-      overview: 'https://images.nasa.gov/details/PIA24424/preview.jpg',
-      elevationMap: 'https://images.nasa.gov/details/PIA24425/preview.jpg',
-      spectralOverlay: 'https://images.nasa.gov/details/PIA24426/preview.jpg'
+      overview: 'https://images-assets.nasa.gov/image/PIA16099/PIA16099~orig.jpg',
+      elevationMap: 'https://images-assets.nasa.gov/image/PIA21196/PIA21196~orig.jpg',
+      spectralOverlay: 'https://images-assets.nasa.gov/image/PIA21530/PIA21530~orig.jpg'
     },
     metrics: {
       morphologyScore: 95,
@@ -646,9 +646,9 @@ export const PLANETARY_TARGETS: PlanetaryTarget[] = [
       }
     ],
     imagery: {
-      overview: 'https://images.nasa.gov/details/PIA24424/preview.jpg',
-      elevationMap: 'https://images.nasa.gov/details/PIA24425/preview.jpg',
-      spectralOverlay: 'https://images.nasa.gov/details/PIA24426/preview.jpg'
+      overview: 'https://images-assets.nasa.gov/image/PIA10063/PIA10063~orig.jpg',
+      elevationMap: 'https://images-assets.nasa.gov/image/PIA10020/PIA10020~orig.jpg',
+      spectralOverlay: 'https://images-assets.nasa.gov/image/PIA10871/PIA10871~orig.jpg'
     },
     metrics: {
       morphologyScore: 92,

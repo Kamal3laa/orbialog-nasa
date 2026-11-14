@@ -59,8 +59,8 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
       <div className="absolute inset-0 pointer-events-none z-10 bg-grid-pattern opacity-40"></div>
 
       {/* Scientific Overlay Reticles */}
-      <div className="absolute top-12 left-10 pointer-events-none z-10 hidden lg:block font-mono text-[11px] text-stone-gray/70 space-y-1">
-        <div className="flex items-center space-x-2">
+      <div className="absolute top-3 right-10 pointer-events-none z-10 hidden lg:block text-right font-mono text-[11px] text-stone-gray/70 space-y-1">
+        <div className="flex items-center justify-end space-x-2">
           <Crosshair className="w-3.5 h-3.5 text-mars" />
           <span className="text-mineral-white font-semibold">ORBITAL EPHEMERIS: J2026.4</span>
         </div>

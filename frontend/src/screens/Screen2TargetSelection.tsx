@@ -35,6 +35,11 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
   const [activePlanetTab, setActivePlanetTab] = useState<PlanetId>(selectedTarget.planet);
   const [activeImageMode, setActiveImageMode] = useState<'overview' | 'elevationMap' | 'spectralOverlay' | '3d-mesh'>('overview');
   const [analogMatches, setAnalogMatches] = useState<TopEarthAnalogMatch[]>([]);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [selectedTarget.id, activeImageMode]);
 
   // Flowchart: S1 --> A (GET /api/v1/analogs?target=) and GET /api/v1/targets/:id
   useEffect(() => {
@@ -239,11 +244,18 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
               />
             ) : (
               <div className="relative w-full h-72 md:h-80 bg-charcoal-deep border border-obsidian-border overflow-hidden group">
-                <img
-                  src={selectedTarget.imagery[activeImageMode]}
-                  alt={selectedTarget.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+                {imageError ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-charcoal-deep font-mono text-[10px] text-stone-gray">
+                    REFERENCE IMAGE UNAVAILABLE
+                  </div>
+                ) : (
+                  <img
+                    src={selectedTarget.imagery[activeImageMode]}
+                    alt={selectedTarget.name}
+                    onError={() => setImageError(true)}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep via-transparent to-transparent opacity-80"></div>
 
                 {/* Coordinates Reticle Overlay */}
@@ -266,8 +278,8 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
               {(
                 [
                   ['overview', 'Orbital Visual'],
-                  ['elevationMap', 'DTM Relief'],
-                  ['spectralOverlay', 'Spectra'],
+                  ['elevationMap', 'Terrain Reference'],
+                  ['spectralOverlay', 'Spectral Map'],
                   ['3d-mesh', 'Real 3D Mesh'],
                 ] as const
               ).map(([mode, label]) => (
