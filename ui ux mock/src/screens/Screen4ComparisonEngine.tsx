@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { 
-  ActiveScreen, 
-  PlanetaryTarget, 
-  AnalogLocation 
+import {
+  ActiveScreen,
+  PlanetaryTarget,
+  AnalogLocation
 } from '../types';
 import { RadarChart, RadarDataPoint } from '../components/common/RadarChart';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
-import { 
-  GitCompare, 
-  ArrowRight, 
-  AlertTriangle, 
-  Database, 
-  Layers, 
-  Activity, 
-  Thermometer, 
-  Compass, 
+import {
+  GitCompare,
+  ArrowRight,
+  AlertTriangle,
+  Database,
+  Layers,
+  Activity,
+  Thermometer,
+  Compass,
   ShieldCheck,
   ChevronDown,
   Box,
@@ -118,11 +118,10 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
               audio.playClick();
               setViewMode('satellite');
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${
-              viewMode === 'satellite'
-                ? 'bg-mars text-mineral-white font-bold shadow-sm'
-                : 'text-stone-gray hover:text-mineral-white'
-            }`}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${viewMode === 'satellite'
+              ? 'bg-mars text-mineral-white font-bold shadow-sm'
+              : 'text-stone-gray hover:text-mineral-white'
+              }`}
           >
             <Eye className="w-3.5 h-3.5" />
             <span className="uppercase">Orbital Multispectral</span>
@@ -132,11 +131,10 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
               audio.playClick();
               setViewMode('3d-mesh');
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${
-              viewMode === '3d-mesh'
-                ? 'bg-earth text-mineral-white font-bold shadow-sm'
-                : 'text-stone-gray hover:text-mineral-white'
-            }`}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 transition-all ${viewMode === '3d-mesh'
+              ? 'bg-earth text-mineral-white font-bold shadow-sm'
+              : 'text-stone-gray hover:text-mineral-white'
+              }`}
           >
             <Box className="w-3.5 h-3.5" />
             <span className="uppercase">Real 3D Topographic Mesh</span>
@@ -446,11 +444,11 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
             <button
               onClick={() => {
                 audio.playConfirm();
-                onNavigate('applications');
+                onNavigate('discovery');
               }}
               className="flex items-center justify-center space-x-2 px-4 py-3 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-colors shadow-md font-semibold"
             >
-              <span>MISSION TESTING OPS</span>
+              <span>EXPLORE MORE ANALOGS</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

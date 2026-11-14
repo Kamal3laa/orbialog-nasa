@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { 
-  ActiveScreen, 
-  AnalogLocation, 
-  PlanetaryTarget 
+import {
+  ActiveScreen,
+  AnalogLocation,
+  PlanetaryTarget
 } from '../types';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
-import { 
-  FileText, 
-  MapPin, 
-  Compass, 
-  Layers, 
-  Activity, 
-  Database, 
-  ArrowRight, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Download, 
+import {
+  FileText,
+  MapPin,
+  Compass,
+  Layers,
+  Activity,
+  Database,
+  ArrowRight,
+  AlertTriangle,
+  CheckCircle2,
+  Download,
   ExternalLink,
   ChevronDown,
   Box
@@ -214,11 +214,10 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-mineral-white font-semibold">{cap.name}</span>
                     <span
-                      className={`px-2 py-0.5 uppercase text-[10px] font-bold ${
-                        cap.suitability === 'exceptional'
-                          ? 'bg-telemetry-emerald/20 text-telemetry-emerald border border-telemetry-emerald/40'
-                          : 'bg-telemetry-cyan/20 text-telemetry-cyan border border-telemetry-cyan/40'
-                      }`}
+                      className={`px-2 py-0.5 uppercase text-[10px] font-bold ${cap.suitability === 'exceptional'
+                        ? 'bg-telemetry-emerald/20 text-telemetry-emerald border border-telemetry-emerald/40'
+                        : 'bg-telemetry-cyan/20 text-telemetry-cyan border border-telemetry-cyan/40'
+                        }`}
                     >
                       {cap.suitability}
                     </span>
@@ -364,11 +363,11 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <button
                 onClick={() => {
                   audio.playConfirm();
-                  onNavigate('applications');
+                  onNavigate('comparison');
                 }}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider font-semibold transition-colors mt-2"
               >
-                <span>TEST IN MISSION OPS</span>
+                <span>RUN COMPARISON ENGINE</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

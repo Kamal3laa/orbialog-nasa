@@ -1,14 +1,14 @@
 import React from 'react';
 import { ActiveScreen, PlanetaryTarget, AnalogLocation } from '../types';
 import { CelestialScene } from '../components/canvas3d/CelestialScene';
-import { 
-  ArrowRight, 
-  Compass, 
-  Globe, 
-  Database, 
-  Activity, 
-  Crosshair, 
-  Layers, 
+import {
+  ArrowRight,
+  Compass,
+  Globe,
+  Database,
+  Activity,
+  Crosshair,
+  Layers,
   ShieldCheck,
   ChevronRight
 } from 'lucide-react';
@@ -36,8 +36,8 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
     <div className="relative w-full min-h-[calc(100vh-80px)] flex flex-col justify-between overflow-hidden bg-charcoal">
       {/* 3D Celestial Background Visual (Earth, Moon, Mars in Cinematic Layout) */}
       <div className="absolute inset-0 z-0 opacity-90">
-        <CelestialScene 
-          interactive={true} 
+        <CelestialScene
+          interactive={true}
           onSelectPlanet={(planet) => {
             audio.playClick();
             if (planet === 'mars') {
@@ -91,7 +91,7 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
 
           {/* Supporting Text */}
           <p className="font-inter text-lg md:text-xl text-mineral-muted max-w-2xl font-normal leading-relaxed">
-            Discover the places on Earth that can prepare humanity for its next planetary frontier. 
+            Discover the places on Earth that can prepare humanity for its next planetary frontier.
             A scientific comparison engine bridging terrestrial terrain to permanent lunar outposts and future Martian exploration missions.
           </p>
 
@@ -112,14 +112,6 @@ export const Screen1Landing: React.FC<Screen1LandingProps> = ({
             >
               <Compass className="w-4 h-4 text-lunar" />
               <span>SELECT TARGET</span>
-            </button>
-
-            <button
-              onClick={() => handleCta('methodology')}
-              className="flex items-center space-x-2 px-5 py-3.5 bg-transparent hover:bg-obsidian/50 border border-obsidian-border text-stone-gray hover:text-mineral-white uppercase tracking-wider transition-colors"
-            >
-              <Database className="w-4 h-4" />
-              <span>VIEW METHODOLOGY</span>
             </button>
           </div>
         </div>

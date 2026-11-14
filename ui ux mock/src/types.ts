@@ -123,6 +123,7 @@ export interface AnalogLocation {
     satellite: string;
     terrain: string;
   };
+  continent?: 'North America' | 'South America' | 'Polar / Arctic' | 'Africa' | 'Europe' | 'Oceania' | 'Asia';
   featuredEgypt?: boolean;
 }
 
@@ -132,7 +133,8 @@ export interface FilterState {
   categories: AnalogCategory[];
   minSimilarity: number;
   elevationRange: [number, number]; // [min, max] in meters
-  onlyEgypt: boolean;
+  regionFilter?: string;
+  onlyHighFidelity?: boolean;
   sortBy: 'similarity' | 'elevation' | 'confidence' | 'name';
 }
 

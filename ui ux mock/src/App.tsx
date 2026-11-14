@@ -47,14 +47,6 @@ export const App: React.FC = () => {
           setCurrentScreen('profile');
           audio.playClick();
           break;
-        case '6':
-          setCurrentScreen('applications');
-          audio.playClick();
-          break;
-        case '7':
-          setCurrentScreen('methodology');
-          audio.playClick();
-          break;
         default:
           break;
       }

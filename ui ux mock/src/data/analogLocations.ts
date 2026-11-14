@@ -1,14 +1,13 @@
 import { AnalogLocation } from '../types';
 
 export const ANALOG_LOCATIONS: AnalogLocation[] = [
-  // --- EGYPT ANALOG CANDIDATES (Featured in Prompt) ---
   {
     id: 'egypt-white-desert',
     name: 'White Desert (Sahara el Beyda)',
     region: 'Farafra Depression, New Valley',
     country: 'Egypt',
     flagCode: 'EG',
-    featuredEgypt: true,
+    continent: 'Africa',
     coordinates: {
       lat: 27.2883,
       lng: 28.1633,
@@ -99,7 +98,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Matrouh Governorate, Western Desert',
     country: 'Egypt',
     flagCode: 'EG',
-    featuredEgypt: true,
+    continent: 'Africa',
     coordinates: {
       lat: 29.5000,
       lng: 27.5000,
@@ -190,7 +189,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'South Sinai Governorate (St. Catherine / Wadi Feiran)',
     country: 'Egypt',
     flagCode: 'EG',
-    featuredEgypt: true,
+    continent: 'Africa',
     coordinates: {
       lat: 28.5394,
       lng: 33.9750,
@@ -282,6 +281,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Antofagasta Region',
     country: 'Chile',
     flagCode: 'CL',
+    continent: 'South America',
     coordinates: {
       lat: -24.0667,
       lng: -70.0167,
@@ -359,6 +359,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Qikiqtaaluk Region, Nunavut',
     country: 'Canada',
     flagCode: 'CA',
+    continent: 'North America',
     coordinates: {
       lat: 75.3667,
       lng: -89.6833,
@@ -435,6 +436,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Victoria Land',
     country: 'Antarctica',
     flagCode: 'AQ',
+    continent: 'Polar / Arctic',
     coordinates: {
       lat: -77.4667,
       lng: 162.5333,
@@ -511,6 +513,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Spitsbergen Archipelago',
     country: 'Norway',
     flagCode: 'NO',
+    continent: 'Polar / Arctic',
     coordinates: {
       lat: 79.4500,
       lng: 13.3667,
@@ -587,6 +590,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Island of Hawaiʻi',
     country: 'United States',
     flagCode: 'US',
+    continent: 'North America',
     coordinates: {
       lat: 19.8206,
       lng: -155.4681,
@@ -664,6 +668,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Pilbara Region, Western Australia',
     country: 'Australia',
     flagCode: 'AU',
+    continent: 'Oceania',
     coordinates: {
       lat: -21.1667,
       lng: 119.7833,
@@ -740,6 +745,7 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
     region: 'Almería & Huelva, Andalusia',
     country: 'Spain',
     flagCode: 'ES',
+    continent: 'Europe',
     coordinates: {
       lat: 37.0000,
       lng: -2.4333,
@@ -808,6 +814,159 @@ export const ANALOG_LOCATIONS: AnalogLocation[] = [
       hero: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80',
       satellite: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1200&q=80',
       terrain: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1200&q=80'
+    }
+  },
+  {
+    id: 'mojave-desert-jpl',
+    name: 'Mojave Desert & NASA JPL Mars Yard',
+    region: 'California & Nevada Basin (Death Valley / Pisgah)',
+    country: 'United States',
+    flagCode: 'US',
+    continent: 'North America',
+    coordinates: {
+      lat: 34.7460,
+      lng: -116.3750,
+      display: '34°44\'45" N, 116°22\'30" W'
+    },
+    elevationMeters: 640,
+    category: 'volcanic-basalt',
+    primaryTargetAnalog: 'mars',
+    matchedTargets: ['mars-jezero-crater', 'mars-gale-crater', 'luna-south-pole'],
+    overallSimilarity: 92.4,
+    confidenceScore: 97.5,
+    climateType: 'BWh (Subtropical Hyper-Arid Desert)',
+    summary: 'NASA Jet Propulsion Laboratory\'s benchmark terrestrial proving ground for Spirit, Opportunity, Curiosity, and Perseverance. Features extensive Quaternary basalt lava flows at Pisgah Crater, desert varnish, and hyper-arid salt basins replicating Martian rock-strewn plains.',
+    geology: {
+      rockType: 'Quaternary Alkali Olivine Basalt, Alluvial Fanglomerates, & Desert Varnish Pavements',
+      mineralogy: ['Plagioclase Feldspar', 'Olivine', 'Pyroxene', 'Manganese-Iron Oxide Varnish', 'Montmorillonite'],
+      regolithAnalogy: 'Basaltic boulders scattered over fine aeolian silts, directly replicating Gale Crater rover wheel hazard fields.',
+      aeolianFeatures: 'Linear wind-sculpted sand ripples, ventifacts, and deflation desert pavements.',
+      stratigraphy: 'Basalt flows overlying Tertiary continental sedimentary sequences.'
+    },
+    environment: {
+      meanAnnualTemp: '21.5 °C',
+      diurnalRange: '-2 °C (winter night) to 52 °C (summer peak)',
+      annualPrecipitation: '65 mm / year',
+      uvIrradiance: 'Peak Index 11+ (Extreme insolation)',
+      aridityIndex: '0.04 (Hyper-arid)',
+      dustStormFrequency: 'Frequent high-velocity dust devils and sand transport'
+    },
+    scientificSignificance: [
+      'Primary NASA JPL mobility benchmark for Mars Science Laboratory (MSL) and Mars 2020 rover mobility systems.',
+      'Desert varnish manganese coating provides natural analogues to Mars manganese-rich rock veneers discovered by ChemCam.',
+      'High-temperature diurnal cycling stresses mechanical actuators and avionics under extreme field conditions.'
+    ],
+    similaritiesToTarget: [
+      'Wheel-rock interaction and slip ratios identical to Gale crater plains.',
+      'Thermal inertia and diurnal cooling curves match THEMIS Mars orbital radiometer data.',
+      'Surface boulder frequency and size distribution match Jezero delta landing ellipses.'
+    ],
+    limitations: [
+      'Terrestrial atmospheric pressure (1 atm) alters dust suspension kinetics.',
+      'Proximity to interstate transportation corridor requires designated test ranges.'
+    ],
+    fieldTestingCapabilities: [
+      { name: 'Autonomous Rover Rock Avoidance & Slip Testing', suitability: 'exceptional', notes: 'NASA JPL gold standard test range.' },
+      { name: 'Laser-Induced Breakdown Spectroscopy (LIBS) Calibration', suitability: 'exceptional', notes: 'Ideal for ChemCam/SuperCam cross-validation.' },
+      { name: 'Thermal Radiometer Diurnal Inertia Mapping', suitability: 'high', notes: 'Matches orbital thermal response curves.' }
+    ],
+    notableMissionsOrExpeditions: [
+      { campaign: 'NASA MSL / Mars 2020 Mobility Acceptance Trials', organization: 'NASA JPL', year: '2011 - 2024', scope: 'Evaluating autonomous navigation and titanium wheel wear' }
+    ],
+    dataSources: [
+      { title: 'USGS High-Resolution 3D Elevation Program (3DEP)', agency: 'USGS', datasetId: 'USGS_1M_DEM_Mojave', type: 'DEM Radar' },
+      { title: 'NASA JPL Mars Yard and Field Analog Telemetry Archive', agency: 'NASA JPL', datasetId: 'JPL_ANALOG_DOC_2023', type: 'Peer Reviewed Paper' }
+    ],
+    metrics: {
+      geologicalSimilarity: 91,
+      terrainRoughness: 94,
+      slopeDistribution: 86,
+      thermalDeltaMatch: 93,
+      granulometryMatch: 95,
+      spectralCorrespondence: 90,
+      volatilesAnalogy: 72
+    },
+    imagery: {
+      hero: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80',
+      satellite: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+      terrain: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80'
+    }
+  },
+  {
+    id: 'iceland-askja-highlands',
+    name: 'Iceland Volcanic Highlands (Askja & Dyngjufjöll)',
+    region: 'Central Highlands (Dyngjufjöll Volcanic Massif)',
+    country: 'Iceland',
+    flagCode: 'IS',
+    continent: 'Europe',
+    coordinates: {
+      lat: 65.0300,
+      lng: -16.7500,
+      display: '65°01\'48" N, 16°45\'00" W'
+    },
+    elevationMeters: 1100,
+    category: 'volcanic-basalt',
+    primaryTargetAnalog: 'moon',
+    matchedTargets: ['luna-south-pole', 'luna-shackleton-crater', 'mars-valles-marineris'],
+    overallSimilarity: 94.6,
+    confidenceScore: 98.0,
+    climateType: 'ET (Subpolar Alpine Desert)',
+    summary: 'Historic Apollo astronaut geology training site where Neil Armstrong, Buzz Aldrin, and 30 Apollo astronauts trained in 1965 and 1967. Vast barren basaltic lava fields, collapse calderas, pumice deposits, and subglacial volcanism creating the ultimate Lunar highland and mare regolith simulator.',
+    geology: {
+      rockType: 'Tholeiitic Basalt, Rhyolitic Pumice, Tephra, & Glaciovolcanic Hyaloclastites',
+      mineralogy: ['Anorthite-rich Plagioclase', 'Clinopyroxene', 'Titanomagnetite', 'Volcanic Glass', 'Zeolites'],
+      regolithAnalogy: 'Vesicular basaltic cinders and jagged glassy tephra replicating abrasive, unweathered lunar impact regolith.',
+      aeolianFeatures: 'Cryogenic volcanic dust flats, wind-scoured pumice corridors, and frost-cracked boulders.',
+      stratigraphy: 'Complex nested calderas with post-glacial basalt flows.'
+    },
+    environment: {
+      meanAnnualTemp: '-2.1 °C',
+      diurnalRange: '-28 °C (winter) to 14 °C (summer)',
+      annualPrecipitation: '450 mm / year (mostly snow/ice)',
+      uvIrradiance: 'High clean atmosphere summer insolation',
+      aridityIndex: '0.15 (Cold Volcanic Arid Desert)',
+      dustStormFrequency: 'Severe localized volcanic ash and tephra storms'
+    },
+    scientificSignificance: [
+      'Historic Apollo Geology Field Training site (Apollo 11 through Apollo 17 lunar crews).',
+      'Modern ESA / NASA testing site for Artemis lunar exploration tools and autonomous drones.',
+      'Pristine unweathered volcanic glass provides baseline for lunar optical and spectroscopy instruments.'
+    ],
+    similaritiesToTarget: [
+      'Basaltic mineralogy and anorthite content closely mirrors Lunar Mare Tranquillitatis and South Pole regolith.',
+      'Total absence of trees and vegetation creates unhindered optical and navigation line-of-sight matching the Moon.',
+      'Cryogenic volcanic dust stresses spacesuit seals and mechanical joints similarly to lunar dust.'
+    ],
+    limitations: [
+      'Winter access restricted due to heavy snow cover.',
+      'Surface water present in crater lakes (Öskjuvatn).'
+    ],
+    fieldTestingCapabilities: [
+      { name: 'Astronaut EVA Geological Sampling Simulation', suitability: 'exceptional', notes: 'Apollo historical and Artemis current training site.' },
+      { name: 'Lunar Regolith Abrasive Wear Testing', suitability: 'exceptional', notes: 'Sharp glassy tephra matches lunar soil abrasiveness.' },
+      { name: 'Extreme Cold Autonomous Drone Navigation', suitability: 'high', notes: 'Highland wind and thermal gradient stress tests.' }
+    ],
+    notableMissionsOrExpeditions: [
+      { campaign: 'NASA Apollo Lunar Astronaut Geological Training', organization: 'NASA / US Geological Survey', year: '1965 & 1967', scope: 'Training Neil Armstrong and Apollo crews in volcanic field geology' },
+      { campaign: 'ESA / NASA Pangaea Geological Astronaut Training', organization: 'ESA', year: '2021 - 2024', scope: 'Artemis generation astronaut analog training' }
+    ],
+    dataSources: [
+      { title: 'National Land Survey of Iceland (LMÍ) High-Res DEM', agency: 'LMÍ', datasetId: 'LMI_IS50V_DEM', type: 'DEM Radar' },
+      { title: 'Iceland as an Analog for Planetary Basaltic Exploration', agency: 'Planetary and Space Science', datasetId: 'DOI:10.1016/j.pss.2020.104921', type: 'Peer Reviewed Paper' }
+    ],
+    metrics: {
+      geologicalSimilarity: 96,
+      terrainRoughness: 92,
+      slopeDistribution: 88,
+      thermalDeltaMatch: 85,
+      granulometryMatch: 94,
+      spectralCorrespondence: 95,
+      volatilesAnalogy: 82
+    },
+    imagery: {
+      hero: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1200&q=80',
+      satellite: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=1200&q=80',
+      terrain: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80'
     }
   }
 ];

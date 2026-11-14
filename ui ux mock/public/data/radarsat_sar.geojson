@@ -1,0 +1,114 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "source": "Canadian Space Agency (CSA) Open Data Portal / RADARSAT-1 & RCM Archive",
+    "portalUrl": "https://donnees-data.asc-csa.gc.ca/",
+    "sensor": "Synthetic Aperture Radar (SAR) C-band (5.3 GHz / 5.405 GHz)",
+    "application": "Subsurface Structural Mapping & Volcanic Lava Tube Detection (Lunar/Martian Analogs)",
+    "polarizations": ["HH", "HV", "VV", "VH"],
+    "wavelengthCm": 5.6,
+    "penetrationDepthDryBasaltMeters": 3.8,
+    "generatedAt": "2026-11-14T01:00:00Z"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "RCM1_OK1054238_LAVA_TUBE_01",
+      "properties": {
+        "sceneId": "RCM1_OK1054238_PK1120445_1_SC30M",
+        "mission": "RADARSAT Constellation Mission (RCM)",
+        "beamMode": "High Resolution 30m Quad-Pol",
+        "acquisitionDate": "2024-03-12T16:42:18Z",
+        "orbitDirection": "Ascending",
+        "centerCoordinates": [28.16, 27.38],
+        "analogContext": "Subsurface Yardang/Karst Conduit Analogy (White Desert / Jezero Delta)",
+        "sigma0_HH_dB": -12.4,
+        "sigma0_HV_dB": -21.8,
+        "entropyH": 0.42,
+        "alphaAngleDeg": 28.5,
+        "subsurfaceAnomalyType": "Linear Void / Collapsed Lava Conduit Ceiling",
+        "roofThicknessEstimatedM": 4.5,
+        "confidenceScore": 92.4,
+        "planetaryCorrespondence": "Marius Hills Pit / Moon Lunar Lava Tube Skylight (LROC/SELENE)",
+        "downloadUrl": "https://donnees-data.asc-csa.gc.ca/dataset/rcm-sample-scenes/resource/rcm-cband-geotiff"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [28.12, 27.35],
+            [28.20, 27.35],
+            [28.20, 27.41],
+            [28.12, 27.41],
+            [28.12, 27.35]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "RS1_S3_048892_CLEARWATER_ANALOG",
+      "properties": {
+        "sceneId": "RS1_048892_S3_20050819_HH",
+        "mission": "RADARSAT-1 Archive",
+        "beamMode": "Standard Beam 3 (S3)",
+        "acquisitionDate": "2005-08-19T21:14:02Z",
+        "orbitDirection": "Descending",
+        "centerCoordinates": [-74.33, 56.12],
+        "analogContext": "Complex Impact Crater Rim & Melt Sheet (Clearwater Lakes, Quebec)",
+        "sigma0_HH_dB": -8.7,
+        "sigma0_HV_dB": -18.2,
+        "entropyH": 0.68,
+        "alphaAngleDeg": 41.2,
+        "subsurfaceAnomalyType": "Shock-Fractured Crystalline Subsurface Rim",
+        "roofThicknessEstimatedM": 12.0,
+        "confidenceScore": 95.8,
+        "planetaryCorrespondence": "Shackleton Crater Rim & Peak Ring Lunar Analogs",
+        "downloadUrl": "https://donnees-data.asc-csa.gc.ca/dataset/radarsat-1-archive/resource/rs1-s3-geotiff"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-74.45, 56.05],
+            [-74.20, 56.05],
+            [-74.20, 56.20],
+            [-74.45, 56.20],
+            [-74.45, 56.05]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "RCM2_OK204192_HAWAII_BASALT_TUBE",
+      "properties": {
+        "sceneId": "RCM2_OK204192_PK2091184_1_MCP16M",
+        "mission": "RADARSAT Constellation Mission (RCM)",
+        "beamMode": "Medium Resolution 16m Compact Polarimetry",
+        "acquisitionDate": "2024-06-08T04:22:50Z",
+        "orbitDirection": "Ascending",
+        "centerCoordinates": [-155.58, 19.53],
+        "analogContext": "Mauna Loa Basaltic Lava Tube Trench & Trench Conduits",
+        "sigma0_HH_dB": -6.2,
+        "sigma0_HV_dB": -14.9,
+        "entropyH": 0.55,
+        "alphaAngleDeg": 36.8,
+        "subsurfaceAnomalyType": "Intact Basaltic Lava Tube Chain with Roof Skylights",
+        "roofThicknessEstimatedM": 6.8,
+        "confidenceScore": 96.5,
+        "planetaryCorrespondence": "Pavonis Mons Volcanic Lava Tubes (Mars HiRISE/SHARAD)",
+        "downloadUrl": "https://donnees-data.asc-csa.gc.ca/dataset/rcm-sample-scenes/resource/rcm-mauna-loa"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-155.62, 19.50],
+          [-155.59, 19.52],
+          [-155.56, 19.55],
+          [-155.53, 19.58]
+        ]
+      }
+    }
+  ]
+}
