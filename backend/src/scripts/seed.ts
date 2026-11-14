@@ -18,7 +18,7 @@ import { MissionDiscipline } from '../models/MissionDiscipline';
 import { MethodologyStep } from '../models/MethodologyStep';
 
 // Import the mock data directly from the frontend's data folder
-// (relative path from backend/src/scripts → ui ux mock/src/data)
+// (relative path from backend/src/scripts → frontend/src/data)
 import { PLANETARY_TARGETS } from '../../seed-data/planetaryTargets';
 import { ANALOG_LOCATIONS } from '../../seed-data/analogLocations';
 import { MISSION_APPLICATION_DOMAINS } from '../../seed-data/missionApplications';
