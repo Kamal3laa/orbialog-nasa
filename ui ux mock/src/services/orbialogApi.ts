@@ -222,7 +222,13 @@ export const orbialogApi = {
     limit?: number;
   }): Promise<SitesResponse> {
     const searchParams = new URLSearchParams();
-    if (params?.planet && params.planet !== 'all') searchParams.set('planet', params.planet);
+    if (params?.planet && params.planet !== 'all') {
+      if (params.planet === 'egypt') {
+        searchParams.set('country', 'Egypt');
+      } else {
+        searchParams.set('planet', params.planet);
+      }
+    }
     if (params?.category) searchParams.set('category', params.category);
     if (params?.country) searchParams.set('country', params.country);
     if (params?.q) searchParams.set('q', params.q);
