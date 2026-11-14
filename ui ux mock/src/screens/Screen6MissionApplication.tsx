@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ActiveScreen, 
   MissionApplicationDomain, 
@@ -6,6 +6,7 @@ import {
   PlanetaryTarget 
 } from '../types';
 import { MISSION_APPLICATION_DOMAINS } from '../data/missionApplications';
+import { orbialogApi } from '../services/orbialogApi';
 import { 
   Cpu, 
   CheckCircle2, 
@@ -38,10 +39,20 @@ export const Screen6MissionApplication: React.FC<Screen6MissionApplicationProps>
   onSelectAnalog,
   analogLocations,
 }) => {
+  const [domains, setDomains] = useState<MissionApplicationDomain[]>(MISSION_APPLICATION_DOMAINS);
   const [selectedDomainId, setSelectedDomainId] = useState<string>(MISSION_APPLICATION_DOMAINS[0].id);
 
+  useEffect(() => {
+    orbialogApi.getDisciplines().then((res) => {
+      if (res && res.length > 0) {
+        setDomains(res);
+      }
+    });
+  }, []);
+
   const activeDomain =
-    MISSION_APPLICATION_DOMAINS.find((d) => d.id === selectedDomainId) ||
+    domains.find((d) => d.id === selectedDomainId) ||
+    domains[0] ||
     MISSION_APPLICATION_DOMAINS[0];
 
   const handleDomainSelect = (id: string) => {
@@ -84,11 +95,11 @@ export const Screen6MissionApplication: React.FC<Screen6MissionApplicationProps>
         {/* Left Column: 7 Mission Application Domain Selectors */}
         <div className="lg:col-span-5 space-y-3">
           <div className="font-mono text-xs text-stone-gray uppercase tracking-wider">
-            MISSION QUALIFICATION DOMAINS [{MISSION_APPLICATION_DOMAINS.length}]
+            MISSION QUALIFICATION DOMAINS [{domains.length}]
           </div>
 
           <div className="space-y-2">
-            {MISSION_APPLICATION_DOMAINS.map((domain) => {
+            {domains.map((domain) => {
               const isSelected = domain.id === activeDomain.id;
               return (
                 <div

@@ -12,11 +12,28 @@ import { Screen5LocationProfile } from './screens/Screen5LocationProfile';
 import { Screen6MissionApplication } from './screens/Screen6MissionApplication';
 import { Screen7Methodology } from './screens/Screen7Methodology';
 import { audio } from './utils/audio';
+import { orbialogApi } from './services/orbialogApi';
 
 export const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ActiveScreen>('landing');
+  const [planetaryTargets, setPlanetaryTargets] = useState<PlanetaryTarget[]>(PLANETARY_TARGETS);
+  const [analogLocations, setAnalogLocations] = useState<AnalogLocation[]>(ANALOG_LOCATIONS);
   const [selectedTarget, setSelectedTarget] = useState<PlanetaryTarget>(PLANETARY_TARGETS[3]); // Default: Jezero Crater (Mars)
   const [selectedAnalog, setSelectedAnalog] = useState<AnalogLocation>(ANALOG_LOCATIONS[0]); // Default: White Desert (Egypt)
+
+  // Ingest live targets & analog sites from Backend API (Flowchart: S1/S2 --> T, S3 --> S)
+  useEffect(() => {
+    orbialogApi.getTargets().then((targets) => {
+      if (targets && targets.length > 0) {
+        setPlanetaryTargets(targets);
+      }
+    });
+    orbialogApi.getSites().then((res) => {
+      if (res?.data && res.data.length > 0) {
+        setAnalogLocations(res.data);
+      }
+    });
+  }, []);
 
   // Keyboard navigation shortcuts for professional aerospace interface feel
   useEffect(() => {
@@ -78,14 +95,14 @@ export const App: React.FC = () => {
           <Screen1Landing
             onNavigate={handleNavigate}
             onSelectTarget={setSelectedTarget}
-            planetaryTargets={PLANETARY_TARGETS}
-            featuredAnalogs={ANALOG_LOCATIONS.filter((l) => l.featuredEgypt)}
+            planetaryTargets={planetaryTargets}
+            featuredAnalogs={analogLocations.filter((l) => l.featuredEgypt)}
           />
         )}
 
         {currentScreen === 'targets' && (
           <Screen2TargetSelection
-            planetaryTargets={PLANETARY_TARGETS}
+            planetaryTargets={planetaryTargets}
             selectedTarget={selectedTarget}
             onSelectTarget={setSelectedTarget}
             onNavigate={handleNavigate}
@@ -94,7 +111,7 @@ export const App: React.FC = () => {
 
         {currentScreen === 'discovery' && (
           <Screen3EarthDiscovery
-            analogLocations={ANALOG_LOCATIONS}
+            analogLocations={analogLocations}
             selectedTarget={selectedTarget}
             selectedAnalog={selectedAnalog}
             onSelectAnalog={setSelectedAnalog}
@@ -104,8 +121,8 @@ export const App: React.FC = () => {
 
         {currentScreen === 'comparison' && (
           <Screen4ComparisonEngine
-            planetaryTargets={PLANETARY_TARGETS}
-            analogLocations={ANALOG_LOCATIONS}
+            planetaryTargets={planetaryTargets}
+            analogLocations={analogLocations}
             selectedTarget={selectedTarget}
             selectedAnalog={selectedAnalog}
             onSelectTarget={setSelectedTarget}
@@ -118,7 +135,7 @@ export const App: React.FC = () => {
           <Screen5LocationProfile
             selectedAnalog={selectedAnalog}
             selectedTarget={selectedTarget}
-            analogLocations={ANALOG_LOCATIONS}
+            analogLocations={analogLocations}
             onSelectAnalog={setSelectedAnalog}
             onNavigate={handleNavigate}
           />
@@ -130,7 +147,7 @@ export const App: React.FC = () => {
             selectedTarget={selectedTarget}
             onNavigate={handleNavigate}
             onSelectAnalog={setSelectedAnalog}
-            analogLocations={ANALOG_LOCATIONS}
+            analogLocations={analogLocations}
           />
         )}
 

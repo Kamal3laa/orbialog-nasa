@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ActiveScreen, PlanetaryTarget, PlanetId } from '../types';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
+import { orbialogApi, TopEarthAnalogMatch } from '../services/orbialogApi';
 import { 
   Compass, 
   MapPin, 
@@ -11,9 +12,10 @@ import {
   CheckCircle2, 
   Layers, 
   Cpu, 
-  Eye,
+  Eye, 
   Info,
-  Box
+  Box,
+  Globe
 } from 'lucide-react';
 import { audio } from '../utils/audio';
 
@@ -32,6 +34,18 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
 }) => {
   const [activePlanetTab, setActivePlanetTab] = useState<PlanetId>(selectedTarget.planet);
   const [activeImageMode, setActiveImageMode] = useState<'overview' | 'elevationMap' | 'spectralOverlay' | '3d-mesh'>('overview');
+  const [analogMatches, setAnalogMatches] = useState<TopEarthAnalogMatch[]>([]);
+
+  // Flowchart: S1 --> A (GET /api/v1/analogs?target=)
+  useEffect(() => {
+    let isMounted = true;
+    orbialogApi.getAnalogMatches(selectedTarget.id, 3).then((res) => {
+      if (isMounted && res?.top_earth_analogs) {
+        setAnalogMatches(res.top_earth_analogs);
+      }
+    });
+    return () => { isMounted = false; };
+  }, [selectedTarget.id]);
 
   const filteredTargets = planetaryTargets.filter((t) => t.planet === activePlanetTab);
 
@@ -352,6 +366,31 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
               ))}
             </div>
           </div>
+
+          {/* Top Earth Analogs from Backend Matcher (Flowchart: S1 --> A) */}
+          {analogMatches.length > 0 && (
+            <div className="pt-4 border-t border-obsidian-border">
+              <div className="font-mono text-xs text-stone-gray uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span className="flex items-center space-x-1.5 text-cyan-400">
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>TOP TERRESTRIAL ANALOG MATCHES [/api/v1/analogs]</span>
+                </span>
+                <span className="text-[10px] text-stone-gray font-mono">BACKEND MATCHER</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {analogMatches.map((m, idx) => (
+                  <div key={idx} className="p-2.5 bg-obsidian-card border border-cyan-800/40 font-mono text-[11px] space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-200 font-semibold truncate">{m.location_name}</span>
+                      <span className="text-amber-400 font-bold ml-1">{m.similarity_score}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 line-clamp-1">{m.matches.join(' • ')}</div>
+                    <div className="text-[9px] text-cyan-400/90">{m.suggested_testing}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ActiveScreen,
   PlanetaryTarget,
@@ -6,6 +6,7 @@ import {
 } from '../types';
 import { RadarChart, RadarDataPoint } from '../components/common/RadarChart';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
+import { orbialogApi, ComparisonResult } from '../services/orbialogApi';
 import {
   GitCompare,
   ArrowRight,
@@ -18,7 +19,9 @@ import {
   ShieldCheck,
   ChevronDown,
   Box,
-  Eye
+  Eye,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { audio } from '../utils/audio';
 
@@ -42,6 +45,16 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
   onNavigate,
 }) => {
   const [viewMode, setViewMode] = useState<'satellite' | '3d-mesh'>('satellite');
+  const [serverComparison, setServerComparison] = useState<ComparisonResult | null>(null);
+
+  // Flowchart S4 --> C (GET /api/v1/comparison?target=&analog=)
+  useEffect(() => {
+    let active = true;
+    orbialogApi.getComparison(selectedTarget.id, selectedAnalog.id).then((res) => {
+      if (active) setServerComparison(res);
+    });
+    return () => { active = false; };
+  }, [selectedTarget.id, selectedAnalog.id]);
 
   const handleTargetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const target = planetaryTargets.find((t) => t.id === e.target.value);
@@ -345,8 +358,13 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
         <div className="lg:col-span-5 bg-obsidian border border-obsidian-border p-6 lg:p-8 space-y-6">
           <div className="flex items-start justify-between border-b border-obsidian-border pb-4">
             <div>
-              <div className="font-mono text-[10px] text-stone-gray uppercase tracking-widest">
-                MAHALANOBIS SIMILARITY VECTOR
+              <div className="flex items-center space-x-1.5 font-mono text-[10px] text-stone-gray uppercase tracking-widest">
+                <span>{serverComparison ? 'COSINE L2 FIDELITY VECTOR' : 'MAHALANOBIS SIMILARITY VECTOR'}</span>
+                {serverComparison && (
+                  <span className="text-[9px] text-emerald-400 bg-emerald-950/70 border border-emerald-800/50 px-1.5 py-0.2 rounded">
+                    API v1
+                  </span>
+                )}
               </div>
               <h2 className="font-grotesk font-bold text-2xl text-mineral-white uppercase mt-0.5">
                 Analogy Correlation
@@ -355,10 +373,14 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
 
             <div className="text-right">
               <div className="font-mono text-3xl font-bold text-mars">
-                {selectedAnalog.overallSimilarity.toFixed(1)}%
+                {(serverComparison ? serverComparison.overallSimilarity : selectedAnalog.overallSimilarity).toFixed(1)}%
               </div>
               <div className="font-mono text-[9px] text-stone-gray uppercase">
-                CONFIDENCE: {selectedAnalog.confidenceScore.toFixed(0)}%
+                {serverComparison?.fidelityClass ? (
+                  <span className="text-cyan-400 font-bold">{serverComparison.fidelityClass}</span>
+                ) : (
+                  `CONFIDENCE: ${selectedAnalog.confidenceScore.toFixed(0)}%`
+                )}
               </div>
             </div>
           </div>
@@ -372,6 +394,38 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
               size={340}
             />
           </div>
+
+          {/* Server-Side Strengths and Risks (if provided by Backend Comparison Service) */}
+          {serverComparison && (serverComparison.dominantStrengths?.length > 0 || serverComparison.operationalRisks?.length > 0) && (
+            <div className="space-y-3 p-3 bg-obsidian-card border border-obsidian-border text-xs font-mono">
+              {serverComparison.dominantStrengths?.length > 0 && (
+                <div>
+                  <span className="text-[10px] text-emerald-400 uppercase font-bold block mb-1">DOMINANT SCIENTIFIC STRENGTHS:</span>
+                  <ul className="space-y-1 text-slate-300 text-[11px]">
+                    {serverComparison.dominantStrengths.map((str, idx) => (
+                      <li key={idx} className="flex items-start space-x-1.5">
+                        <span className="text-emerald-400">✓</span>
+                        <span>{str}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {serverComparison.operationalRisks?.length > 0 && (
+                <div className="pt-2 border-t border-obsidian-border">
+                  <span className="text-[10px] text-amber-400 uppercase font-bold block mb-1">OPERATIONAL TESTING RISKS:</span>
+                  <ul className="space-y-1 text-slate-300 text-[11px]">
+                    {serverComparison.operationalRisks.map((risk, idx) => (
+                      <li key={idx} className="flex items-start space-x-1.5">
+                        <span className="text-amber-400">⚠</span>
+                        <span>{risk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Parametric Dimension Breakdown Progress Bars */}
           <div className="space-y-3 pt-2 font-mono text-xs border-t border-obsidian-border">
