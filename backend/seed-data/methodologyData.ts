@@ -68,7 +68,7 @@ export const METHODOLOGY_STEPS: MethodologyStep[] = [
     inputs: ['Normalized target vector f_T', 'Normalized terrestrial analog vector f_A', 'Feature covariance matrix Σ', 'Domain weight vector w'],
     outputs: ['Overall Analog Similarity Index (0 - 100%)', 'Per-domain sub-scores (Morphology, Roughness, Chemistry, Thermal, Volatiles)'],
     dataSources: ['ORBiALOG Analytical Core', 'PDS Geosciences Spectral Matching Algorithms'],
-    standardConfidenceInterval: 'Pearson correlation r = 0.942 against published NASA peer-reviewed analog studies'
+    standardConfidenceInterval: 'PLACEHOLDER — correlation against peer-reviewed studies pending real raster-computed metrics (see orbialog-real-data-plan)'
   },
   {
     stepNumber: 6,
@@ -92,7 +92,7 @@ export const METHODOLOGY_STEPS: MethodologyStep[] = [
     inputs: ['Field campaign spectrometer logs', 'Rock sample XRF laboratory assays', 'Rover wheel sinkage logs from analog trials'],
     outputs: ['Validated Analog Dossiers', 'Scientific Confidence Rating (0 - 100%)', 'Peer-reviewed dataset citations'],
     dataSources: ['NASA Technical Reports Server (NTRS)', 'Lunar and Planetary Science Conference (LPSC)', 'Astrobiology Journal'],
-    standardConfidenceInterval: 'Validated against 42 documented terrestrial expedition field campaigns'
+    standardConfidenceInterval: 'PLACEHOLDER — ground-truth campaign count pending real validation run (see orbialog-real-data-plan)'
   }
 ];
 

@@ -123,6 +123,7 @@ export interface AnalogLocation {
     satellite: string;
     terrain: string;
   };
+  source?: 'curated' | 'computed';
 }
 
 export interface FilterState {

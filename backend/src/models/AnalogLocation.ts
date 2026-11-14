@@ -65,6 +65,16 @@ export interface IAnalogLocation extends Document {
   }[];
   metrics: IAnalogMetrics;
   imagery: { hero: string; satellite: string; terrain: string };
+  /**
+   * source: 'curated'  = hand-typed value (current state — seed data)
+   * source: 'computed' = derived from real raster data via Earth Engine / rasterio
+   */
+  source: 'curated' | 'computed';
+  provenance?: {
+    dataset?: string;
+    version?: string;
+    computedAt?: Date;
+  };
 }
 
 const analogLocationSchema = new Schema<IAnalogLocation>(
@@ -151,6 +161,16 @@ const analogLocationSchema = new Schema<IAnalogLocation>(
       hero: String,
       satellite: String,
       terrain: String,
+    },
+    source: {
+      type: String,
+      enum: ['curated', 'computed'],
+      default: 'curated',
+    },
+    provenance: {
+      dataset: String,
+      version: String,
+      computedAt: Date,
     },
   },
   { timestamps: true, versionKey: false },

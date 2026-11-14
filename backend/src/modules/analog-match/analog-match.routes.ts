@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PlanetaryTarget } from '../../models/PlanetaryTarget';
 import { AnalogLocation } from '../../models/AnalogLocation';
+import { AnalogMatch } from '../../models/AnalogMatch';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiError } from '../../utils/ApiError';
 
@@ -86,6 +87,33 @@ router.get(
       );
     }
 
+    const target_space_site = formatTargetSpaceSite(target);
+
+    // ── Check precomputed cache first (fast, indexed { targetId: 1, similarity: -1 }) ──
+    const precomputed = await AnalogMatch.find({ targetId })
+      .sort({ similarity: -1 })
+      .limit(limit)
+      .lean();
+
+    if (precomputed.length > 0) {
+      return res.json({
+        target_space_site,
+        top_earth_analogs: precomputed.map((m) => ({
+          location_name: m.locationName,
+          coordinates: [m.coordinates.lat, m.coordinates.lng],
+          similarity_score: `${m.similarity.toFixed(1)}%`,
+          matches: m.matches,
+          breakdown: {
+            geology_match: m.breakdown.geologyMatch,
+            thermal_match: m.breakdown.thermalMatch,
+            limits: m.breakdown.limits,
+          },
+          suggested_testing: m.suggestedTesting,
+        })),
+      });
+    }
+
+    // ── Fallback to direct query if precomputed dataset not yet loaded ──
     const sites = await AnalogLocation.find({
       $or: [
         { matchedTargets: targetId },
@@ -95,8 +123,6 @@ router.get(
       .sort({ overallSimilarity: -1 })
       .limit(limit)
       .lean();
-
-    const target_space_site = formatTargetSpaceSite(target);
 
     const top_earth_analogs = sites.map((site) => {
       const geoScore = site.metrics?.geologicalSimilarity ?? 0;
