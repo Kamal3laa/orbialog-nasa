@@ -3,14 +3,14 @@ import { ActiveScreen, AnalogLocation, AnalogCategory, PlanetaryTarget } from '.
 import { RealGISMap } from '../components/common/RealGISMap';
 import { Real3DGlobe } from '../components/canvas3d/Real3DGlobe';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
-import {
-  Globe,
-  MapPin,
-  Search,
-  Layers,
-  ArrowRight,
-  Box,
-  Sparkles,
+import { 
+  Globe, 
+  MapPin, 
+  Search, 
+  Layers, 
+  ArrowRight, 
+  Box, 
+  Sparkles, 
   ExternalLink,
   FileText,
   Database
@@ -145,10 +145,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
         <div className="flex items-center p-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl">
           <button
             onClick={() => { audio.playClick?.(); setDisplayMode('real-gis'); }}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${displayMode === 'real-gis'
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              displayMode === 'real-gis'
                 ? 'bg-white text-space-void font-bold shadow-glass'
                 : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
-              }`}
+            }`}
           >
             <Globe className="w-3.5 h-3.5" />
             <span>Google Maps</span>
@@ -156,10 +157,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
           <button
             onClick={() => { audio.playClick?.(); setDisplayMode('3d-globe'); }}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${displayMode === '3d-globe'
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              displayMode === '3d-globe'
                 ? 'bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-bold shadow-mars-glow'
                 : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
-              }`}
+            }`}
           >
             <Box className="w-3.5 h-3.5" />
             <span>3D Digital Globe</span>
@@ -167,10 +169,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
           <button
             onClick={() => { audio.playClick?.(); setDisplayMode('3d-topography'); }}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${displayMode === '3d-topography'
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
+              displayMode === '3d-topography'
                 ? 'bg-earth text-space-void font-bold shadow-sm'
                 : 'text-starlight-dim hover:text-starlight-white hover:bg-white/[0.04]'
-              }`}
+            }`}
           >
             <Layers className="w-3.5 h-3.5" />
             <span>3D Terrain Relief</span>
@@ -200,10 +203,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               <button
                 key={pf}
                 onClick={() => { audio.playClick?.(); setSelectedPlanetFilter(pf); }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-150 ${selectedPlanetFilter === pf
+                className={`px-3.5 py-1.5 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-150 ${
+                  selectedPlanetFilter === pf
                     ? 'bg-white text-space-void font-bold shadow-sm'
                     : 'text-starlight-dim hover:text-starlight-white'
-                  }`}
+                }`}
               >
                 {pf === 'all' ? 'All Analogs' : pf === 'moon' ? 'Moon Analogs' : 'Mars Analogs'}
               </button>
@@ -213,10 +217,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           {/* Tier-1 High-Fidelity Quick Toggle */}
           <button
             onClick={() => { audio.playClick?.(); setOnlyHighFidelity(!onlyHighFidelity); }}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-semibold uppercase tracking-wider transition-all duration-200 ${onlyHighFidelity
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-semibold uppercase tracking-wider transition-all duration-200 ${
+              onlyHighFidelity
                 ? 'bg-telemetry-emerald text-space-void shadow-md'
                 : 'bg-white/[0.04] text-telemetry-emerald border border-telemetry-emerald/40 hover:bg-white/[0.08]'
-              }`}
+            }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{onlyHighFidelity ? 'Tier-1 Sites Active [>92%]' : 'Tier-1 Quality [>92%]'}</span>
@@ -238,10 +243,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             <button
               key={regId}
               onClick={() => { audio.playClick?.(); setSelectedRegion(regId); }}
-              className={`px-3 py-1.5 rounded-full transition-all duration-150 ${selectedRegion === regId
+              className={`px-3 py-1.5 rounded-full transition-all duration-150 ${
+                selectedRegion === regId
                   ? 'bg-starlight-white text-space-void font-semibold shadow-sm'
                   : 'bg-white/[0.03] text-starlight-dim border border-white/[0.08] hover:border-white/[0.20] hover:text-starlight-white'
-                }`}
+              }`}
             >
               {label}
             </button>
@@ -264,10 +270,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                 <button
                   key={catId}
                   onClick={() => toggleCategory(catId as AnalogCategory)}
-                  className={`px-3 py-1 rounded-full text-xs transition-all duration-150 ${active
+                  className={`px-3 py-1 rounded-full text-xs transition-all duration-150 ${
+                    active
                       ? 'bg-earth text-space-void font-semibold'
                       : 'bg-white/[0.03] text-starlight-dim border border-white/[0.08] hover:border-white/[0.20]'
-                    }`}
+                  }`}
                 >
                   {label}
                 </button>
@@ -340,12 +347,13 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                 <div
                   key={loc.id}
                   onClick={() => handleLocationSelect(loc)}
-                  className={`p-5 rounded-2xl cursor-pointer transition-all duration-200 select-none relative overflow-hidden ${isSelected
+                  className={`p-5 rounded-2xl cursor-pointer transition-all duration-200 select-none relative overflow-hidden ${
+                    isSelected
                       ? isMars
                         ? 'bg-space-card/90 border-2 border-mars shadow-mars-glow'
                         : 'bg-space-card/90 border-2 border-lunar shadow-cosmic-glow'
                       : 'glass-panel hover:border-white/[0.20]'
-                    }`}
+                  }`}
                 >
                   {/* Continent Badge */}
                   {loc.continent && (

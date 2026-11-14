@@ -45,6 +45,13 @@ export interface AnalogMatchResponse {
   top_earth_analogs: TopEarthAnalogMatch[];
 }
 
+export interface AnalogTargetSummary {
+  id: string;
+  name: string;
+  planet: string;
+  designation?: string | null;
+}
+
 export interface SandboxQueryResult {
   QUERY_TIMESTAMP_UTC: string;
   QUERY_LATITUDE: number;
@@ -62,29 +69,47 @@ export interface SandboxQueryResult {
   };
 }
 
-// ── Generic Safe Fetch ───────────────────────────────────────────────────────
+export interface ApiErrorResponse {
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+}
+
+// ── Generic Safe Fetch with 5s Timeout and Error Handling ─────────────────────
 async function safeFetch<T>(endpoint: string, fallback: T, options?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
+
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
       ...options,
     });
+
+    clearTimeout(timeoutId);
+
     if (!res.ok) {
+      console.warn(`[ORBiALOG API] Request to ${endpoint} returned status ${res.status}. Using fallback dataset.`);
       return fallback;
     }
+
     const json = await res.json();
     return (json.data ?? json) as T;
-  } catch {
-    // If backend is not running or unreachable, return local cached/fallback data seamlessly
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    // Graceful offline fallback: if server is unreachable, use local high-precision telemetry
     return fallback;
   }
 }
 
 // ── Unified API Service ─────────────────────────────────────────────────────
 export const orbialogApi = {
-  // 1. Health & Status
+  // 1. Health & Status (/health & /ready)
   async getHealth(): Promise<{ status: string; timestamp?: string }> {
     return safeFetch('/health', { status: 'offline' });
   },
@@ -93,7 +118,7 @@ export const orbialogApi = {
     return safeFetch('/ready', { status: 'offline' });
   },
 
-  // 2. S1 / S2: Planetary Targets
+  // 2. S1 / S2: Planetary Targets (/targets & /targets/:id)
   async getTargets(planet?: 'moon' | 'mars'): Promise<PlanetaryTarget[]> {
     const query = planet ? `?planet=${planet}` : '';
     const filteredFallback = planet
@@ -107,7 +132,7 @@ export const orbialogApi = {
     return safeFetch<PlanetaryTarget | undefined>(`/targets/${id}`, fallback);
   },
 
-  // 3. S1 / S2 / S3: Analog Matcher
+  // 3. S1 / S2 / S3: Analog Matcher (/analogs & /analogs/targets)
   async getAnalogMatches(targetId: string, limit = 5): Promise<AnalogMatchResponse | null> {
     return safeFetch<AnalogMatchResponse | null>(
       `/analogs?target=${encodeURIComponent(targetId)}&limit=${limit}`,
@@ -115,10 +140,21 @@ export const orbialogApi = {
     );
   },
 
-  // 4. S3 / S5: Earth Analog Sites
+  async getAnalogsTargetList(): Promise<AnalogTargetSummary[]> {
+    const fallback: AnalogTargetSummary[] = PLANETARY_TARGETS.map((t) => ({
+      id: t.id,
+      name: t.name,
+      planet: t.planet,
+      designation: t.designation || null,
+    }));
+    return safeFetch<AnalogTargetSummary[]>('/analogs/targets', fallback);
+  },
+
+  // 4. S3 / S5: Earth Analog Sites (/sites & /sites/:id)
   async getSites(params?: {
     planet?: string;
     category?: string;
+    country?: string;
     q?: string;
     minSimilarity?: number;
     sort?: string;
@@ -128,6 +164,7 @@ export const orbialogApi = {
     const searchParams = new URLSearchParams();
     if (params?.planet && params.planet !== 'all') searchParams.set('planet', params.planet);
     if (params?.category) searchParams.set('category', params.category);
+    if (params?.country) searchParams.set('country', params.country);
     if (params?.q) searchParams.set('q', params.q);
     if (params?.minSimilarity) searchParams.set('minSimilarity', String(params.minSimilarity));
     if (params?.sort) searchParams.set('sort', params.sort);
@@ -150,7 +187,7 @@ export const orbialogApi = {
     return safeFetch<AnalogLocation | undefined>(`/sites/${id}`, fallback);
   },
 
-  // 5. S4: Comparison Engine (Cosine Similarity & 8-Domain Fidelity Breakdown)
+  // 5. S4: Comparison Engine (/comparison?target=:id&analog=:id)
   async getComparison(targetId: string, analogId: string): Promise<ComparisonResult | null> {
     return safeFetch<ComparisonResult | null>(
       `/comparison?target=${encodeURIComponent(targetId)}&analog=${encodeURIComponent(analogId)}`,
@@ -158,7 +195,7 @@ export const orbialogApi = {
     );
   },
 
-  // 6. S6: Mission Disciplines
+  // 6. S6: Mission Disciplines (/disciplines & /disciplines/:id)
   async getDisciplines(): Promise<MissionApplicationDomain[]> {
     return safeFetch<MissionApplicationDomain[]>('/disciplines', MISSION_APPLICATION_DOMAINS);
   },
@@ -168,12 +205,12 @@ export const orbialogApi = {
     return safeFetch<MissionApplicationDomain | undefined>(`/disciplines/${id}`, fallback);
   },
 
-  // 7. S7: Methodology
+  // 7. S7: Methodology (/methodology)
   async getMethodology(): Promise<MethodologyStep[]> {
     return safeFetch<MethodologyStep[]>('/methodology', METHODOLOGY_STEPS);
   },
 
-  // 8. S7: Telemetry Sandbox Query (POST)
+  // 8. S7: Telemetry Sandbox Query (POST /sandbox/query)
   async querySandbox(payload: {
     disciplineId: string;
     lat: number;

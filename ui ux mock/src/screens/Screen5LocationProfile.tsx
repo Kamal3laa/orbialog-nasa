@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ActiveScreen,
   AnalogLocation,
   PlanetaryTarget
 } from '../types';
 import { Real3DTopography } from '../components/canvas3d/Real3DTopography';
+import { orbialogApi } from '../services/orbialogApi';
 import {
   FileText,
   MapPin,
@@ -39,6 +40,23 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
 }) => {
   const [downloading, setDownloading] = useState<boolean>(false);
   const [show3DMesh, setShow3DMesh] = useState<boolean>(true);
+  const [liveSite, setLiveSite] = useState<AnalogLocation>(selectedAnalog);
+
+  // Flowchart S5 --> S (GET /api/v1/sites/:id)
+  useEffect(() => {
+    let isMounted = true;
+    if (selectedAnalog?.id) {
+      setLiveSite(selectedAnalog);
+      orbialogApi.getSiteById(selectedAnalog.id).then((fresh) => {
+        if (isMounted && fresh) {
+          setLiveSite(fresh);
+        }
+      });
+    }
+    return () => { isMounted = false; };
+  }, [selectedAnalog?.id]);
+
+  const site = liveSite || selectedAnalog;
 
   const handleDownloadReport = () => {
     audio.playConfirm();
@@ -63,10 +81,10 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <span className="text-earth-bright">DE-CLASSIFIED FOR SCIENTIFIC USE</span>
             </div>
             <h1 className="font-grotesk font-bold text-3xl md:text-5xl text-mineral-white uppercase tracking-tight">
-              {selectedAnalog.name}
+              {site.name}
             </h1>
             <p className="font-mono text-xs text-stone-gray">
-              {selectedAnalog.region}, {selectedAnalog.country} • WGS84: {selectedAnalog.coordinates.display}
+              {site.region}, {site.country} • WGS84: {site.coordinates.display}
             </p>
           </div>
 
@@ -129,7 +147,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <span>GEOLOGICAL ABSTRACT & ANALOG SYNOPSIS</span>
             </h2>
             <p className="font-inter text-sm text-mineral-white leading-relaxed font-normal">
-              {selectedAnalog.summary}
+              {site.summary}
             </p>
           </section>
 
@@ -151,9 +169,9 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
 
             {show3DMesh && (
               <Real3DTopography
-                locationName={selectedAnalog.name}
-                terrainType={selectedAnalog.geology.rockType}
-                elevationDatum={`${selectedAnalog.elevationMeters}m MSL`}
+                locationName={site.name}
+                terrainType={site.geology.rockType}
+                elevationDatum={`${site.elevationMeters}m MSL`}
                 thermalRange={{ min: 4, max: 48, unit: '°C' }}
               />
             )}
@@ -161,13 +179,13 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             <div className="space-y-3 font-mono text-xs pt-2">
               <div className="p-3 bg-obsidian-card border border-obsidian-border">
                 <div className="text-[10px] text-stone-dark uppercase">LITHOLOGICAL CLASSIFICATION</div>
-                <div className="text-mineral-white font-medium text-xs mt-1">{selectedAnalog.geology.rockType}</div>
+                <div className="text-mineral-white font-medium text-xs mt-1">{site.geology.rockType}</div>
               </div>
 
               <div className="p-3 bg-obsidian-card border border-obsidian-border">
                 <div className="text-[10px] text-stone-dark uppercase">KEY MINERAL CONSTITUENTS (SPECTRAL PHASES)</div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedAnalog.geology.mineralogy.map((min, idx) => (
+                  {site.geology.mineralogy.map((min, idx) => (
                     <span
                       key={idx}
                       className="px-2.5 py-1 bg-obsidian-surface border border-stone-gray/30 text-mineral-white text-[11px]"
@@ -181,21 +199,21 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <div className="p-3 bg-obsidian-card border border-obsidian-border">
                 <div className="text-[10px] text-stone-dark uppercase">PLANETARY REGOLITH SIMULANT ANALOGY</div>
                 <div className="text-mineral-white text-xs mt-1 leading-relaxed">
-                  {selectedAnalog.geology.regolithAnalogy}
+                  {site.geology.regolithAnalogy}
                 </div>
               </div>
 
               <div className="p-3 bg-obsidian-card border border-obsidian-border">
                 <div className="text-[10px] text-stone-dark uppercase">AEOLIAN GEOMORPHOLOGY & BEDFORMS</div>
                 <div className="text-mineral-white text-xs mt-1 leading-relaxed">
-                  {selectedAnalog.geology.aeolianFeatures}
+                  {site.geology.aeolianFeatures}
                 </div>
               </div>
 
               <div className="p-3 bg-obsidian-card border border-obsidian-border">
                 <div className="text-[10px] text-stone-dark uppercase">REGIONAL STRATIGRAPHIC SEQUENCE</div>
                 <div className="text-mineral-white text-xs mt-1 leading-relaxed">
-                  {selectedAnalog.geology.stratigraphy}
+                  {site.geology.stratigraphy}
                 </div>
               </div>
             </div>
@@ -209,7 +227,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             </h2>
 
             <div className="space-y-3 font-mono text-xs">
-              {selectedAnalog.fieldTestingCapabilities.map((cap, i) => (
+              {site.fieldTestingCapabilities.map((cap, i) => (
                 <div key={i} className="p-4 bg-obsidian-card border border-obsidian-border space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-mineral-white font-semibold">{cap.name}</span>
@@ -238,7 +256,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             </h2>
 
             <div className="space-y-3 font-mono text-xs">
-              {selectedAnalog.notableMissionsOrExpeditions.map((camp, i) => (
+              {site.notableMissionsOrExpeditions.map((camp, i) => (
                 <div key={i} className="p-3.5 bg-obsidian-card border border-obsidian-border">
                   <div className="flex items-center justify-between">
                     <span className="text-mineral-white font-semibold">{camp.campaign}</span>
@@ -261,7 +279,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             </h2>
 
             <div className="space-y-2 font-mono text-xs">
-              {selectedAnalog.dataSources.map((ds, i) => (
+              {site.dataSources.map((ds, i) => (
                 <div key={i} className="p-3 bg-obsidian-card border border-obsidian-border flex items-center justify-between">
                   <div>
                     <div className="text-mineral-white font-medium">{ds.title}</div>
@@ -288,12 +306,12 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             </div>
             <div className="relative h-64 bg-charcoal-deep border border-obsidian-border overflow-hidden">
               <img
-                src={selectedAnalog.imagery.hero}
-                alt={selectedAnalog.name}
+                src={site.imagery.hero}
+                alt={site.name}
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-2 left-2 right-2 font-mono text-[10px] bg-charcoal/80 border border-stone-gray/30 px-2 py-1 text-mineral-white truncate">
-                {selectedAnalog.name} • {selectedAnalog.coordinates.display}
+                {site.name} • {site.coordinates.display}
               </div>
             </div>
           </div>
@@ -307,27 +325,27 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
             <div className="space-y-2.5 font-mono text-xs">
               <div className="flex justify-between text-[11px] pb-1 border-b border-obsidian-border/50">
                 <span className="text-stone-dark uppercase">KÖPPEN CLIMATE:</span>
-                <span className="text-mineral-white">{selectedAnalog.climateType}</span>
+                <span className="text-mineral-white">{site.climateType}</span>
               </div>
               <div className="flex justify-between text-[11px] pb-1 border-b border-obsidian-border/50">
                 <span className="text-stone-dark uppercase">MEAN ANNUAL TEMP:</span>
-                <span className="text-mineral-white">{selectedAnalog.environment.meanAnnualTemp}</span>
+                <span className="text-mineral-white">{site.environment.meanAnnualTemp}</span>
               </div>
               <div className="flex justify-between text-[11px] pb-1 border-b border-obsidian-border/50">
                 <span className="text-stone-dark uppercase">DIURNAL THERMAL RANGE:</span>
-                <span className="text-mars font-bold">{selectedAnalog.environment.diurnalRange}</span>
+                <span className="text-mars font-bold">{site.environment.diurnalRange}</span>
               </div>
               <div className="flex justify-between text-[11px] pb-1 border-b border-obsidian-border/50">
                 <span className="text-stone-dark uppercase">ANNUAL PRECIPITATION:</span>
-                <span className="text-mineral-white">{selectedAnalog.environment.annualPrecipitation}</span>
+                <span className="text-mineral-white">{site.environment.annualPrecipitation}</span>
               </div>
               <div className="flex justify-between text-[11px] pb-1 border-b border-obsidian-border/50">
                 <span className="text-stone-dark uppercase">UV IRRADIANCE INDEX:</span>
-                <span className="text-mineral-white">{selectedAnalog.environment.uvIrradiance}</span>
+                <span className="text-mineral-white">{site.environment.uvIrradiance}</span>
               </div>
               <div className="flex justify-between text-[11px]">
                 <span className="text-stone-dark uppercase">ARIDITY INDEX (AI):</span>
-                <span className="text-mars font-bold">{selectedAnalog.environment.aridityIndex}</span>
+                <span className="text-mars font-bold">{site.environment.aridityIndex}</span>
               </div>
             </div>
           </div>
@@ -342,7 +360,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <div>
                 <span className="text-stone-dark uppercase text-[10px]">CORRELATED MISSIONS:</span>
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {selectedAnalog.matchedTargets.map((tid) => (
+                  {site.matchedTargets.map((tid) => (
                     <span
                       key={tid}
                       className="px-2 py-0.5 bg-obsidian-card border border-stone-gray/30 text-mineral-white text-[10px] uppercase"
@@ -356,7 +374,7 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
               <div className="pt-2">
                 <span className="text-stone-dark uppercase text-[10px]">ANALOG SIMILARITY SCORE:</span>
                 <div className="text-3xl font-bold text-mars mt-1">
-                  {selectedAnalog.overallSimilarity.toFixed(1)}%
+                  {site.overallSimilarity.toFixed(1)}%
                 </div>
               </div>
 
