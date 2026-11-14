@@ -37,8 +37,8 @@ export const Screen7Methodology: React.FC<Screen7MethodologyProps> = ({ onNaviga
   // Fetch live methodology from backend if available (S7 --> M)
   useEffect(() => {
     orbialogApi.getMethodology().then((res) => {
-      if (res && res.length > 0) {
-        setSteps(res);
+      if (res.data && res.data.length > 0) {
+        setSteps(res.data);
       }
     });
   }, []);
@@ -59,7 +59,7 @@ export const Screen7Methodology: React.FC<Screen7MethodologyProps> = ({ onNaviga
         lat: Number(sandboxLat),
         lng: Number(sandboxLng),
       });
-      setSandboxResult(res);
+      setSandboxResult(res.data);
     } finally {
       setSandboxLoading(false);
     }

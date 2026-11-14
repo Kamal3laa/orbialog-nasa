@@ -48,8 +48,8 @@ export const Screen5LocationProfile: React.FC<Screen5LocationProfileProps> = ({
     if (selectedAnalog?.id) {
       setLiveSite(selectedAnalog);
       orbialogApi.getSiteById(selectedAnalog.id).then((fresh) => {
-        if (isMounted && fresh) {
-          setLiveSite(fresh);
+        if (isMounted && fresh.data) {
+          setLiveSite(fresh.data);
         }
       });
     }

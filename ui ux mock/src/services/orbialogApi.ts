@@ -80,25 +80,24 @@ export interface SitesResponse {
   data: AnalogLocation[];
   meta: ApiPaginationMeta;
   isLive: boolean;
-}
-
-export interface ApiFetchResult<T> {
-  data: T;
-  isLive: boolean;
-  status: 'live' | 'fallback';
-  statusCode?: number;
   error?: string;
 }
 
-// ── Connection State Tracking ───────────────────────────────────────────────
+export interface ApiResponse<T> {
+  data: T | null;
+  isLive: boolean;
+  error?: string;
+  statusCode?: number;
+}
+
+// ── State Management for API Consumer ────────────────────────────────────────
+let _isDemoMode = false;
 let _isLiveApiConnected = false;
 
-// ── Generic Safe Fetch with 6s Timeout and Error Handling ─────────────────────
-async function safeFetchWithMeta<T>(
+async function executeApiRequest<T>(
   endpoint: string,
-  fallback: T,
   options?: RequestInit,
-): Promise<ApiFetchResult<T>> {
+): Promise<{ data: T | null; isLive: boolean; error?: string; statusCode?: number }> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -115,102 +114,112 @@ async function safeFetchWithMeta<T>(
 
     if (!res.ok) {
       _isLiveApiConnected = false;
-      console.warn(`[ORBiALOG API] Endpoint ${endpoint} returned status ${res.status}. Falling back to calibrated local data.`);
-      return {
-        data: fallback,
-        isLive: false,
-        status: 'fallback',
-        statusCode: res.status,
-        error: `Server responded with ${res.status}`,
-      };
+      const errorMsg = `HTTP ${res.status}: ${res.statusText || 'Backend Error'}`;
+      console.warn(`[ORBiALOG API Consumer] Endpoint ${endpoint} returned ${errorMsg}`);
+      return { data: null, isLive: false, error: errorMsg, statusCode: res.status };
     }
 
     const json = await res.json();
     _isLiveApiConnected = true;
-    console.info(`[ORBiALOG API] Live response received from ${endpoint}`);
+    console.info(`[ORBiALOG API Consumer] Received live data from ${endpoint}`);
     return {
-      data: (json.data ?? json) as T,
+      data: (json.data !== undefined ? json.data : json) as T,
       isLive: true,
-      status: 'live',
       statusCode: res.status,
     };
   } catch (err: unknown) {
     clearTimeout(timeoutId);
     _isLiveApiConnected = false;
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[ORBiALOG API] Network error calling ${endpoint} (${msg}). Operating in FALLBACK mode.`);
-    return {
-      data: fallback,
-      isLive: false,
-      status: 'fallback',
-      error: msg,
-    };
+    console.warn(`[ORBiALOG API Consumer] Network error connecting to ${endpoint}: ${msg}`);
+    return { data: null, isLive: false, error: msg };
   }
 }
 
-async function safeFetch<T>(endpoint: string, fallback: T, options?: RequestInit): Promise<T> {
-  const res = await safeFetchWithMeta<T>(endpoint, fallback, options);
-  return res.data;
-}
-
-// ── Unified API Service ─────────────────────────────────────────────────────
+// ── STRICT API CONSUMER SERVICE ──────────────────────────────────────────────
 export const orbialogApi = {
+  getBaseUrl(): string {
+    return BASE_URL;
+  },
+
   isLiveConnected(): boolean {
     return _isLiveApiConnected;
   },
 
-  // 1. Health & Status (/health & /ready)
+  isDemoModeActive(): boolean {
+    return _isDemoMode;
+  },
+
+  setDemoMode(enabled: boolean): void {
+    _isDemoMode = enabled;
+  },
+
+  // 1. Health & Readiness (GET /health & GET /ready)
   async getHealth(): Promise<{ status: string; timestamp?: string; isLive: boolean }> {
-    const res = await safeFetchWithMeta<{ status: string; timestamp?: string }>('/health', { status: 'offline' });
-    return {
-      status: res.isLive && res.data.status === 'ok' ? 'ok' : 'offline',
-      timestamp: res.data.timestamp,
-      isLive: res.isLive,
-    };
+    const res = await executeApiRequest<{ status: string; timestamp?: string }>('/health');
+    if (res.isLive && res.data?.status === 'ok') {
+      return { status: 'ok', timestamp: res.data.timestamp, isLive: true };
+    }
+    if (_isDemoMode) {
+      return { status: 'demo', isLive: false };
+    }
+    return { status: 'offline', isLive: false };
   },
 
   async getReady(): Promise<{ status: string; db?: string; isLive: boolean }> {
-    const res = await safeFetchWithMeta<{ status: string; db?: string }>('/ready', { status: 'offline' });
-    return {
-      status: res.isLive && res.data.status === 'ready' ? 'ready' : 'offline',
-      db: res.data.db,
-      isLive: res.isLive,
-    };
+    const res = await executeApiRequest<{ status: string; db?: string }>('/ready');
+    if (res.isLive && res.data?.status === 'ready') {
+      return { status: 'ready', db: res.data.db, isLive: true };
+    }
+    return { status: 'not_ready', isLive: false };
   },
 
-  // 2. S1 / S2: Planetary Targets (/targets & /targets/:id)
-  async getTargets(planet?: 'moon' | 'mars'): Promise<PlanetaryTarget[]> {
+  // 2. Planetary Targets (GET /targets & GET /targets/:id)
+  async getTargets(planet?: 'moon' | 'mars'): Promise<ApiResponse<PlanetaryTarget[]>> {
     const query = planet ? `?planet=${planet}` : '';
-    const filteredFallback = planet
-      ? PLANETARY_TARGETS.filter((t) => t.planet === planet)
-      : PLANETARY_TARGETS;
-    return safeFetch<PlanetaryTarget[]>(`/targets${query}`, filteredFallback);
+    const res = await executeApiRequest<PlanetaryTarget[]>(`/targets${query}`);
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    if (_isDemoMode) {
+      const fallback = planet ? PLANETARY_TARGETS.filter((t) => t.planet === planet) : PLANETARY_TARGETS;
+      return { data: fallback, isLive: false };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  async getTargetById(id: string): Promise<PlanetaryTarget | undefined> {
-    const fallback = PLANETARY_TARGETS.find((t) => t.id === id);
-    return safeFetch<PlanetaryTarget | undefined>(`/targets/${id}`, fallback);
+  async getTargetById(id: string): Promise<ApiResponse<PlanetaryTarget>> {
+    const res = await executeApiRequest<PlanetaryTarget>(`/targets/${id}`);
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    if (_isDemoMode) {
+      const fallback = PLANETARY_TARGETS.find((t) => t.id === id) || null;
+      return { data: fallback, isLive: false };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  // 3. S1 / S2 / S3: Analog Matcher (/analogs & /analogs/targets)
-  async getAnalogMatches(targetId: string, limit = 5): Promise<AnalogMatchResponse | null> {
-    return safeFetch<AnalogMatchResponse | null>(
+  // 3. Analog Matcher (GET /analogs & GET /analogs/targets)
+  async getAnalogMatches(targetId: string, limit = 5): Promise<ApiResponse<AnalogMatchResponse>> {
+    const res = await executeApiRequest<AnalogMatchResponse>(
       `/analogs?target=${encodeURIComponent(targetId)}&limit=${limit}`,
-      null,
     );
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  async getAnalogsTargetList(): Promise<AnalogTargetSummary[]> {
-    const fallback: AnalogTargetSummary[] = PLANETARY_TARGETS.map((t) => ({
-      id: t.id,
-      name: t.name,
-      planet: t.planet,
-      designation: t.designation || null,
-    }));
-    return safeFetch<AnalogTargetSummary[]>('/analogs/targets', fallback);
+  async getAnalogsTargetList(): Promise<ApiResponse<AnalogTargetSummary[]>> {
+    const res = await executeApiRequest<AnalogTargetSummary[]>('/analogs/targets');
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  // 4. S3 / S5: Earth Analog Sites with Server-Side Pagination (/sites & /sites/:id)
+  // 4. Earth Analog Sites with Server-Side Pagination (GET /sites & GET /sites/:id)
   async getSites(params?: {
     planet?: string;
     category?: string;
@@ -241,9 +250,10 @@ export const orbialogApi = {
     const pageNum = Math.max(1, params?.page || 1);
     const limitNum = Math.min(50, Math.max(1, params?.limit || 10));
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
       const res = await fetch(`${BASE_URL}/sites${qs}`, { signal: controller.signal });
       clearTimeout(timeoutId);
 
@@ -265,97 +275,126 @@ export const orbialogApi = {
         isLive: true,
       };
     } catch (err: unknown) {
+      clearTimeout(timeoutId);
       _isLiveApiConnected = false;
-      console.warn(`[ORBiALOG API] GET /sites unavailable (${err instanceof Error ? err.message : 'offline'}). Using fallback dataset.`);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[ORBiALOG API Consumer] GET /sites failed (${msg})`);
 
-      // Compute matching offline fallback with consistent filtering and pagination
-      let filtered = ANALOG_LOCATIONS;
-      if (params?.planet && params.planet !== 'all') {
-        filtered = filtered.filter((l) =>
-          params.planet === 'egypt'
-            ? l.country?.toLowerCase().includes('egypt')
-            : l.primaryTargetAnalog === params.planet,
-        );
-      }
-      if (params?.category) {
-        filtered = filtered.filter((l) => l.category === params.category);
-      }
-      if (params?.country) {
-        filtered = filtered.filter((l) => l.country?.toLowerCase() === params.country?.toLowerCase());
-      }
-      if (params?.q) {
-        const qLower = params.q.toLowerCase();
-        filtered = filtered.filter(
-          (l) =>
-            l.name.toLowerCase().includes(qLower) ||
-            l.country.toLowerCase().includes(qLower) ||
-            l.summary.toLowerCase().includes(qLower) ||
-            l.geology?.rockType?.toLowerCase().includes(qLower),
-        );
-      }
-      if (params?.minSimilarity) {
-        filtered = filtered.filter((l) => (l.overallSimilarity ?? 0) >= params.minSimilarity!);
-      }
+      if (_isDemoMode) {
+        let filtered = ANALOG_LOCATIONS;
+        if (params?.planet && params.planet !== 'all') {
+          filtered = filtered.filter((l) =>
+            params.planet === 'egypt'
+              ? l.country?.toLowerCase().includes('egypt')
+              : l.primaryTargetAnalog === params.planet,
+          );
+        }
+        if (params?.category) {
+          filtered = filtered.filter((l) => l.category === params.category);
+        }
+        if (params?.q) {
+          const qLower = params.q.toLowerCase();
+          filtered = filtered.filter(
+            (l) =>
+              l.name.toLowerCase().includes(qLower) ||
+              l.country.toLowerCase().includes(qLower) ||
+              l.summary.toLowerCase().includes(qLower),
+          );
+        }
+        if (params?.minSimilarity) {
+          filtered = filtered.filter((l) => (l.overallSimilarity ?? 0) >= params.minSimilarity!);
+        }
 
-      const total = filtered.length;
-      const pages = Math.ceil(total / limitNum) || 1;
-      const skip = (pageNum - 1) * limitNum;
-      const paginated = filtered.slice(skip, skip + limitNum);
+        const total = filtered.length;
+        const pages = Math.ceil(total / limitNum) || 1;
+        const skip = (pageNum - 1) * limitNum;
+        const paginated = filtered.slice(skip, skip + limitNum);
+
+        return {
+          data: paginated,
+          meta: { total, page: pageNum, limit: limitNum, pages },
+          isLive: false,
+        };
+      }
 
       return {
-        data: paginated,
-        meta: {
-          total,
-          page: pageNum,
-          limit: limitNum,
-          pages,
-        },
+        data: [],
+        meta: { total: 0, page: pageNum, limit: limitNum, pages: 0 },
         isLive: false,
+        error: msg,
       };
     }
   },
 
-  async getSiteById(id: string): Promise<AnalogLocation | undefined> {
-    const fallback = ANALOG_LOCATIONS.find((a) => a.id === id);
-    return safeFetch<AnalogLocation | undefined>(`/sites/${id}`, fallback);
+  async getSiteById(id: string): Promise<ApiResponse<AnalogLocation>> {
+    const res = await executeApiRequest<AnalogLocation>(`/sites/${id}`);
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    if (_isDemoMode) {
+      const fallback = ANALOG_LOCATIONS.find((a) => a.id === id) || null;
+      return { data: fallback, isLive: false };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  // 5. S4: Comparison Engine (/comparison?target=:id&analog=:id)
-  async getComparison(targetId: string, analogId: string): Promise<ComparisonResult | null> {
-    return safeFetch<ComparisonResult | null>(
+  // 5. Comparison Engine (GET /comparison?target=:id&analog=:id)
+  async getComparison(targetId: string, analogId: string): Promise<ApiResponse<ComparisonResult>> {
+    const res = await executeApiRequest<ComparisonResult>(
       `/comparison?target=${encodeURIComponent(targetId)}&analog=${encodeURIComponent(analogId)}`,
-      null,
     );
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  // 6. S6: Mission Disciplines (/disciplines & /disciplines/:id)
-  async getDisciplines(): Promise<MissionApplicationDomain[]> {
-    return safeFetch<MissionApplicationDomain[]>('/disciplines', MISSION_APPLICATION_DOMAINS);
+  // 6. Mission Disciplines (GET /disciplines & GET /disciplines/:id)
+  async getDisciplines(): Promise<ApiResponse<MissionApplicationDomain[]>> {
+    const res = await executeApiRequest<MissionApplicationDomain[]>('/disciplines');
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    if (_isDemoMode) {
+      return { data: MISSION_APPLICATION_DOMAINS, isLive: false };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  async getDisciplineById(id: string): Promise<MissionApplicationDomain | undefined> {
-    const fallback = MISSION_APPLICATION_DOMAINS.find((d) => d.id === id);
-    return safeFetch<MissionApplicationDomain | undefined>(`/disciplines/${id}`, fallback);
+  async getDisciplineById(id: string): Promise<ApiResponse<MissionApplicationDomain>> {
+    const res = await executeApiRequest<MissionApplicationDomain>(`/disciplines/${id}`);
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    if (_isDemoMode) {
+      const fallback = MISSION_APPLICATION_DOMAINS.find((d) => d.id === id) || null;
+      return { data: fallback, isLive: false };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  // 7. S7: Methodology (/methodology)
-  async getMethodology(): Promise<MethodologyStep[]> {
-    return safeFetch<MethodologyStep[]>('/methodology', METHODOLOGY_STEPS);
+  // 7. Methodology (GET /methodology)
+  async getMethodology(): Promise<ApiResponse<MethodologyStep[]>> {
+    const res = await executeApiRequest<MethodologyStep[]>('/methodology');
+    if (res.data) {
+      return { data: res.data, isLive: true };
+    }
+    if (_isDemoMode) {
+      return { data: METHODOLOGY_STEPS, isLive: false };
+    }
+    return { data: null, isLive: false, error: res.error };
   },
 
-  // 8. S7: Telemetry Sandbox Query (POST /sandbox/query)
+  // 8. Telemetry Sandbox Query (POST /sandbox/query)
   async querySandbox(payload: {
     disciplineId: string;
     lat: number;
     lng: number;
-  }): Promise<SandboxQueryResult | null> {
-    return safeFetch<SandboxQueryResult | null>(
-      '/sandbox/query',
-      null,
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
-    );
+  }): Promise<ApiResponse<SandboxQueryResult>> {
+    const res = await executeApiRequest<SandboxQueryResult>('/sandbox/query', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return res;
   },
 };

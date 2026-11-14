@@ -44,8 +44,8 @@ export const Screen6MissionApplication: React.FC<Screen6MissionApplicationProps>
 
   useEffect(() => {
     orbialogApi.getDisciplines().then((res) => {
-      if (res && res.length > 0) {
-        setDomains(res);
+      if (res.data && res.data.length > 0) {
+        setDomains(res.data);
       }
     });
   }, []);
@@ -54,10 +54,11 @@ export const Screen6MissionApplication: React.FC<Screen6MissionApplicationProps>
   useEffect(() => {
     let isMounted = true;
     if (selectedDomainId) {
-      orbialogApi.getDisciplineById(selectedDomainId).then((discipline) => {
-        if (isMounted && discipline) {
+      orbialogApi.getDisciplineById(selectedDomainId).then((res) => {
+        if (isMounted && res.data) {
+          const fresh = res.data;
           setDomains((prev) =>
-            prev.map((d) => (d.id === discipline.id ? { ...d, ...discipline } : d))
+            prev.map((d) => (d.id === fresh.id ? { ...d, ...fresh } : d))
           );
         }
       });

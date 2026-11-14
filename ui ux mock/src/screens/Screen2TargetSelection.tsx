@@ -39,18 +39,22 @@ export const Screen2TargetSelection: React.FC<Screen2TargetSelectionProps> = ({
   // Flowchart: S1 --> A (GET /api/v1/analogs?target=) and GET /api/v1/targets/:id
   useEffect(() => {
     let isMounted = true;
-    orbialogApi.getAnalogMatches(selectedTarget.id, 3).then((res) => {
-      if (isMounted && res?.top_earth_analogs) {
-        setAnalogMatches(res.top_earth_analogs);
-      }
-    });
-    orbialogApi.getTargetById(selectedTarget.id).then((freshTarget) => {
-      if (isMounted && freshTarget && freshTarget.id === selectedTarget.id) {
-        // Enriched live telemetry from backend
-      }
-    });
+    if (selectedTarget?.id) {
+      orbialogApi.getAnalogMatches(selectedTarget.id, 3).then((res) => {
+        if (isMounted && res.data?.top_earth_analogs) {
+          setAnalogMatches(res.data.top_earth_analogs);
+        } else if (isMounted) {
+          setAnalogMatches([]);
+        }
+      });
+      orbialogApi.getTargetById(selectedTarget.id).then((res) => {
+        if (isMounted && res.data && res.data.id === selectedTarget.id) {
+          // Enriched live telemetry from backend
+        }
+      });
+    }
     return () => { isMounted = false; };
-  }, [selectedTarget.id]);
+  }, [selectedTarget?.id]);
 
   const filteredTargets = planetaryTargets.filter((t) => t.planet === activePlanetTab);
 

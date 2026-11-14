@@ -50,11 +50,13 @@ export const Screen4ComparisonEngine: React.FC<Screen4ComparisonEngineProps> = (
   // Flowchart S4 --> C (GET /api/v1/comparison?target=&analog=)
   useEffect(() => {
     let active = true;
-    orbialogApi.getComparison(selectedTarget.id, selectedAnalog.id).then((res) => {
-      if (active) setServerComparison(res);
-    });
+    if (selectedTarget?.id && selectedAnalog?.id) {
+      orbialogApi.getComparison(selectedTarget.id, selectedAnalog.id).then((res) => {
+        if (active) setServerComparison(res.data);
+      });
+    }
     return () => { active = false; };
-  }, [selectedTarget.id, selectedAnalog.id]);
+  }, [selectedTarget?.id, selectedAnalog?.id]);
 
   const handleTargetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const target = planetaryTargets.find((t) => t.id === e.target.value);
