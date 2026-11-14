@@ -50,6 +50,21 @@ export const Screen6MissionApplication: React.FC<Screen6MissionApplicationProps>
     });
   }, []);
 
+  // Fetch individual discipline details from /api/v1/disciplines/:id
+  useEffect(() => {
+    let isMounted = true;
+    if (selectedDomainId) {
+      orbialogApi.getDisciplineById(selectedDomainId).then((discipline) => {
+        if (isMounted && discipline) {
+          setDomains((prev) =>
+            prev.map((d) => (d.id === discipline.id ? { ...d, ...discipline } : d))
+          );
+        }
+      });
+    }
+    return () => { isMounted = false; };
+  }, [selectedDomainId]);
+
   const activeDomain =
     domains.find((d) => d.id === selectedDomainId) ||
     domains[0] ||

@@ -45,6 +45,13 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   const [minSimilarity, setMinSimilarity] = useState<number>(80);
   const [onlyHighFidelity, setOnlyHighFidelity] = useState<boolean>(false);
   const [previewLocation, setPreviewLocation] = useState<AnalogLocation>(selectedAnalog || analogLocations[0]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 10;
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedPlanetFilter, selectedRegion, selectedCategories, minSimilarity, onlyHighFidelity]);
 
   // Keep previewLocation synced when selectedAnalog changes
   useEffect(() => {
@@ -99,6 +106,13 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
   // Ensure active previewLocation is always valid
   const activeLocation = previewLocation || filteredLocations[0] || analogLocations[0];
+
+  const totalCount = filteredLocations.length;
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+  const paginatedLocations = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredLocations.slice(start, start + pageSize);
+  }, [filteredLocations, currentPage, pageSize]);
 
   const handleLocationSelect = (loc: AnalogLocation) => {
     audio.playClick?.();
@@ -340,7 +354,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredLocations.map((loc) => {
+            {paginatedLocations.map((loc) => {
               const isSelected = loc.id === activeLocation?.id;
               const isMars = loc.primaryTargetAnalog === 'mars';
               return (
@@ -403,6 +417,32 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
               );
             })}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] font-mono text-xs">
+              <span className="text-starlight-dim text-[11px]">
+                Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)}–{Math.min(currentPage * pageSize, totalCount)} of {totalCount} Sites
+              </span>
+              <div className="flex items-center space-x-2">
+                <button
+                  disabled={currentPage <= 1}
+                  onClick={() => { audio.playClick?.(); setCurrentPage((p) => Math.max(1, p - 1)); }}
+                  className="px-3 py-1 rounded bg-white/[0.05] border border-white/[0.10] text-starlight-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/[0.10] transition-colors"
+                >
+                  ‹ PREV
+                </button>
+                <span className="px-2 text-earth font-bold">{currentPage} / {totalPages}</span>
+                <button
+                  disabled={currentPage >= totalPages}
+                  onClick={() => { audio.playClick?.(); setCurrentPage((p) => Math.min(totalPages, p + 1)); }}
+                  className="px-3 py-1 rounded bg-white/[0.05] border border-white/[0.10] text-starlight-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/[0.10] transition-colors"
+                >
+                  NEXT ›
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: Selected Location Dossier Preview Drawer */}
