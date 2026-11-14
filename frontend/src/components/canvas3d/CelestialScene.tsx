@@ -16,10 +16,12 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [hoveredObject, setHoveredObject] = useState<string | null>(null);
+  const [webglAvailable, setWebglAvailable] = useState(true);
+  const webglFailedRef = useRef(false);
 
   useEffect(() => {
     const container = mountRef.current;
-    if (!container) return;
+    if (!container || webglFailedRef.current) return;
 
     const width = container.clientWidth || 800;
     const height = container.clientHeight || 500;
@@ -31,7 +33,14 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 4.5, 23);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    } catch {
+      webglFailedRef.current = true;
+      setWebglAvailable(false);
+      return;
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -361,6 +370,34 @@ export const CelestialScene: React.FC<CelestialSceneProps> = ({
   return (
     <div className={`relative w-full h-full overflow-hidden select-none ${className}`}>
       <div ref={mountRef} className="w-full h-full" />
+
+      {!webglAvailable && (
+        <div
+          aria-label="Interactive orbital scene"
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at 50% 45%, rgba(32, 49, 61, 0.42), transparent 58%), radial-gradient(ellipse at center, #10191f 0%, #080b0d 72%)',
+          }}
+        >
+          <div className="absolute left-1/2 top-1/2 h-[78vw] w-[78vw] max-h-[90vh] max-w-[90vh] -translate-x-1/2 -translate-y-1/2 rounded-full border border-stone-gray/20" />
+          <div className="absolute left-1/2 top-1/2 h-[110vw] w-[110vw] max-h-[125vh] max-w-[125vh] -translate-x-1/2 -translate-y-1/2 rounded-full border border-stone-gray/10" />
+          {([
+            { id: 'earth', label: 'Earth', position: 'left-[14%] top-[24%]', size: 'h-20 w-20 md:h-32 md:w-32', color: 'from-sky-300 via-blue-700 to-blue-950', glow: 'shadow-[0_0_38px_rgba(74,164,255,0.28)]' },
+            { id: 'moon', label: 'Moon', position: 'left-[47%] top-[14%]', size: 'h-10 w-10 md:h-16 md:w-16', color: 'from-stone-200 via-stone-500 to-stone-900', glow: 'shadow-[0_0_24px_rgba(220,220,210,0.2)]' },
+            { id: 'mars', label: 'Mars', position: 'right-[14%] bottom-[21%]', size: 'h-16 w-16 md:h-28 md:w-28', color: 'from-orange-300 via-red-700 to-red-950', glow: 'shadow-[0_0_38px_rgba(219,103,62,0.3)]' },
+          ] as const).map(({ id, label, position, size, color, glow }) => (
+            <button
+              key={id}
+              type="button"
+              aria-label={`Select ${label}`}
+              title={`Select ${label}`}
+              onClick={() => onSelectPlanet?.(id)}
+              className={`pointer-events-auto absolute ${position} ${size} rounded-full bg-gradient-to-br ${color} ${glow} transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-telemetry-cyan`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Scientific Overlay Reticle and Target HUD */}
       {hoveredObject && (
