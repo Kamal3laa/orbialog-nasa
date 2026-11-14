@@ -1,0 +1,506 @@
+[
+  {
+    "targetId": "luna-shackleton-crater",
+    "analogId": "candidate-32-80",
+    "locationName": "Terrestrial Analog Tile [32.5\u00b0, 80.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 32.5,
+      "lng": 80.5
+    },
+    "similarity": 83.9,
+    "mahalanobisD2": 3.52,
+    "worstFeature": "mafic_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.95)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 22.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; mafic_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 159.6 mm/yr)",
+      "Slope variance agreement (slope: 6.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.20)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-shackleton-crater",
+    "analogId": "candidate-41--112",
+    "locationName": "Terrestrial Analog Tile [41.5\u00b0, -112.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 41.5,
+      "lng": -112.5
+    },
+    "similarity": 83.2,
+    "mahalanobisD2": 3.68,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 17.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 286.6 mm/yr)",
+      "Slope variance agreement (slope: 5.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.27)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-shackleton-crater",
+    "analogId": "candidate-37-100",
+    "locationName": "Terrestrial Analog Tile [37.5\u00b0, 100.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 37.5,
+      "lng": 100.5
+    },
+    "similarity": 82.7,
+    "mahalanobisD2": 3.8,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 21.4 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 628.1 mm/yr)",
+      "Slope variance agreement (slope: 5.3\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.21)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-mare-tranquillitatis",
+    "analogId": "candidate-31-60",
+    "locationName": "Terrestrial Analog Tile [31.5\u00b0, 60.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 31.5,
+      "lng": 60.5
+    },
+    "similarity": 93.7,
+    "mahalanobisD2": 1.29,
+    "worstFeature": "slope",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 1.01)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 20.4 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; slope divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 52.9 mm/yr)",
+      "Slope variance agreement (slope: 2.0\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.13)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-mare-tranquillitatis",
+    "analogId": "candidate-38--114",
+    "locationName": "Terrestrial Analog Tile [38.5\u00b0, -114.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 38.5,
+      "lng": -114.5
+    },
+    "similarity": 91.6,
+    "mahalanobisD2": 1.75,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 20.3 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 233.2 mm/yr)",
+      "Slope variance agreement (slope: 3.3\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.18)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-mare-tranquillitatis",
+    "analogId": "candidate-36-56",
+    "locationName": "Terrestrial Analog Tile [36.5\u00b0, 56.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 36.5,
+      "lng": 56.5
+    },
+    "similarity": 91.3,
+    "mahalanobisD2": 1.82,
+    "worstFeature": "slope",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 1.00)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 21.2 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; slope divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 96.9 mm/yr)",
+      "Slope variance agreement (slope: 1.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.15)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-jezero-crater",
+    "analogId": "candidate-47--114",
+    "locationName": "Terrestrial Analog Tile [47.5\u00b0, -114.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 47.5,
+      "lng": -114.5
+    },
+    "similarity": 92.3,
+    "mahalanobisD2": 1.6,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 16.2 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 358.9 mm/yr)",
+      "Slope variance agreement (slope: 4.9\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.22)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-jezero-crater",
+    "analogId": "candidate-31-82",
+    "locationName": "Terrestrial Analog Tile [31.5\u00b0, 82.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 31.5,
+      "lng": 82.5
+    },
+    "similarity": 91.5,
+    "mahalanobisD2": 1.77,
+    "worstFeature": "rough",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.98)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 23.7 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; rough divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 204.4 mm/yr)",
+      "Slope variance agreement (slope: 3.9\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.16)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-jezero-crater",
+    "analogId": "candidate-33-95",
+    "locationName": "Terrestrial Analog Tile [33.5\u00b0, 95.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 33.5,
+      "lng": 95.5
+    },
+    "similarity": 91.5,
+    "mahalanobisD2": 1.78,
+    "worstFeature": "quartz_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 1.00)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 14.6 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; quartz_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 598.4 mm/yr)",
+      "Slope variance agreement (slope: 4.1\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.26)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-gale-crater",
+    "analogId": "candidate-41--112",
+    "locationName": "Terrestrial Analog Tile [41.5\u00b0, -112.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 41.5,
+      "lng": -112.5
+    },
+    "similarity": 89.0,
+    "mahalanobisD2": 2.32,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 17.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 286.6 mm/yr)",
+      "Slope variance agreement (slope: 5.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.27)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-gale-crater",
+    "analogId": "candidate-40-43",
+    "locationName": "Terrestrial Analog Tile [40.5\u00b0, 43.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 40.5,
+      "lng": 43.5
+    },
+    "similarity": 88.0,
+    "mahalanobisD2": 2.56,
+    "worstFeature": "rough",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 16.4 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; rough divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 401.8 mm/yr)",
+      "Slope variance agreement (slope: 6.9\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.23)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-gale-crater",
+    "analogId": "candidate-57-116",
+    "locationName": "Terrestrial Analog Tile [57.5\u00b0, 116.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 57.5,
+      "lng": 116.5
+    },
+    "similarity": 86.4,
+    "mahalanobisD2": 2.93,
+    "worstFeature": "rough",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 1.00)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 5.3 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; rough divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 649.4 mm/yr)",
+      "Slope variance agreement (slope: 7.9\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.33)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-south-pole",
+    "analogId": "candidate-32-80",
+    "locationName": "Terrestrial Analog Tile [32.5\u00b0, 80.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 32.5,
+      "lng": 80.5
+    },
+    "similarity": 83.7,
+    "mahalanobisD2": 3.56,
+    "worstFeature": "mafic_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.95)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 22.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; mafic_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 159.6 mm/yr)",
+      "Slope variance agreement (slope: 6.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.20)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-south-pole",
+    "analogId": "candidate-41--112",
+    "locationName": "Terrestrial Analog Tile [41.5\u00b0, -112.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 41.5,
+      "lng": -112.5
+    },
+    "similarity": 82.8,
+    "mahalanobisD2": 3.76,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 17.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 286.6 mm/yr)",
+      "Slope variance agreement (slope: 5.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.27)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "luna-south-pole",
+    "analogId": "candidate-37-100",
+    "locationName": "Terrestrial Analog Tile [37.5\u00b0, 100.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 37.5,
+      "lng": 100.5
+    },
+    "similarity": 82.5,
+    "mahalanobisD2": 3.86,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 21.4 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 628.1 mm/yr)",
+      "Slope variance agreement (slope: 5.3\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.21)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-valles-marineris",
+    "analogId": "candidate-32-80",
+    "locationName": "Terrestrial Analog Tile [32.5\u00b0, 80.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 32.5,
+      "lng": 80.5
+    },
+    "similarity": 89.0,
+    "mahalanobisD2": 2.33,
+    "worstFeature": "mafic_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.95)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 22.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; mafic_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 159.6 mm/yr)",
+      "Slope variance agreement (slope: 6.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.20)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-valles-marineris",
+    "analogId": "candidate-41--112",
+    "locationName": "Terrestrial Analog Tile [41.5\u00b0, -112.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 41.5,
+      "lng": -112.5
+    },
+    "similarity": 86.3,
+    "mahalanobisD2": 2.95,
+    "worstFeature": "carbonate_idx",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.99)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 17.1 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; carbonate_idx divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 286.6 mm/yr)",
+      "Slope variance agreement (slope: 5.8\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.27)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  },
+  {
+    "targetId": "mars-valles-marineris",
+    "analogId": "candidate-46-92",
+    "locationName": "Terrestrial Analog Tile [46.5\u00b0, 92.5\u00b0]",
+    "country": "Global Coordinate Grid",
+    "coordinates": {
+      "lat": 46.5,
+      "lng": 92.5
+    },
+    "similarity": 84.9,
+    "mahalanobisD2": 3.28,
+    "worstFeature": "rough",
+    "breakdown": {
+      "geologyMatch": "High (Emissivity Mafic Index: 0.98)",
+      "thermalMatch": "Moderate (Diurnal LST Amp: 16.2 K)",
+      "limits": "Earth 1G; Atmospheric pressure ~1013 mbar; rough divergence"
+    },
+    "matches": [
+      "Aridity match (precip: 185.2 mm/yr)",
+      "Slope variance agreement (slope: 6.0\u00b0)",
+      "Mineral spectrum correspondence (albedo: 0.24)"
+    ],
+    "suggestedTesting": "Testing autonomous rover navigation & optical sensors in dusty conditions",
+    "provenance": {
+      "dataset": "Google Earth Engine (SRTM, MODIS, GPM, ASTER GED)",
+      "version": "1deg-global-v1"
+    }
+  }
+]
