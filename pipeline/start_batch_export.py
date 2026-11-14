@@ -1,11 +1,7 @@
 """
-Earth Engine Batch Export using Latitude Bands.
-As recommended in the plan, splitting into latitude bands prevents
-large client-side payload timeouts and ensures fast Google Cloud scheduling:
-- band_arid_north: 0° to 35° N (Sahara, Sinai, Arabia, Dasht-e Lut, India)
-- band_arid_south: -35° to 0° S (Atacama, Namibia, Kalahari, Australia)
-- band_temp_north: 35° to 60° N (Gobi, Mojave, Great Basin, Iceland, Svalbard)
-- band_temp_south: -60° to -35° S (Patagonia)
+Memory-efficient Earth Engine batch export.
+Uses point grid sampling at 5km scale with tileScale=16.
+Prevents Earth Engine Out of Memory (Error code: 8).
 """
 
 import sys
@@ -21,14 +17,16 @@ LAT_BANDS = [
     {"name": "temp_south", "lat_min": -60, "lat_max": -35, "desc": "Patagonia, Southern Andes"},
 ]
 
-def make_band_grid(lat_min: int, lat_max: int, step: float = 1.0):
+def make_point_grid(lat_min: int, lat_max: int, step: float = 1.0):
     features = []
     lat = lat_min
     while lat < lat_max:
         lon = -180.0
         while lon < 180.0:
-            rect = ee.Geometry.Rectangle([lon, lat, lon + step, lat + step], None, False)
-            features.append(ee.Feature(rect, {"lat": lat + step / 2.0, "lon": lon + step / 2.0}))
+            center_lat = lat + step / 2.0
+            center_lon = lon + step / 2.0
+            pt = ee.Geometry.Point([center_lon, center_lat])
+            features.append(ee.Feature(pt, {"lat": center_lat, "lon": center_lon}))
             lon += step
         lat += step
     return ee.FeatureCollection(features)
@@ -44,13 +42,19 @@ def export_band(band_name: str = "arid_north", project_id: str = PROJECT_ID, ste
     print(f"Coverage: {band_info['desc']}")
     
     stack = build_feature_stack()
-    tiles = make_band_grid(band_info["lat_min"], band_info["lat_max"], step=step)
+    pts = make_point_grid(band_info["lat_min"], band_info["lat_max"], step=step)
     
-    out = stack.reduceRegions(collection=tiles, reducer=ee.Reducer.mean(), scale=1000, tileScale=4)
+    # Use sampleRegions with 5000m scale and tileScale=16 (prevents Out of Memory)
+    sampled = stack.sampleRegions(
+        collection=pts,
+        scale=5000,
+        tileScale=16,
+        geometries=False
+    )
     
     task_desc = f"earth_tiles_1deg_{band_info['name']}"
     task = ee.batch.Export.table.toDrive(
-        collection=out,
+        collection=sampled,
         description=task_desc,
         fileNamePrefix=task_desc,
         fileFormat="CSV",

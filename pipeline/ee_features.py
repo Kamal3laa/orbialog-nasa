@@ -1,5 +1,7 @@
 """
 Extracts the 11 global Earth feature dimensions using Google Earth Engine.
+Optimized for memory efficiency (3-year baseline, tileScale=16).
+
 Features:
 - Slope, slope_p90, roughness (USGS/SRTMGL1_003)
 - LST diurnal amplitude and maximum (MODIS/061/MOD11A2)
@@ -13,46 +15,25 @@ import sys
 from typing import Optional
 import ee
 
-FEATURES_EXPORT = [
-    "lat",
-    "lon",
-    "slope",
-    "p90",
-    "rough",
-    "lst_amp",
-    "lst_max",
-    "ndvi",
-    "precip_mm_yr",
-    "albedo",
-    "mafic_idx",
-    "carbonate_idx",
-    "quartz_idx",
-]
+PROJECT_ID = "regal-eon-514517-k8"
 
-
-def init_earth_engine(project_id: Optional[str] = None):
-    """Initializes Earth Engine client."""
+def init_earth_engine(project_id: Optional[str] = PROJECT_ID):
     try:
-        if project_id:
-            ee.Initialize(project=project_id)
-        else:
-            ee.Initialize()
-        print("Google Earth Engine initialized successfully.")
+        ee.Initialize(project=project_id)
     except Exception as e:
         print(f"Error initializing Earth Engine: {e}")
-        print("Please ensure you have run `earthengine authenticate` or provided a valid GCP project ID.")
         sys.exit(1)
 
 
 def build_feature_stack() -> ee.Image:
     """Builds the 11-band terrestrial feature image stack."""
-    # 1. Elevation, slope, roughness
+    # 1. Elevation, slope, roughness from SRTM 30m
     dem = ee.Image("USGS/SRTMGL1_003")
     slope = ee.Terrain.slope(dem).rename("slope")
     rough = dem.reduceNeighborhood(ee.Reducer.stdDev(), ee.Kernel.square(3)).rename("rough")
 
-    # 2. Thermal extremes (MODIS 2015-2024)
-    lst = ee.ImageCollection("MODIS/061/MOD11A2").filterDate("2015-01-01", "2024-12-31")
+    # 2. Thermal extremes (MODIS 3-year baseline: 2021-2023)
+    lst = ee.ImageCollection("MODIS/061/MOD11A2").filterDate("2021-01-01", "2023-12-31")
     day = lst.select("LST_Day_1km").mean().multiply(0.02)
     night = lst.select("LST_Night_1km").mean().multiply(0.02)
     lst_amp = day.subtract(night).rename("lst_amp")
@@ -61,7 +42,7 @@ def build_feature_stack() -> ee.Image:
     # 3. Aridity / vegetation / albedo
     ndvi = (
         ee.ImageCollection("MODIS/061/MOD13A1")
-        .filterDate("2015-01-01", "2024-12-31")
+        .filterDate("2021-01-01", "2023-12-31")
         .select("NDVI")
         .mean()
         .multiply(0.0001)
@@ -69,6 +50,7 @@ def build_feature_stack() -> ee.Image:
     )
     precip = (
         ee.ImageCollection("NASA/GPM_L3/IMERG_MONTHLY_V06")
+        .filterDate("2021-01-01", "2023-12-31")
         .select("precipitation")
         .mean()
         .multiply(24.0 * 365.0)
@@ -76,6 +58,7 @@ def build_feature_stack() -> ee.Image:
     )
     albedo = (
         ee.ImageCollection("MODIS/061/MCD43A3")
+        .filterDate("2021-01-01", "2023-12-31")
         .select("Albedo_WSA_shortwave")
         .mean()
         .multiply(0.001)
@@ -102,50 +85,5 @@ def build_feature_stack() -> ee.Image:
         quartz,
     ])
 
-    # Mask ocean (keep areas with elevation > -500 to preserve depressions like Qattara/Dead Sea)
     land = dem.gt(-500)
     return stack.updateMask(land)
-
-
-def grid_collection(step: float = 1.0, lat_min: float = -60, lat_max: float = 60) -> ee.FeatureCollection:
-    """Generates a grid of bounding boxes with center lat/lon metadata."""
-    features = []
-    lat = lat_min
-    while lat < lat_max:
-        lon = -180.0
-        while lon < 180.0:
-            rect = ee.Geometry.Rectangle([lon, lat, lon + step, lat + step])
-            features.append(ee.Feature(rect, {"lat": lat + step / 2.0, "lon": lon + step / 2.0}))
-            lon += step
-        lat += step
-    return ee.FeatureCollection(features)
-
-
-def start_export(
-    project_id: str,
-    description: str = "earth_tiles_1deg",
-    step: float = 1.0,
-    lat_min: float = -60,
-    lat_max: float = 60,
-):
-    """Executes the export to Google Drive or Cloud Storage."""
-    init_earth_engine(project_id)
-    stack = build_feature_stack()
-    tiles = grid_collection(step=step, lat_min=lat_min, lat_max=lat_max)
-
-    out = stack.reduceRegions(collection=tiles, reducer=ee.Reducer.mean(), scale=1000, tileScale=4)
-
-    task = ee.batch.Export.table.toDrive(
-        collection=out,
-        description=description,
-        fileFormat="CSV",
-    )
-    task.start()
-    print(f"Task '{description}' started. Monitor progress at: https://code.earthengine.google.com/tasks")
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        start_export(project_id=sys.argv[1])
-    else:
-        print("Usage: python ee_features.py <GCP_PROJECT_ID>")
