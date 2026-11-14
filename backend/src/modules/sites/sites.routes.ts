@@ -36,7 +36,6 @@ router.get(
     // Planet filter
     if (planet === 'moon') filter.primaryTargetAnalog = 'moon';
     else if (planet === 'mars') filter.primaryTargetAnalog = 'mars';
-    else if (planet === 'egypt') filter.country = new RegExp('Egypt', 'i');
 
     // Country filter (case-insensitive)
     if (country) {
