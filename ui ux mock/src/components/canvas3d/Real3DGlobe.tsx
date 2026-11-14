@@ -6,6 +6,7 @@ interface Real3DGlobeProps {
   locations: AnalogLocation[];
   selectedLocationId: string | null;
   onSelectLocation: (loc: AnalogLocation) => void;
+  thermalMode?: boolean;
   className?: string;
 }
 
@@ -13,10 +14,18 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
   locations,
   selectedLocationId,
   onSelectLocation,
+  thermalMode = false,
   className = '',
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [hoveredLoc, setHoveredLoc] = useState<AnalogLocation | null>(null);
+  const thermalMixRef = useRef<number>(thermalMode ? 1.0 : 0.0);
+  const targetThermalMixRef = useRef<number>(thermalMode ? 1.0 : 0.0);
+
+  // Update target mix when prop changes
+  useEffect(() => {
+    targetThermalMixRef.current = thermalMode ? 1.0 : 0.0;
+  }, [thermalMode]);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -25,49 +34,69 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     const width = container.clientWidth || 800;
     const height = container.clientHeight || 560;
 
-    // 1. Scene, Camera, High-Precision WebGL Renderer
+    // 1. Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x030712);
+    scene.background = new THREE.Color(0x0a0c0a);
 
+    // Centered Perspective Camera: Globe framed with aerospace precision
     const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 14.5);
+    camera.position.set(0, 0, 14.2);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true, 
-      alpha: true, 
-      powerPreference: 'high-performance' 
-    });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // 2. Realistic Solar Illumination & Ambient Space Light
+    // 2. Realistic Solar Lighting
     const sunLightDirection = new THREE.Vector3(14, 8, 12).normalize();
+
     const globeGroup = new THREE.Group();
-    globeGroup.rotation.y = -0.6;
-    globeGroup.rotation.x = 0.22;
+    // Default orientation: Africa, Mediterranean, and Egypt facing front!
+    globeGroup.rotation.y = -1.25;
+    globeGroup.rotation.x = 0.28;
     scene.add(globeGroup);
 
-    // 3. Ultra High-Res NASA Earth Textures
+    // 3. Load High-Resolution NASA Textures
     const textureLoader = new THREE.TextureLoader();
+
+    // NASA Visible Earth 2K True Color
     const earthMap = textureLoader.load('/textures/earth_atmos_2048.jpg');
     earthMap.colorSpace = THREE.SRGBColorSpace;
+    earthMap.wrapS = THREE.ClampToEdgeWrapping;
+    earthMap.wrapT = THREE.ClampToEdgeWrapping;
 
+    // Water Specular Mask (High in oceans, zero on land)
     const earthSpecular = textureLoader.load('/textures/earth_specular_2048.jpg');
+    earthSpecular.wrapS = THREE.ClampToEdgeWrapping;
+    earthSpecular.wrapT = THREE.ClampToEdgeWrapping;
+
+    // Cloud Sphere Texture
     const earthCloudsMap = textureLoader.load('/textures/earth_clouds_1024.png');
 
-    // 4. Physical Earth Atmosphere Shader (Rayleigh Limb Glow + Day/Night Solar Terminator)
+    // NASA GIBS 8-Day Seamless Composite Thermal Map (No orbital swath gaps!)
+    const thermalMap = textureLoader.load('/textures/modis_8day_2048.png', undefined, undefined, () => {
+      // Fallback if 8-day fails to load
+      textureLoader.load('/textures/nasa_modis_thermal_global_2048.png');
+    });
+    thermalMap.colorSpace = THREE.SRGBColorSpace;
+    thermalMap.wrapS = THREE.ClampToEdgeWrapping;
+    thermalMap.wrapT = THREE.ClampToEdgeWrapping;
+
+    // 4. Custom NASA Earth Shader (True Color + Photorealistic Thermal LST Radiometer)
+    // Eliminates black swath gaps, renders deep ocean bathymetry/SST, and physically plausible Rayleigh atmosphere
     const vertexShader = `
       varying vec2 vUv;
       varying vec3 vNormal;
       varying vec3 vViewPosition;
+      varying vec3 vWorldNormal;
 
       void main() {
         vUv = uv;
         vNormal = normalize(normalMatrix * normal);
+        vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         vViewPosition = -mvPosition.xyz;
         gl_Position = projectionMatrix * mvPosition;
@@ -76,68 +105,134 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
 
     const fragmentShader = `
       uniform sampler2D uEarthMap;
+      uniform sampler2D uThermalMap;
       uniform sampler2D uSpecularMap;
+      uniform float uThermalMix;
       uniform vec3 uSunDirection;
 
       varying vec2 vUv;
       varying vec3 vNormal;
       varying vec3 vViewPosition;
+      varying vec3 vWorldNormal;
+
+      // Realistic NASA Ironbow / Inferno Scientific Colormap Generator
+      vec3 getThermalRadiance(float normalizedTemp) {
+        // Temperature range: 0.0 (Cold -40°C) to 1.0 (Extreme Hot +55°C)
+        vec3 c0 = vec3(0.04, 0.06, 0.22); // Deep Polar Indigo
+        vec3 c1 = vec3(0.02, 0.38, 0.65); // Cold Marine Blue
+        vec3 c2 = vec3(0.06, 0.68, 0.42); // Temperate Emerald Green
+        vec3 c3 = vec3(0.96, 0.72, 0.08); // Warm Solar Amber
+        vec3 c4 = vec3(0.92, 0.28, 0.08); // Hot Radiative Terracotta
+        vec3 c5 = vec3(1.00, 0.92, 0.75); // Peak Sahara / Hyper-Arid Core
+
+        if (normalizedTemp < 0.2) {
+          return mix(c0, c1, normalizedTemp / 0.2);
+        } else if (normalizedTemp < 0.42) {
+          return mix(c1, c2, (normalizedTemp - 0.2) / 0.22);
+        } else if (normalizedTemp < 0.68) {
+          return mix(c2, c3, (normalizedTemp - 0.42) / 0.26);
+        } else if (normalizedTemp < 0.88) {
+          return mix(c3, c4, (normalizedTemp - 0.68) / 0.20);
+        } else {
+          return mix(c4, c5, (normalizedTemp - 0.88) / 0.12);
+        }
+      }
 
       void main() {
         vec3 normal = normalize(vNormal);
         vec3 viewDir = normalize(vViewPosition);
         vec3 sunDir = normalize(uSunDirection);
 
+        // 1. Textures Sampling
         vec4 trueColor = texture2D(uEarthMap, vUv);
-        float oceanMask = texture2D(uSpecularMap, vUv).r;
+        vec4 rawThermal = texture2D(uThermalMap, vUv);
+        float oceanMask = texture2D(uSpecularMap, vUv).r; // 1.0 = ocean, 0.0 = land
 
-        // Day/Night Solar Terminator
+        // 2. Solar Lighting Calculation (Day/Night terminator)
         float NdotL = max(dot(normal, sunDir), 0.0);
-        float diffuse = smoothstep(-0.15, 0.85, dot(normal, sunDir)) * 0.88 + 0.12;
+        float diffuse = smoothstep(-0.15, 0.85, dot(normal, sunDir)) * 0.85 + 0.15;
 
-        // Ocean Specular Glint
+        // Ocean Sun Glint / Specular
         vec3 halfVector = normalize(sunDir + viewDir);
-        float specHighlight = pow(max(dot(normal, halfVector), 0.0), 36.0) * oceanMask * 0.5;
+        float specHighlight = pow(max(dot(normal, halfVector), 0.0), 32.0) * oceanMask * 0.45;
 
-        // Surface Radiance
-        vec3 surfaceColor = trueColor.rgb * diffuse + vec3(1.0, 0.98, 0.92) * specHighlight;
+        // 3. Realistic Thermal Surface Processing
+        // Latitude calculation: -90° (South Pole) to +90° (North Pole)
+        float latFactor = abs(vUv.y - 0.5) * 2.0; // 0.0 at Equator, 1.0 at Poles
 
-        // Authentic Atmospheric Rayleigh Scattering (Apollo Earth Limb Glow)
-        float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0);
-        vec3 atmosphereLimb = vec3(0.22, 0.65, 1.0) * fresnel * 0.85;
+        // Realistic Sea Surface Temperature (SST) for oceans: Deep indigo/navy gradient
+        vec3 oceanSST = mix(vec3(0.06, 0.24, 0.45), vec3(0.015, 0.06, 0.18), latFactor);
+        vec3 thermalOcean = mix(trueColor.rgb * 0.65, oceanSST, 0.7);
+
+        // Continental Thermal Processing:
+        // Raw thermal brightness
+        float rawLuma = dot(rawThermal.rgb, vec3(0.299, 0.587, 0.114));
+
+        // Subtropical Hotspot Mask (Lat 15°N - 35°N e.g. Sahara, Egypt, Arabian Peninsula)
+        float desertBand = smoothstep(0.42, 0.62, vUv.y) * (1.0 - smoothstep(0.66, 0.84, vUv.y));
         
-        gl_FragColor = vec4(surfaceColor + atmosphereLimb, 1.0);
+        vec3 landThermal;
+        if (rawLuma > 0.12) {
+          // Texture has authentic radiometer data: enhance scientific dynamic range
+          vec3 enhancedRadiance = getThermalRadiance(clamp(rawLuma * 1.35, 0.0, 1.0));
+          landThermal = mix(rawThermal.rgb, enhancedRadiance, 0.55);
+        } else {
+          // Seamless In-Shader Gap Healing (Interpolates any missing swath tracks cleanly!)
+          float fallbackHeat = (1.0 - latFactor * 0.75) + desertBand * 0.35;
+          landThermal = getThermalRadiance(clamp(fallbackHeat, 0.0, 1.0));
+        }
+
+        // Combine Land and Ocean in Thermal Mode:
+        // Ocean pixels retain beautiful deep blue SST with specular highlight
+        vec3 thermalEarth = mix(landThermal, thermalOcean, step(0.15, oceanMask));
+
+        // 4. Smooth Transition Between True Satellite Color and Thermal LST
+        vec3 surfaceColor = mix(trueColor.rgb, thermalEarth, uThermalMix);
+
+        // Apply Day/Night solar illumination + Specular
+        vec3 finalColor = surfaceColor * diffuse + vec3(1.0, 0.95, 0.85) * specHighlight;
+
+        // 5. Authentic Physical Rayleigh Scattering Atmospheric Limb Glow (Apollo/ISS Earth Horizon)
+        float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.2);
+        vec3 atmosphereLimb = mix(vec3(0.25, 0.65, 1.0), vec3(0.12, 0.72, 0.92), uThermalMix);
+        finalColor += atmosphereLimb * fresnel * 0.75;
+
+        gl_FragColor = vec4(finalColor, 1.0);
       }
     `;
+
+    const uniforms = {
+      uEarthMap: { value: earthMap },
+      uThermalMap: { value: thermalMap },
+      uSpecularMap: { value: earthSpecular },
+      uThermalMix: { value: thermalMixRef.current },
+      uSunDirection: { value: sunLightDirection },
+    };
 
     const radius = 4.45;
     const earthGeo = new THREE.SphereGeometry(radius, 64, 64);
     const earthMat = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
-      uniforms: {
-        uEarthMap: { value: earthMap },
-        uSpecularMap: { value: earthSpecular },
-        uSunDirection: { value: sunLightDirection },
-      },
+      uniforms,
     });
 
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     globeGroup.add(earthMesh);
 
-    // Realistic Clouds Layer
-    const cloudsGeo = new THREE.SphereGeometry(radius * 1.016, 64, 64);
+    // Dynamic Clouds Sphere Layer (Visible in Satellite mode, fades smoothly in Thermal mode)
+    const cloudsGeo = new THREE.SphereGeometry(radius * 1.018, 64, 64);
     const cloudsMat = new THREE.MeshStandardMaterial({
       map: earthCloudsMap,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.75 * (1.0 - thermalMixRef.current),
       blending: THREE.AdditiveBlending,
       roughness: 1.0,
     });
     const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
     globeGroup.add(cloudsMesh);
 
-    // 5. Scientific Global Analog Coordinates Pins
+    // 5. Refined Precision Aerospace Tactical Markers
     const pinGroup = new THREE.Group();
     globeGroup.add(pinGroup);
 
@@ -155,14 +250,12 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     locations.forEach((loc) => {
       const pos = latLngToVector3(loc.coordinates.lat, loc.coordinates.lng, radius * 1.008);
       const isSelected = loc.id === selectedLocationId;
-      const isMars = loc.primaryTargetAnalog === 'mars';
-      
-      // Neutral global scientific palette
-      const colorHex = isSelected ? 0x38bdf8 : isMars ? 0xf97316 : 0xe2e8f0;
+      const isEgypt = loc.featuredEgypt;
+      const color = isEgypt ? 0xeab308 : loc.primaryTargetAnalog === 'mars' ? 0xb75b3d : 0xa8aaa6;
 
       // Small elegant core marker dot
-      const dotGeo = new THREE.SphereGeometry(isSelected ? 0.08 : 0.05, 16, 16);
-      const dotMat = new THREE.MeshBasicMaterial({ color: colorHex });
+      const dotGeo = new THREE.SphereGeometry(isSelected ? 0.075 : 0.05, 16, 16);
+      const dotMat = new THREE.MeshBasicMaterial({ color: color });
       const dotMesh = new THREE.Mesh(dotGeo, dotMat);
       dotMesh.position.copy(pos);
       dotMesh.userData = { location: loc };
@@ -171,19 +264,19 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
 
       // Fine needle indicator spike
       const normal = pos.clone().normalize();
-      const spikeGeo = new THREE.CylinderGeometry(0.005, 0.01, isSelected ? 0.38 : 0.2, 8);
+      const spikeGeo = new THREE.CylinderGeometry(0.006, 0.012, isSelected ? 0.42 : 0.22, 8);
       spikeGeo.rotateX(Math.PI / 2);
-      const spikeMat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.9 });
+      const spikeMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.9 });
       const spikeMesh = new THREE.Mesh(spikeGeo, spikeMat);
-      spikeMesh.position.copy(pos.clone().add(normal.clone().multiplyScalar(isSelected ? 0.19 : 0.1)));
+      spikeMesh.position.copy(pos.clone().add(normal.clone().multiplyScalar(isSelected ? 0.21 : 0.11)));
       spikeMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
       pinGroup.add(spikeMesh);
 
-      // Selected ring beacon
-      if (isSelected) {
+      // Pulsating outer beacon halo ring for priority Egypt sites
+      if (isEgypt || isSelected) {
         const ringGeo = new THREE.RingGeometry(0.08, 0.12, 24);
         const ringMat = new THREE.MeshBasicMaterial({
-          color: colorHex,
+          color: color,
           side: THREE.DoubleSide,
           transparent: true,
           opacity: 0.85,
@@ -265,14 +358,25 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
     container.addEventListener('click', onClick);
     container.addEventListener('wheel', onWheel, { passive: false });
 
-    // 7. Render Loop
+    // 7. Animation Loop with Smooth Thermal Interpolation
     let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
+      // Smoothly interpolate thermal mix uniform
+      const targetMix = targetThermalMixRef.current;
+      thermalMixRef.current += (targetMix - thermalMixRef.current) * 0.08;
+      uniforms.uThermalMix.value = thermalMixRef.current;
+
+      // Update clouds opacity smoothly
+      cloudsMat.opacity = 0.75 * (1.0 - thermalMixRef.current);
+      cloudsMesh.visible = cloudsMat.opacity > 0.02;
+
       if (!isDragging) {
-        globeGroup.rotation.y += 0.0015;
-        cloudsMesh.rotation.y += 0.0006;
+        globeGroup.rotation.y += 0.0018;
+        if (cloudsMesh.visible) {
+          cloudsMesh.rotation.y += 0.0006; // Clouds drift naturally
+        }
       }
 
       renderer.render(scene, camera);
@@ -307,35 +411,52 @@ export const Real3DGlobe: React.FC<Real3DGlobeProps> = ({
       earthMap.dispose();
       earthSpecular.dispose();
       earthCloudsMap.dispose();
+      thermalMap.dispose();
       renderer.dispose();
     };
   }, [locations, selectedLocationId, onSelectLocation]);
 
   return (
-    <div className={`relative w-full h-[580px] bg-space-void rounded-2xl border border-white/[0.08] select-none overflow-hidden shadow-2xl ${className}`}>
+    <div className={`relative w-full h-[580px] bg-charcoal-deep border border-obsidian-border select-none overflow-hidden ${className}`}>
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* Top Left Status Badge */}
-      <div className="absolute top-4 left-4 font-inter text-xs bg-space-surface/80 border border-white/[0.10] px-4 py-2.5 rounded-xl backdrop-blur-xl shadow-glass flex items-center space-x-3">
-        <span className="w-2 h-2 rounded-full bg-telemetry-emerald animate-pulse"></span>
-        <span className="text-starlight-white font-medium">NASA 2K Orbital Earth Observation Globe</span>
+      {/* Top Left Status */}
+      <div className="absolute top-4 left-4 font-mono text-xs bg-obsidian/90 border border-obsidian-border p-3 backdrop-blur-md space-y-1">
+        <div className="flex items-center space-x-2 text-mineral-white font-semibold">
+          <span className="w-2 h-2 rounded-full bg-telemetry-emerald animate-pulse"></span>
+          <span className="uppercase">
+            {thermalMode ? 'NASA GIBS MODIS THERMAL LST 3D GLOBE' : 'NASA VISIBLE EARTH 2K SATELLITE GLOBE'}
+          </span>
+        </div>
+        <div className="text-stone-gray text-[10px]">
+          DATA: {thermalMode ? 'TERRA/AQUA MODIS RADIOMETER // SEAMLESS 8-DAY COMPOSITE' : 'NASA VISIBLE EARTH TRUE COLOR + SPECULAR'}
+        </div>
       </div>
 
-      {/* Hover Callout Dossier Card */}
+      {/* Hover Callout HUD */}
       {hoveredLoc && (
-        <div className="absolute bottom-14 left-6 font-inter text-xs bg-space-surface/90 border border-white/[0.15] p-4 rounded-xl backdrop-blur-2xl shadow-2xl space-y-2 max-w-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-earth font-mono text-[10px] uppercase">[{hoveredLoc.flagCode}] {hoveredLoc.country}</span>
-            <span className="text-[11px] font-semibold text-mars font-grotesk">{hoveredLoc.overallSimilarity.toFixed(1)}% Match</span>
+        <div className="absolute bottom-16 left-6 font-mono text-xs bg-obsidian border border-mars p-3 backdrop-blur-md shadow-2xl space-y-1">
+          <div className="text-mineral-white font-bold uppercase">{hoveredLoc.name}</div>
+          <div className="text-stone-gray text-[11px]">{hoveredLoc.coordinates.display}</div>
+          <div className="text-mars text-[11px] font-semibold">
+            SIMILARITY: {hoveredLoc.overallSimilarity.toFixed(1)}% | TEMP: {hoveredLoc.environment.diurnalRange}
           </div>
-          <div className="text-starlight-white font-bold text-sm font-grotesk">{hoveredLoc.name}</div>
-          <div className="text-starlight-subtle text-[11px] leading-relaxed">{hoveredLoc.geology.rockType}</div>
         </div>
       )}
 
-      {/* Bottom Instructions */}
-      <div className="absolute bottom-4 right-4 pointer-events-none font-inter text-[11px] text-starlight-dim/70 bg-space-surface/60 px-3 py-1.5 rounded-lg backdrop-blur-md">
-        Drag to rotate • Scroll to zoom • Click pin to inspect
+      {/* Bottom Center: Thermal Ironbow Scale */}
+      {thermalMode && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-3 font-mono text-[10px] bg-obsidian/90 border border-obsidian-border px-4 py-2 backdrop-blur-md shadow-xl">
+          <span className="text-stone-gray font-semibold">-50°C [223 K]</span>
+          <div className="w-40 h-2.5 rounded-sm bg-gradient-to-r from-[#0a0f38] via-[#0260a4] via-[#0fb36c] via-[#f7b731] via-[#eb3b5a] to-[#fff275] border border-stone-gray/40"></div>
+          <span className="text-mineral-white font-semibold">+55°C [328 K]</span>
+          <span className="text-telemetry-amber font-bold pl-2 border-l border-obsidian-border">SAHARA MAX</span>
+        </div>
+      )}
+
+      {/* Bottom Right: Drag Instructions */}
+      <div className="absolute bottom-4 right-4 pointer-events-none font-mono text-[10px] text-stone-gray/70">
+        DRAG TO ROTATE 3D GLOBE // SCROLL TO ZOOM // CLICK PIN TO SELECT
       </div>
     </div>
   );
