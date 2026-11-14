@@ -6,8 +6,7 @@ import {
   GitCompare, 
   FileText, 
   Activity,
-  Radio,
-  Database
+  Radio
 } from 'lucide-react';
 import { orbialogApi } from '../../services/orbialogApi';
 
@@ -111,16 +110,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Action CTA */}
         <div className="flex items-center space-x-2">
-          {onOpenDataModal && (
-            <button
-              onClick={onOpenDataModal}
-              className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 bg-obsidian-card hover:bg-obsidian-surface border border-stone-gray/30 text-stone-gray hover:text-mineral-white font-mono text-[11px] uppercase tracking-wider transition-colors"
-            >
-              <Database className="w-3.5 h-3.5 text-telemetry-cyan" />
-              <span>Agency APIs</span>
-            </button>
-          )}
-
           <button
             onClick={() => handleNavClick('discovery')}
             className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-all duration-150 shadow-sm"
