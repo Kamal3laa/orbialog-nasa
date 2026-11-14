@@ -11,10 +11,10 @@ from ee_features import build_feature_stack
 PROJECT_ID = "regal-eon-514517-k8"
 
 LAT_BANDS = [
-    {"name": "arid_north", "lat_min": 0, "lat_max": 35, "desc": "Sahara, Sinai, Arabia, Iran, Mojave"},
-    {"name": "arid_south", "lat_min": -35, "lat_max": 0, "desc": "Atacama, Australia, Namibia"},
-    {"name": "temp_north", "lat_min": 35, "lat_max": 60, "desc": "Gobi, Iceland, Central Asia"},
-    {"name": "temp_south", "lat_min": -60, "lat_max": -35, "desc": "Patagonia, Southern Andes"},
+    {"name": "arid_north_1", "lat_min": 0, "lat_max": 18, "desc": "Sahel, Southern Arabia, Central America, India"},
+    {"name": "arid_north_2", "lat_min": 18, "lat_max": 35, "desc": "Sahara, Sinai, Northern Arabia, Dasht-e Lut, Mojave"},
+    {"name": "arid_south_1", "lat_min": -18, "lat_max": 0, "desc": "Central Africa, Amazon Basin, Northern Australia"},
+    {"name": "arid_south_2", "lat_min": -35, "lat_max": -18, "desc": "Atacama, Kalahari, Namib, Central/Western Australia"},
 ]
 
 def make_point_grid(lat_min: int, lat_max: int, step: float = 1.0):
