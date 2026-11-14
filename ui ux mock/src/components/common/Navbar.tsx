@@ -7,8 +7,7 @@ import {
   FileText, 
   Activity,
   Radio,
-  Cpu,
-  Binary
+  Database
 } from 'lucide-react';
 import { orbialogApi } from '../../services/orbialogApi';
 
@@ -17,11 +16,13 @@ interface NavbarProps {
   onNavigate: (screen: ActiveScreen) => void;
   selectedTarget: PlanetaryTarget;
   selectedAnalog: AnalogLocation;
+  onOpenDataModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentScreen,
   onNavigate,
+  onOpenDataModal,
 }) => {
   const [apiOnline, setApiOnline] = useState<boolean | null>(null);
 
@@ -37,14 +38,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     onNavigate(screen);
   };
 
+  // Only the 5 requested tabs
   const navItems: { id: ActiveScreen; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'landing', label: 'Mission Intro', icon: Radio },
-    { id: 'targets', label: 'Targets', icon: Compass },
+    { id: 'landing', label: 'Mission Overview', icon: Radio },
+    { id: 'targets', label: 'Planetary Targets', icon: Compass },
     { id: 'discovery', label: 'Earth Analogs', icon: Globe },
     { id: 'comparison', label: 'Comparison Engine', icon: GitCompare },
-    { id: 'profile', label: 'Dossier', icon: FileText },
-    { id: 'applications', label: 'Mission Apps', icon: Cpu },
-    { id: 'methodology', label: 'Methodology & Sandbox', icon: Binary },
+    { id: 'profile', label: 'Research Dossier', icon: FileText },
   ];
 
   return (
@@ -84,8 +84,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Screen Tabs */}
-        <nav className="hidden md:flex items-center space-x-1">
+        {/* The 5 Requested Screen Tabs */}
+        <nav className="flex items-center space-x-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentScreen === item.id;
@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 font-mono text-xs transition-all relative ${
+                className={`flex items-center space-x-2 px-3.5 py-2 font-mono text-xs transition-all relative ${
                   isActive
                     ? 'text-mineral-white bg-obsidian-surface border-t-2 border-mars font-medium'
                     : 'text-stone-gray hover:text-mineral-white hover:bg-obsidian/60'
@@ -111,12 +111,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Action CTA */}
         <div className="flex items-center space-x-2">
+          {onOpenDataModal && (
+            <button
+              onClick={onOpenDataModal}
+              className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 bg-obsidian-card hover:bg-obsidian-surface border border-stone-gray/30 text-stone-gray hover:text-mineral-white font-mono text-[11px] uppercase tracking-wider transition-colors"
+            >
+              <Database className="w-3.5 h-3.5 text-telemetry-cyan" />
+              <span>Agency APIs</span>
+            </button>
+          )}
+
           <button
             onClick={() => handleNavClick('discovery')}
             className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-mars hover:bg-mars-glow text-mineral-white font-mono text-xs uppercase tracking-wider transition-all duration-150 shadow-sm"
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>EXPLORE</span>
+            <span>EXPLORE ANALOGS</span>
           </button>
         </div>
       </div>

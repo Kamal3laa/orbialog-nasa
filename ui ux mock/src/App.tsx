@@ -4,6 +4,7 @@ import { PLANETARY_TARGETS } from './data/planetaryTargets';
 import { ANALOG_LOCATIONS } from './data/analogLocations';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
+import { SpaceAgencyDataModal } from './components/common/SpaceAgencyDataModal';
 import { Screen1Landing } from './screens/Screen1Landing';
 import { Screen2TargetSelection } from './screens/Screen2TargetSelection';
 import { Screen3EarthDiscovery } from './screens/Screen3EarthDiscovery';
@@ -20,6 +21,7 @@ export const App: React.FC = () => {
   const [analogLocations, setAnalogLocations] = useState<AnalogLocation[]>(ANALOG_LOCATIONS);
   const [selectedTarget, setSelectedTarget] = useState<PlanetaryTarget>(PLANETARY_TARGETS[3]); // Default: Jezero Crater (Mars)
   const [selectedAnalog, setSelectedAnalog] = useState<AnalogLocation>(ANALOG_LOCATIONS[0]); // Default: White Desert (Egypt)
+  const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
 
   // Ingest live targets & analog sites from Backend API (Flowchart: S1/S2 --> T, S3 --> S)
   useEffect(() => {
@@ -81,12 +83,13 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-charcoal text-mineral-white font-inter flex flex-col selection:bg-mars selection:text-mineral-white">
-      {/* Top Aerospace Mission Control Navigation Bar */}
+      {/* Top Aerospace Mission Control Navigation Bar (5 Requested Tabs) */}
       <Navbar
         currentScreen={currentScreen}
         onNavigate={handleNavigate}
         selectedTarget={selectedTarget}
         selectedAnalog={selectedAnalog}
+        onOpenDataModal={() => setIsDataModalOpen(true)}
       />
 
       {/* Screen Router Viewport */}
@@ -116,6 +119,7 @@ export const App: React.FC = () => {
             selectedAnalog={selectedAnalog}
             onSelectAnalog={setSelectedAnalog}
             onNavigate={handleNavigate}
+            onOpenDataModal={() => setIsDataModalOpen(true)}
           />
         )}
 
@@ -157,8 +161,15 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenDataModal={() => setIsDataModalOpen(true)} />
+
+      {/* Space Agency Data & APIs Modal Hub */}
+      <SpaceAgencyDataModal
+        isOpen={isDataModalOpen}
+        onClose={() => setIsDataModalOpen(false)}
+        selectedAnalog={selectedAnalog}
+        selectedTarget={selectedTarget}
+      />
     </div>
   );
 };
-

@@ -1,7 +1,11 @@
 import React from 'react';
 import { Shield, Database, ExternalLink, Orbit } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenDataModal?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenDataModal }) => {
   return (
     <footer className="w-full bg-charcoal-deep border-t border-obsidian-border font-mono text-xs text-stone-gray py-8 px-8 mt-12 select-none">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
