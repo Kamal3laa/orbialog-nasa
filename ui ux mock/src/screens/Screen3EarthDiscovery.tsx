@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ActiveScreen, AnalogLocation, AnalogCategory, PlanetaryTarget } from '../types';
 import { RealGISMap } from '../components/common/RealGISMap';
 import { Real3DGlobe } from '../components/canvas3d/Real3DGlobe';
@@ -8,18 +8,15 @@ import {
   MapPin, 
   Search, 
   Layers, 
-  SlidersHorizontal, 
   ArrowRight, 
-  CheckCircle2, 
   Box, 
   Sparkles, 
   ExternalLink,
-  Flame,
   FileText,
-  Filter,
   Database
 } from 'lucide-react';
 import { generateAnalogAgencyUrls } from '../data/spaceAgencyResources';
+import { audio } from '../utils/audio';
 
 interface Screen3EarthDiscoveryProps {
   analogLocations: AnalogLocation[];
@@ -31,7 +28,7 @@ interface Screen3EarthDiscoveryProps {
 }
 
 export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
-  analogLocations,
+  analogLocations = [],
   selectedTarget,
   selectedAnalog,
   onSelectAnalog,
@@ -47,17 +44,29 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   const [selectedCategories, setSelectedCategories] = useState<AnalogCategory[]>([]);
   const [minSimilarity, setMinSimilarity] = useState<number>(80);
   const [onlyHighFidelity, setOnlyHighFidelity] = useState<boolean>(false);
-  const [previewLocation, setPreviewLocation] = useState<AnalogLocation>(selectedAnalog);
+  const [previewLocation, setPreviewLocation] = useState<AnalogLocation>(selectedAnalog || analogLocations[0]);
 
-  // Filter application logic
+  // Keep previewLocation synced when selectedAnalog changes
+  useEffect(() => {
+    if (selectedAnalog) {
+      setPreviewLocation(selectedAnalog);
+    } else if (analogLocations && analogLocations.length > 0) {
+      setPreviewLocation(analogLocations[0]);
+    }
+  }, [selectedAnalog, analogLocations]);
+
+  // Safe filter application logic
   const filteredLocations = useMemo(() => {
+    if (!analogLocations || !Array.isArray(analogLocations)) return [];
     return analogLocations.filter((loc) => {
+      if (!loc) return false;
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchesName = loc.name.toLowerCase().includes(q);
-        const matchesRegion = loc.region.toLowerCase().includes(q);
-        const matchesCountry = loc.country.toLowerCase().includes(q);
-        const matchesGeology = loc.geology.rockType.toLowerCase().includes(q);
+        const matchesName = loc.name?.toLowerCase().includes(q) ?? false;
+        const matchesRegion = loc.region?.toLowerCase().includes(q) ?? false;
+        const matchesCountry = loc.country?.toLowerCase().includes(q) ?? false;
+        const matchesGeology = loc.geology?.rockType?.toLowerCase().includes(q) ?? false;
         if (!matchesName && !matchesRegion && !matchesCountry && !matchesGeology) {
           return false;
         }
@@ -71,15 +80,16 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
         return false;
       }
 
-      if (onlyHighFidelity && loc.overallSimilarity < 92) {
+      const similarity = loc.overallSimilarity ?? 0;
+      if (onlyHighFidelity && similarity < 92) {
         return false;
       }
 
-      if (selectedCategories.length > 0 && !selectedCategories.includes(loc.category)) {
+      if (selectedCategories.length > 0 && !selectedCategories.includes(loc.category as AnalogCategory)) {
         return false;
       }
 
-      if (loc.overallSimilarity < minSimilarity) {
+      if (similarity < minSimilarity) {
         return false;
       }
 
@@ -87,20 +97,27 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
     });
   }, [analogLocations, searchQuery, selectedPlanetFilter, selectedRegion, onlyHighFidelity, selectedCategories, minSimilarity]);
 
+  // Ensure active previewLocation is always valid
+  const activeLocation = previewLocation || filteredLocations[0] || analogLocations[0];
+
   const handleLocationSelect = (loc: AnalogLocation) => {
+    audio.playClick?.();
     setPreviewLocation(loc);
     onSelectAnalog(loc);
   };
 
   const handleLaunchComparison = () => {
+    audio.playConfirm?.();
     onNavigate('comparison');
   };
 
   const handleOpenProfile = () => {
+    audio.playClick?.();
     onNavigate('profile');
   };
 
   const toggleCategory = (cat: AnalogCategory) => {
+    audio.playClick?.();
     setSelectedCategories((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
@@ -120,14 +137,14 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           </h1>
           <p className="font-inter text-starlight-dim text-sm md:text-base max-w-2xl leading-relaxed">
             High-resolution satellite GIS & planetary exploration matching engine. Calibrated to extraterrestrial mission target:{' '}
-            <span className="text-starlight-white font-semibold">{selectedTarget.name}</span>
+            <span className="text-starlight-white font-semibold">{selectedTarget?.name || 'Jezero Crater'}</span>
           </p>
         </div>
 
         {/* View Mode Switcher: Google Maps vs 3D Globe vs 3D Topography */}
         <div className="flex items-center p-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl">
           <button
-            onClick={() => setDisplayMode('real-gis')}
+            onClick={() => { audio.playClick?.(); setDisplayMode('real-gis'); }}
             className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
               displayMode === 'real-gis'
                 ? 'bg-white text-space-void font-bold shadow-glass'
@@ -139,7 +156,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           </button>
 
           <button
-            onClick={() => setDisplayMode('3d-globe')}
+            onClick={() => { audio.playClick?.(); setDisplayMode('3d-globe'); }}
             className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
               displayMode === '3d-globe'
                 ? 'bg-gradient-to-r from-mars to-mars-glow text-starlight-white font-bold shadow-mars-glow'
@@ -151,7 +168,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           </button>
 
           <button
-            onClick={() => setDisplayMode('3d-topography')}
+            onClick={() => { audio.playClick?.(); setDisplayMode('3d-topography'); }}
             className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-200 ${
               displayMode === '3d-topography'
                 ? 'bg-earth text-space-void font-bold shadow-sm'
@@ -185,7 +202,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             {(['all', 'moon', 'mars'] as const).map((pf) => (
               <button
                 key={pf}
-                onClick={() => setSelectedPlanetFilter(pf)}
+                onClick={() => { audio.playClick?.(); setSelectedPlanetFilter(pf); }}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-grotesk font-medium uppercase tracking-wider transition-all duration-150 ${
                   selectedPlanetFilter === pf
                     ? 'bg-white text-space-void font-bold shadow-sm'
@@ -199,7 +216,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
           {/* Tier-1 High-Fidelity Quick Toggle */}
           <button
-            onClick={() => setOnlyHighFidelity(!onlyHighFidelity)}
+            onClick={() => { audio.playClick?.(); setOnlyHighFidelity(!onlyHighFidelity); }}
             className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-grotesk font-semibold uppercase tracking-wider transition-all duration-200 ${
               onlyHighFidelity
                 ? 'bg-telemetry-emerald text-space-void shadow-md'
@@ -225,7 +242,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           ].map(([regId, label]) => (
             <button
               key={regId}
-              onClick={() => setSelectedRegion(regId)}
+              onClick={() => { audio.playClick?.(); setSelectedRegion(regId); }}
               className={`px-3 py-1.5 rounded-full transition-all duration-150 ${
                 selectedRegion === regId
                   ? 'bg-starlight-white text-space-void font-semibold shadow-sm'
@@ -286,7 +303,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
         {displayMode === 'real-gis' && (
           <RealGISMap
             locations={filteredLocations}
-            selectedLocationId={previewLocation.id}
+            selectedLocationId={activeLocation?.id || null}
             onSelectLocation={handleLocationSelect}
           />
         )}
@@ -295,7 +312,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
           <div className="p-4">
             <Real3DGlobe
               locations={filteredLocations}
-              selectedLocationId={previewLocation.id}
+              selectedLocationId={activeLocation?.id || null}
               onSelectLocation={handleLocationSelect}
             />
           </div>
@@ -304,9 +321,9 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
         {displayMode === '3d-topography' && (
           <div className="p-4">
             <Real3DTopography
-              locationName={previewLocation.name}
-              terrainType={previewLocation.geology.rockType}
-              elevationDatum={`${previewLocation.elevationMeters}m MSL`}
+              locationName={activeLocation?.name || 'White Desert'}
+              terrainType={activeLocation?.geology?.rockType || 'Yardangs & Chalk Deflation'}
+              elevationDatum={`${activeLocation?.elevationMeters || 172}m MSL`}
               thermalRange={{ min: 4, max: 48, unit: '°C' }}
             />
           </div>
@@ -324,7 +341,7 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredLocations.map((loc) => {
-              const isSelected = loc.id === previewLocation.id;
+              const isSelected = loc.id === activeLocation?.id;
               const isMars = loc.primaryTargetAnalog === 'mars';
               return (
                 <div
@@ -346,9 +363,9 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                   )}
 
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-mono text-earth font-bold">[{loc.flagCode}]</span>
+                    <span className="text-xs font-mono text-earth font-bold">[{loc.flagCode || 'SITE'}]</span>
                     <h3 className="font-grotesk font-bold text-base text-starlight-white truncate max-w-[200px]">
-                      {loc.name.split(' (')[0]}
+                      {loc.name?.split(' (')[0] || loc.id}
                     </h3>
                   </div>
 
@@ -361,24 +378,24 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                       <div className="flex items-center space-x-1.5">
                         <span className="text-starlight-subtle text-[11px]">Similarity:</span>
                         <span className="text-starlight-white font-bold font-grotesk text-sm">
-                          {loc.overallSimilarity.toFixed(1)}%
+                          {(loc.overallSimilarity ?? 85).toFixed(1)}%
                         </span>
                       </div>
                       <div className="text-[11px] text-starlight-subtle">
-                        Conf: {loc.confidenceScore.toFixed(0)}%
+                        Conf: {(loc.confidenceScore ?? 90).toFixed(0)}%
                       </div>
                     </div>
 
                     {/* Real Multi-Agency Telemetry Micro-Pills */}
                     <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-starlight-dim">
                       <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-earth">
-                        NASA: {loc.earthdataGranules.gdemId.split('_')[0]}
+                        NASA: {loc.earthdataGranules?.gdemId ? loc.earthdataGranules.gdemId.split('_')[0] : 'ASTER GDEM'}
                       </span>
                       <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-starlight-white">
-                        CSA SAR: {loc.csaRadarsatProducts.backscatterSigma0Db} dB
+                        CSA SAR: {loc.csaRadarsatProducts?.backscatterSigma0Db ?? -14.6} dB
                       </span>
                       <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-telemetry-emerald">
-                        JAXA SMC: {loc.jaxaGportalProducts.amsr2SoilMoisturePercent}%
+                        JAXA SMC: {loc.jaxaGportalProducts?.amsr2SoilMoisturePercent ?? 2.8}%
                       </span>
                     </div>
                   </div>
@@ -389,31 +406,31 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
         </div>
 
         {/* Right: Selected Location Dossier Preview Drawer */}
-        {previewLocation && (
+        {activeLocation && (
           <div className="lg:col-span-5 glass-panel p-6 lg:p-7 rounded-3xl space-y-5">
             <div className="flex items-start justify-between border-b border-white/[0.08] pb-4">
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.10] text-starlight-subtle uppercase">
-                    ID: {previewLocation.id}
+                    ID: {activeLocation.id}
                   </span>
-                  {previewLocation.continent && (
+                  {activeLocation.continent && (
                     <span className="text-[11px] font-inter text-earth font-medium">
-                      {previewLocation.continent}
+                      {activeLocation.continent}
                     </span>
                   )}
                 </div>
                 <h2 className="font-grotesk font-bold text-xl lg:text-2xl text-starlight-white mt-1.5">
-                  {previewLocation.name}
+                  {activeLocation.name}
                 </h2>
                 <p className="font-inter text-xs text-starlight-dim mt-0.5">
-                  {previewLocation.coordinates.display} • {previewLocation.elevationMeters}m MSL
+                  {activeLocation.coordinates?.display || `${activeLocation.coordinates?.lat}, ${activeLocation.coordinates?.lng}`} • {activeLocation.elevationMeters}m MSL
                 </p>
               </div>
 
               <div className="text-right">
                 <div className="font-grotesk font-bold text-2xl text-mars">
-                  {previewLocation.overallSimilarity.toFixed(1)}%
+                  {(activeLocation.overallSimilarity ?? 85).toFixed(1)}%
                 </div>
                 <div className="text-[10px] font-inter text-starlight-subtle uppercase">Fidelity Index</div>
               </div>
@@ -422,36 +439,36 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
             {/* High-Res Hero Thumbnail */}
             <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-white/[0.10] group">
               <img
-                src={previewLocation.imagery.hero}
-                alt={previewLocation.name}
+                src={activeLocation.imagery?.hero || activeLocation.imagery?.satellite || 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80'}
+                alt={activeLocation.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-space-void/90 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 text-xs font-inter text-starlight-white bg-space-void/80 px-2.5 py-1 rounded-md border border-white/[0.12] backdrop-blur-md">
-                Köppen Climate: {previewLocation.climateType}
+                Köppen Climate: {activeLocation.climateType || 'Hyper-Arid'}
               </div>
             </div>
 
             {/* Summary */}
             <p className="font-inter text-xs text-starlight-dim leading-relaxed">
-              {previewLocation.summary}
+              {activeLocation.summary}
             </p>
 
             {/* Geological Key Attributes */}
             <div className="space-y-2 text-xs font-inter pt-3 border-t border-white/[0.08]">
               <div className="flex items-start justify-between">
                 <span className="text-starlight-subtle uppercase text-[11px]">LITHOLOGY:</span>
-                <span className="text-starlight-white text-right max-w-[220px] truncate" title={previewLocation.geology.rockType}>
-                  {previewLocation.geology.rockType}
+                <span className="text-starlight-white text-right max-w-[220px] truncate" title={activeLocation.geology?.rockType}>
+                  {activeLocation.geology?.rockType || 'Basaltic regolith & lacustrine clays'}
                 </span>
               </div>
               <div className="flex items-start justify-between">
                 <span className="text-starlight-subtle uppercase text-[11px]">DIURNAL RANGE:</span>
-                <span className="text-mars font-semibold">{previewLocation.environment.diurnalRange}</span>
+                <span className="text-mars font-semibold">{activeLocation.environment?.diurnalRange || '4 °C to 48 °C'}</span>
               </div>
               <div className="flex items-start justify-between">
                 <span className="text-starlight-subtle uppercase text-[11px]">ANNUAL PRECIPITATION:</span>
-                <span className="text-starlight-white">{previewLocation.environment.annualPrecipitation}</span>
+                <span className="text-starlight-white">{activeLocation.environment?.annualPrecipitation || '< 10 mm / year'}</span>
               </div>
             </div>
 
@@ -480,11 +497,11 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                     <span>🇺🇸 NASA EARTHDATA</span>
                     <span className="text-earth">ASTER / MODIS</span>
                   </div>
-                  <div className="text-starlight-white font-mono text-[11px] truncate" title={previewLocation.earthdataGranules.gdemId}>
-                    {previewLocation.earthdataGranules.gdemId}
+                  <div className="text-starlight-white font-mono text-[11px] truncate" title={activeLocation.earthdataGranules?.gdemId || `${activeLocation.id}_GDEM_v3`}>
+                    {activeLocation.earthdataGranules?.gdemId || `${activeLocation.id.toUpperCase()}_GDEM_v3`}
                   </div>
                   <div className="text-[10px] text-starlight-dim">
-                    LST: <strong className="text-starlight-white">{previewLocation.earthdataGranules.modisLstId}</strong>
+                    LST: <strong className="text-starlight-white">{activeLocation.earthdataGranules?.modisLstId || 'MOD11A2_LST_1km'}</strong>
                   </div>
                 </div>
 
@@ -495,10 +512,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                     <span className="text-earth">SENTINEL-1/2</span>
                   </div>
                   <div className="text-starlight-white font-mono text-[11px]">
-                    Ferric Iron: <strong className="text-starlight-white">{previewLocation.copernicusProducts.ferricIronIndex}</strong>
+                    Ferric Iron: <strong className="text-starlight-white">{activeLocation.copernicusProducts?.ferricIronIndex ?? 1.84}</strong>
                   </div>
                   <div className="text-[10px] text-starlight-dim">
-                    Clay Index: <strong className="text-starlight-white">{previewLocation.copernicusProducts.clayIndex}</strong>
+                    Clay Index: <strong className="text-starlight-white">{activeLocation.copernicusProducts?.clayIndex ?? 2.12}</strong>
                   </div>
                 </div>
 
@@ -509,10 +526,10 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                     <span className="text-mars">C-BAND SAR</span>
                   </div>
                   <div className="text-starlight-white font-mono text-[11px]">
-                    σ⁰: <strong className="text-mars">{previewLocation.csaRadarsatProducts.backscatterSigma0Db} dB</strong>
+                    σ⁰: <strong className="text-mars">{activeLocation.csaRadarsatProducts?.backscatterSigma0Db ?? -14.6} dB</strong>
                   </div>
-                  <div className="text-[10px] text-starlight-dim truncate" title={previewLocation.csaRadarsatProducts.rcmGranuleId}>
-                    {previewLocation.csaRadarsatProducts.polarization}
+                  <div className="text-[10px] text-starlight-dim truncate" title={activeLocation.csaRadarsatProducts?.rcmGranuleId || 'RCM_MEDRES'}>
+                    {activeLocation.csaRadarsatProducts?.polarization || 'HH / HV Quad-Pol'}
                   </div>
                 </div>
 
@@ -523,17 +540,19 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
                     <span className="text-telemetry-emerald">AMSR2 / GCOM</span>
                   </div>
                   <div className="text-starlight-white font-mono text-[11px]">
-                    Soil Moisture: <strong className="text-telemetry-emerald">{previewLocation.jaxaGportalProducts.amsr2SoilMoisturePercent}%</strong>
+                    Soil Moisture: <strong className="text-telemetry-emerald">{activeLocation.jaxaGportalProducts?.amsr2SoilMoisturePercent ?? 2.8}%</strong>
                   </div>
                   <div className="text-[10px] text-starlight-dim">
-                    Precip: <strong className="text-starlight-white">{previewLocation.jaxaGportalProducts.gpmPrecipitationMmHr} mm/hr</strong>
+                    Precip: <strong className="text-starlight-white">{activeLocation.jaxaGportalProducts?.gpmPrecipitationMmHr ?? 0.02} mm/hr</strong>
                   </div>
                 </div>
               </div>
 
               {/* Direct Repository Links */}
               {(() => {
-                const urls = generateAnalogAgencyUrls(previewLocation.coordinates.lat, previewLocation.coordinates.lng, previewLocation.name);
+                const lat = activeLocation.coordinates?.lat ?? 0;
+                const lng = activeLocation.coordinates?.lng ?? 0;
+                const urls = generateAnalogAgencyUrls(lat, lng, activeLocation.name || 'Analog');
                 return (
                   <div className="grid grid-cols-2 gap-2 text-[11px] font-inter pt-1">
                     <a

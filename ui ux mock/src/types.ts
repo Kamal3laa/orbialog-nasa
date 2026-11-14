@@ -25,6 +25,38 @@ export interface PlanetaryTarget {
   primaryFeatures: string[];
   keyObjectives: string[];
   recommendedAnalogs: string[];
+  pdsProductUrn: string;
+  pdsArchiveUrl: string;
+  lolaElevationDatum?: {
+    minMeters: number;
+    maxMeters: number;
+    meanSlopeDeg: number;
+    rmsRoughnessMeters: number;
+  };
+  divinerThermalProfile?: {
+    minKelvin: number;
+    maxKelvin: number;
+    psrColdTrapTemp: string;
+    christiansenFeatureUm: number;
+    rockAbundancePercent: number;
+  };
+  radarScattering?: {
+    instrument: string;
+    cprRatio: number;
+    subsurfacePenetrationMeters: number;
+  };
+  hyperspectralBands?: {
+    instrument: string;
+    absorptionFeatures: string[];
+    keyMinerals: string[];
+  };
+  realAgencyGranules: {
+    name: string;
+    agency: 'NASA PDS' | 'NASA LRO' | 'ESA PSA';
+    instrument: string;
+    granuleId: string;
+    portalUrl: string;
+  }[];
   primaryDatasets: {
     name: string;
     mission: string;
@@ -118,13 +150,43 @@ export interface AnalogLocation {
     spectralCorrespondence: number;
     volatilesAnalogy: number;
   };
+  earthdataGranules: {
+    gdemId: string;
+    modisLstId: string;
+    ecostressId: string;
+    smapSoilMoistureId: string;
+  };
+  worldviewLayers: {
+    layerId: string;
+    title: string;
+    resolution: string;
+  }[];
+  copernicusProducts: {
+    sentinel1SarId: string;
+    sentinel2MsiId: string;
+    ferricIronIndex: number;
+    clayIndex: number;
+  };
+  csaRadarsatProducts: {
+    rcmGranuleId: string;
+    radarsat1Id: string;
+    polarization: string;
+    backscatterSigma0Db: number;
+    radarIncidenceAngleDeg: number;
+    sarTutorialScript: string;
+  };
+  jaxaGportalProducts: {
+    gcomSgliLst: string;
+    amsr2SoilMoisturePercent: number;
+    gpmPrecipitationMmHr: number;
+    alosPalsar2LBandId?: string;
+  };
   imagery: {
     hero: string;
     satellite: string;
     terrain: string;
   };
   continent?: 'North America' | 'South America' | 'Polar / Arctic' | 'Africa' | 'Europe' | 'Oceania' | 'Asia';
-  featuredEgypt?: boolean;
 }
 
 export interface FilterState {
