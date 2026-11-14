@@ -25,8 +25,8 @@ export interface PlanetaryTarget {
   primaryFeatures: string[];
   keyObjectives: string[];
   recommendedAnalogs: string[];
-  pdsProductUrn: string;
-  pdsArchiveUrl: string;
+  pdsProductUrn?: string;
+  pdsArchiveUrl?: string;
   lolaElevationDatum?: {
     minMeters: number;
     maxMeters: number;
@@ -150,24 +150,25 @@ export interface AnalogLocation {
     spectralCorrespondence: number;
     volatilesAnalogy: number;
   };
-  earthdataGranules: {
+  featuredEgypt?: boolean;
+  earthdataGranules?: {
     gdemId: string;
     modisLstId: string;
     ecostressId: string;
     smapSoilMoistureId: string;
   };
-  worldviewLayers: {
+  worldviewLayers?: {
     layerId: string;
     title: string;
     resolution: string;
   }[];
-  copernicusProducts: {
+  copernicusProducts?: {
     sentinel1SarId: string;
     sentinel2MsiId: string;
     ferricIronIndex: number;
     clayIndex: number;
   };
-  csaRadarsatProducts: {
+  csaRadarsatProducts?: {
     rcmGranuleId: string;
     radarsat1Id: string;
     polarization: string;
@@ -175,7 +176,7 @@ export interface AnalogLocation {
     radarIncidenceAngleDeg: number;
     sarTutorialScript: string;
   };
-  jaxaGportalProducts: {
+  jaxaGportalProducts?: {
     gcomSgliLst: string;
     amsr2SoilMoisturePercent: number;
     gpmPrecipitationMmHr: number;

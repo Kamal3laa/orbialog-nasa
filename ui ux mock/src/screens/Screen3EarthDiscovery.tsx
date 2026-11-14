@@ -107,12 +107,40 @@ export const Screen3EarthDiscovery: React.FC<Screen3EarthDiscoveryProps> = ({
   // Ensure active previewLocation is always valid
   const activeLocation = previewLocation || filteredLocations[0] || analogLocations[0];
 
-  const totalCount = filteredLocations.length;
-  const totalPages = Math.ceil(totalCount / pageSize) || 1;
-  const paginatedLocations = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredLocations.slice(start, start + pageSize);
-  }, [filteredLocations, currentPage, pageSize]);
+  const [serverLocations, setServerLocations] = useState<AnalogLocation[]>([]);
+  const [serverMeta, setServerMeta] = useState<{ total: number; page: number; limit: number; pages: number }>({
+    total: filteredLocations.length,
+    page: 1,
+    limit: 10,
+    pages: Math.ceil(filteredLocations.length / 10) || 1,
+  });
+  const [isLiveApi, setIsLiveApi] = useState<boolean>(false);
+
+  // Flowchart S3 --> S (GET /api/v1/sites with server-side pagination & filter params)
+  useEffect(() => {
+    let isMounted = true;
+    orbialogApi.getSites({
+      planet: selectedPlanetFilter !== 'all' ? selectedPlanetFilter : undefined,
+      category: selectedCategories.length === 1 ? selectedCategories[0] : undefined,
+      q: searchQuery.trim() || undefined,
+      minSimilarity: minSimilarity > 0 ? minSimilarity : undefined,
+      page: currentPage,
+      limit: 10,
+    }).then((res) => {
+      if (isMounted) {
+        setServerLocations(res.data);
+        setServerMeta(res.meta);
+        setIsLiveApi(res.isLive);
+      }
+    });
+    return () => { isMounted = false; };
+  }, [searchQuery, selectedPlanetFilter, selectedCategories, minSimilarity, currentPage]);
+
+  const totalCount = serverMeta.total || filteredLocations.length;
+  const totalPages = serverMeta.pages || Math.ceil(totalCount / 10) || 1;
+  const paginatedLocations = serverLocations.length > 0
+    ? serverLocations
+    : filteredLocations.slice((currentPage - 1) * 10, currentPage * 10);
 
   const handleLocationSelect = (loc: AnalogLocation) => {
     audio.playClick?.();

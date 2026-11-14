@@ -69,16 +69,36 @@ export interface SandboxQueryResult {
   };
 }
 
-export interface ApiErrorResponse {
-  error: {
-    code: string;
-    message: string;
-    details?: unknown;
-  };
+export interface ApiPaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
 }
 
-// ── Generic Safe Fetch with 5s Timeout and Error Handling ─────────────────────
-async function safeFetch<T>(endpoint: string, fallback: T, options?: RequestInit): Promise<T> {
+export interface SitesResponse {
+  data: AnalogLocation[];
+  meta: ApiPaginationMeta;
+  isLive: boolean;
+}
+
+export interface ApiFetchResult<T> {
+  data: T;
+  isLive: boolean;
+  status: 'live' | 'fallback';
+  statusCode?: number;
+  error?: string;
+}
+
+// ── Connection State Tracking ───────────────────────────────────────────────
+let _isLiveApiConnected = false;
+
+// ── Generic Safe Fetch with 6s Timeout and Error Handling ─────────────────────
+async function safeFetchWithMeta<T>(
+  endpoint: string,
+  fallback: T,
+  options?: RequestInit,
+): Promise<ApiFetchResult<T>> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -94,28 +114,68 @@ async function safeFetch<T>(endpoint: string, fallback: T, options?: RequestInit
     clearTimeout(timeoutId);
 
     if (!res.ok) {
-      console.warn(`[ORBiALOG API] Request to ${endpoint} returned status ${res.status}. Using fallback dataset.`);
-      return fallback;
+      _isLiveApiConnected = false;
+      console.warn(`[ORBiALOG API] Endpoint ${endpoint} returned status ${res.status}. Falling back to calibrated local data.`);
+      return {
+        data: fallback,
+        isLive: false,
+        status: 'fallback',
+        statusCode: res.status,
+        error: `Server responded with ${res.status}`,
+      };
     }
 
     const json = await res.json();
-    return (json.data ?? json) as T;
+    _isLiveApiConnected = true;
+    console.info(`[ORBiALOG API] Live response received from ${endpoint}`);
+    return {
+      data: (json.data ?? json) as T,
+      isLive: true,
+      status: 'live',
+      statusCode: res.status,
+    };
   } catch (err: unknown) {
     clearTimeout(timeoutId);
-    // Graceful offline fallback: if server is unreachable, use local high-precision telemetry
-    return fallback;
+    _isLiveApiConnected = false;
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[ORBiALOG API] Network error calling ${endpoint} (${msg}). Operating in FALLBACK mode.`);
+    return {
+      data: fallback,
+      isLive: false,
+      status: 'fallback',
+      error: msg,
+    };
   }
+}
+
+async function safeFetch<T>(endpoint: string, fallback: T, options?: RequestInit): Promise<T> {
+  const res = await safeFetchWithMeta<T>(endpoint, fallback, options);
+  return res.data;
 }
 
 // ── Unified API Service ─────────────────────────────────────────────────────
 export const orbialogApi = {
-  // 1. Health & Status (/health & /ready)
-  async getHealth(): Promise<{ status: string; timestamp?: string }> {
-    return safeFetch('/health', { status: 'offline' });
+  isLiveConnected(): boolean {
+    return _isLiveApiConnected;
   },
 
-  async getReady(): Promise<{ status: string; db?: string }> {
-    return safeFetch('/ready', { status: 'offline' });
+  // 1. Health & Status (/health & /ready)
+  async getHealth(): Promise<{ status: string; timestamp?: string; isLive: boolean }> {
+    const res = await safeFetchWithMeta<{ status: string; timestamp?: string }>('/health', { status: 'offline' });
+    return {
+      status: res.isLive && res.data.status === 'ok' ? 'ok' : 'offline',
+      timestamp: res.data.timestamp,
+      isLive: res.isLive,
+    };
+  },
+
+  async getReady(): Promise<{ status: string; db?: string; isLive: boolean }> {
+    const res = await safeFetchWithMeta<{ status: string; db?: string }>('/ready', { status: 'offline' });
+    return {
+      status: res.isLive && res.data.status === 'ready' ? 'ready' : 'offline',
+      db: res.data.db,
+      isLive: res.isLive,
+    };
   },
 
   // 2. S1 / S2: Planetary Targets (/targets & /targets/:id)
@@ -150,7 +210,7 @@ export const orbialogApi = {
     return safeFetch<AnalogTargetSummary[]>('/analogs/targets', fallback);
   },
 
-  // 4. S3 / S5: Earth Analog Sites (/sites & /sites/:id)
+  // 4. S3 / S5: Earth Analog Sites with Server-Side Pagination (/sites & /sites/:id)
   async getSites(params?: {
     planet?: string;
     category?: string;
@@ -160,7 +220,7 @@ export const orbialogApi = {
     sort?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ data: AnalogLocation[]; meta?: { total: number } }> {
+  }): Promise<SitesResponse> {
     const searchParams = new URLSearchParams();
     if (params?.planet && params.planet !== 'all') searchParams.set('planet', params.planet);
     if (params?.category) searchParams.set('category', params.category);
@@ -172,13 +232,80 @@ export const orbialogApi = {
     if (params?.limit) searchParams.set('limit', String(params.limit));
 
     const qs = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const pageNum = Math.max(1, params?.page || 1);
+    const limitNum = Math.min(50, Math.max(1, params?.limit || 10));
+
     try {
-      const res = await fetch(`${BASE_URL}/sites${qs}`);
-      if (!res.ok) throw new Error('API offline');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(`${BASE_URL}/sites${qs}`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      return { data: json.data || ANALOG_LOCATIONS, meta: json.meta };
-    } catch {
-      return { data: ANALOG_LOCATIONS, meta: { total: ANALOG_LOCATIONS.length } };
+      _isLiveApiConnected = true;
+
+      const total = json.meta?.total ?? json.data?.length ?? 0;
+      const pages = json.meta?.pages ?? (Math.ceil(total / limitNum) || 1);
+
+      return {
+        data: json.data || [],
+        meta: {
+          total,
+          page: json.meta?.page ?? pageNum,
+          limit: json.meta?.limit ?? limitNum,
+          pages,
+        },
+        isLive: true,
+      };
+    } catch (err: unknown) {
+      _isLiveApiConnected = false;
+      console.warn(`[ORBiALOG API] GET /sites unavailable (${err instanceof Error ? err.message : 'offline'}). Using fallback dataset.`);
+
+      // Compute matching offline fallback with consistent filtering and pagination
+      let filtered = ANALOG_LOCATIONS;
+      if (params?.planet && params.planet !== 'all') {
+        filtered = filtered.filter((l) =>
+          params.planet === 'egypt'
+            ? l.country?.toLowerCase().includes('egypt')
+            : l.primaryTargetAnalog === params.planet,
+        );
+      }
+      if (params?.category) {
+        filtered = filtered.filter((l) => l.category === params.category);
+      }
+      if (params?.country) {
+        filtered = filtered.filter((l) => l.country?.toLowerCase() === params.country?.toLowerCase());
+      }
+      if (params?.q) {
+        const qLower = params.q.toLowerCase();
+        filtered = filtered.filter(
+          (l) =>
+            l.name.toLowerCase().includes(qLower) ||
+            l.country.toLowerCase().includes(qLower) ||
+            l.summary.toLowerCase().includes(qLower) ||
+            l.geology?.rockType?.toLowerCase().includes(qLower),
+        );
+      }
+      if (params?.minSimilarity) {
+        filtered = filtered.filter((l) => (l.overallSimilarity ?? 0) >= params.minSimilarity!);
+      }
+
+      const total = filtered.length;
+      const pages = Math.ceil(total / limitNum) || 1;
+      const skip = (pageNum - 1) * limitNum;
+      const paginated = filtered.slice(skip, skip + limitNum);
+
+      return {
+        data: paginated,
+        meta: {
+          total,
+          page: pageNum,
+          limit: limitNum,
+          pages,
+        },
+        isLive: false,
+      };
     }
   },
 
